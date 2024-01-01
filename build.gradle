@@ -1,0 +1,162 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.12'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'groovy'
+    id 'com.google.cloud.tools.jib' version '3.3.1'
+    id 'org.openjfx.javafxplugin' version '0.0.9'   // JImageHash, Java17
+}
+
+version = '0.0.5'
+description = 'kakao'
+group = 'com.aimskr'
+
+ext {
+    set('springCloudVersion', "2021.0.4")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+java {
+    sourceCompatibility = '17'
+}
+
+javafx {
+    version = "15"
+    modules = [ 'javafx.graphics' ] // you can add other javafx modules
+}
+
+jar {
+    enabled = false
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+bootJar {
+    archiveFileName = "hana-0.0.1.jar"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Base - Core Dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Base - Spring Retry
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
+
+    // Base - Mock WebServer
+    testImplementation('com.squareup.okhttp3:okhttp:4.10.0')
+    testImplementation('com.squareup.okhttp3:mockwebserver:4.10.0')
+
+    // Base - Data Initialization using CSV
+    implementation 'com.opencsv:opencsv:4.3'
+
+    // Base - Testcontainers
+    testImplementation 'org.testcontainers:spock:1.17.1'
+    testImplementation 'org.testcontainers:mariadb:1.17.1'
+    testImplementation 'org.testcontainers:junit-jupiter:1.17.1'
+
+    // Base - Spock
+    testImplementation('org.spockframework:spock-core:2.1-groovy-3.0')
+    testImplementation('org.spockframework:spock-spring:2.1-groovy-3.0')
+
+    // Base - 런타임에 클래스 기반 spock mock을 만들기 위해서 필요
+    testImplementation('net.bytebuddy:byte-buddy:1.12.10')
+
+    // Image Hashing
+    implementation group: 'dev.brachtendorf', name: 'JImageHash', version: '1.0.0'
+    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.0.2'
+
+    // SFTP, OCR
+    implementation group: 'com.github.mwiede', name: 'jsch', version: '0.2.9'
+    implementation group: 'com.github.mwiede', name: 'jsch', version: '0.1.72'
+    implementation group: 'com.jcraft', name: 'jsch', version: '0.1.55'
+    implementation files('libs/javaocrsdk-2021.10.jar')
+
+    // Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation "org.springframework.boot:spring-boot-starter-mail"
+
+    // Ehcache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.ehcache:ehcache:3.10.0'
+
+    // Common, Stress Test
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+    implementation 'com.google.code.gson:gson'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.hibernate:hibernate-envers'
+    implementation 'org.springframework:spring-test:5.3.27'
+
+    // Monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+
+    // Feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // Logging, Exception
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jib {
+    from {
+        image = 'openjdk:17-ea-11-jdk-slim'
+    }
+    to {
+        image = 'seungkwon2/kakao'
+        tags = ['1.0']
+    }
+    container {
+        entrypoint = ['java', '-Dspring.profiles.active=dev', '-jar', 'kakao.jar']
+
+        jvmFlags = ['-Xms512m', '-Xmx512m', '-Xdebug', '-XshowSettings:vm', '-XX:+UnlockExperimentalVMOptions', '-XX:+UseContainerSupport']
+
+        environment = [SPRING_OUTPUT_ANSI_ENABLED: "ALWAYS"]
+        labels = [version:project.version, name:project.name, group:project.group]
+        volumes = ['/etc/httpd/conf/cert']
+
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        format = 'Docker'
+    }
+    extraDirectories {
+        paths {
+            path {
+                from = file('build/libs')
+            }
+        }
+    }
+}

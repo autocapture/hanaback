@@ -1,0 +1,388 @@
+## Basic Info 2.4 이후 표준 적용
+spring:
+  profiles:
+    active: prod
+    group:
+        test:
+            - common
+        qa:
+            - common
+        dev:
+            - common
+        prod:
+            - common
+
+---
+spring:
+  config:
+    activate:
+      on-profile: common
+  cache:
+    ehcache:
+      config: cache/ehcache.xml
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss.SSS"
+    time-zone: "GMT+9"
+  mail:
+    host: smtp.dooray.com
+    port: 465
+    username: skkim@aimslas.com
+    password: autocapture00!
+    properties:
+      mail:
+        smtp:
+          auth: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+          starttls:
+            required: true
+            enable: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  paths-to-match:
+    - /v2/**
+kakao:
+  rest:
+    api:
+      key: 604c6e11b1d783ee69f53f2a7596517d
+file:
+  upload-dir: /home/hana/images/hana/origin/phone
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/hana?characterEncoding=utf8mb4
+    username: root
+    password: autocapture00!
+    hikari:
+      poolName: Hikari
+      maximum-pool-size: 50
+      minimum-idle: 2
+      max-lifetime: 30000
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    open-in-view: false
+logging:
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: info
+    com.aimskr.ac2: debug
+  file:
+    name: logs/application-info.log
+server:
+  port: 44306
+  http:
+    port: 8086
+  error:
+    include-exception: true
+    include-stacktrace: always
+  ssl:
+    enabled: true
+    key-store: "/etc/httpd/conf/cert/autocapture.jks"
+    key-store-type: "JKS"
+    key-store-password: autocapture
+    key-alias: 1
+    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
+    trust-store-password: autocapture
+autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
+  kakaoSftpip: test
+  kakaoSftpPort:
+  kakaoSftpUser:
+  kakaoSftpKey:
+  kakaoSftpPwd:
+  kakaoSftpPath:
+  kakaoApiServer:
+  kakaoResultPath:
+  kakaoCredential:
+  kakaoQaPath:
+  frontUrl: https://dev.aimskr.com:4434
+filepath: # 이미지 파일 처리를 위한 설정 정보
+  importDir: /home/hana/images/hana/import
+  originDir: /home/hana/images/hana/origin
+  acDir: /home/hana/images/hana/ac
+  visorgDir: /home/hana/images/hana/visorg
+  visDir: /home/hana/images/hana/vis
+  reportDir: /home/hana/images/hana/report
+control:
+  autoReturn: false
+  dupCheck: false
+  requestValidation: false
+  alertMode: false
+  alertEmail: "jhlee@aimslas.com"
+  errorEmail: "jhlee@aimslas.com"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/hana?characterEncoding=utf8mb4
+    username: root
+    password: autocapture00!
+    hikari:
+      poolName: Hikari
+      maximum-pool-size: 50
+      minimum-idle: 2
+      max-lifetime: 30000
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    open-in-view: false
+logging:
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: info
+    com.aimskr.ac2: debug
+  file:
+    name: logs/application-info.log
+server:
+  port: 44306
+  http:
+    port: 8086
+  error:
+    include-exception: true
+    include-stacktrace: always
+  ssl:
+    enabled: true
+    key-store: "/etc/httpd/conf/cert/autocapture.jks"
+    key-store-type: "JKS"
+    key-store-password: autocapture
+    key-alias: 1
+    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
+    trust-store-password: autocapture
+autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
+  kakaoSftpip: 211.62.190.54
+  kakaoSftpPort: 22
+  kakaoSftpUser: aims
+  kakaoSftpKey: /home/hana/cert/aims_rsa
+  kakaoSftpPwd: aims0310!
+  kakaoSftpPath: /
+  kakaoApiServer: https://api-claim-sandbox-aims-in.kakaoinsure.net
+  kakaoResultPath: /claim/v2/receipt/ocr
+  kakaoCredential: c8a1e047c18a84a2c7001c09534854cc7d8506fcaac3175466ba7d9434d19d575b8f2a213148972c6081fa72b1d371b9
+  kakaoQaPath: /ocr/qa
+  frontUrl: https://dev.aimskr.com:4433
+filepath: # 이미지 파일 처리를 위한 설정 정보
+  importDir: /home/hana/images/hana/import
+  originDir: /home/hana/images/hana/origin
+  acDir: /home/hana/images/hana/ac
+  visorgDir: /home/hana/images/hana/visorg
+  visDir: /home/hana/images/hana/vis
+  reportDir: /home/hana/images/hana/report
+control:
+  autoReturn: true
+  dupCheck: false
+  requestValidation: true
+  alertMode: true
+  alertEmail: "jhlee@aimslas.com"
+  errorEmail: "jhlee@aimslas.com"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/hana?characterEncoding=utf8mb4
+    username: root
+    password: autocapture00!
+    hikari:
+      poolName: Hikari
+      maximum-pool-size: 50
+      minimum-idle: 2
+      max-lifetime: 30000
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    open-in-view: false
+logging:
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: info
+    com.aimskr.ac2: debug
+  file:
+    name: logs/application-info.log
+server:
+  port: 44306
+  http:
+    port: 8086
+  error:
+    include-exception: true
+    include-stacktrace: always
+  ssl:
+    enabled: true
+    key-store: "/etc/httpd/conf/cert/autocapture.jks"
+    key-store-type: "JKS"
+    key-store-password: autocapture
+    key-alias: 1
+    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
+    trust-store-password: autocapture
+autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
+  kakaoSftpip: 211.62.190.55
+  kakaoSftpPort: 22
+  kakaoSftpUser: aims
+  kakaoSftpKey: /home/hana/cert/aims_rsa_qa
+  kakaoSftpPwd: aims0310!
+  kakaoSftpPath: /
+  kakaoApiServer: https://api-claim-sandbox-aims-in.kakaoinsure.net
+  kakaoResultPath: /claim/v2/receipt/ocr
+  kakaoCredential: c8a1e047c18a84a2c7001c09534854cc7d8506fcaac3175466ba7d9434d19d575b8f2a213148972c6081fa72b1d371b9
+  kakaoQaPath: /ocr/qa
+  frontUrl: https://dev.aimskr.com:4434
+filepath: # 이미지 파일 처리를 위한 설정 정보
+  importDir: /home/hana/images/kakao/import
+  originDir: /hana/hana/images/kakao/origin
+  acDir: /home/kakao/images/kakao/ac
+  visorgDir: /home/hana/images/kakao/visorg
+  visDir: /home/hana/images/kakao/vis
+  reportDir: /home/hana/images/kakao/report
+control:
+  autoReturn: false
+  dupCheck: false
+  requestValidation: true
+  alertMode: true
+  alertEmail: "jhlee@aimslas.com"
+  errorEmail: "jhlee@aimslas.com"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://172.16.213.96:3306/hana?characterEncoding=utf8mb4
+    username: root
+    password: autocapture00!
+    hikari:
+      poolName: Hikari
+      maximum-pool-size: 50
+      minimum-idle: 2
+      max-lifetime: 30000
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    open-in-view: false
+logging:
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: info
+    com.aimskr.ac2: debug
+  file:
+    name: logs/application-info.log
+server:
+  port: 44306
+  http:
+    port: 8086
+  error:
+    include-exception: true
+    include-stacktrace: always
+  ssl:
+    enabled: true
+    key-store: "/etc/httpd/conf/cert/autocapture.jks"
+    key-store-type: "JKS"
+    key-store-password: autocapture
+    key-alias: 1
+    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
+    trust-store-password: autocapture
+autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
+  kakaoSftpip: 211.62.190.56
+  kakaoSftpPort: 22
+  kakaoSftpUser: aims
+  kakaoSftpKey: /home/kakao/cert/aims_rsa
+  kakaoSftpPwd: aims0310!
+  kakaoSftpPath: /
+  kakaoApiServer: https://api-claim-prod-aims-in.kakaoinsure.net
+  kakaoResultPath: /claim/v2/receipt/ocr
+  kakaoCredential: 30bc3e9d8d34fe335960c0da41d38d804fd946606f356ab6dbf26ee12f71ba76731520c42c423a455b4337d8084d16af
+  kakaoQaPath: /claim/v2/receipt/ocr
+  frontUrl: https://capture.aimskr.com:4433
+filepath: # 이미지 파일 처리를 위한 설정 정보
+  importDir: /home/hana/images/hana/import
+  originDir: /home/hana/images/hana/origin
+  acDir: /home/hana/images/hana/ac
+  visorgDir: /home/hana/images/hana/visorg
+  visDir: /home/hana/images/hana/vis
+  reportDir: /home/hana/images/hana/report
+control:
+  autoReturn: false
+  dupCheck: true
+  requestValidation: true
+  alertMode: true
+  alertEmail: "bkkim@aimslas.com"
+  errorEmail: "jhlee@aimslas.com"

@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  ################################
+  ### REDIS
+  ################################
+  autocapture2-base-redis:
+    container_name: ac2-kakao-redis
+    build:
+      dockerfile: Dockerfile
+      context: ./redis
+    image: seungkwon2/ac2-kakao-redis
+    ports:
+      - "6379:6379"
+  ################################
+  ### MariaDB
+  ################################
+  autocapture2-base-database:
+    container_name: ac2-kakao-mariadb
+    build:
+      dockerfile: Dockerfile
+      context: ./database
+    image: seungkwon2/ac2-kakao-mariadb
+    environment:
+      - MYSQL_DATABASE=kakao
+      - MYSQL_ROOT_PASSWORD=autocapture00!
+    volumes:
+      - ./database/config:/etc/mysql/conf.d
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/data:/var/lib/mysql
+    ports:
+      - "3308:3306"

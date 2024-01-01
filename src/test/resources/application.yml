@@ -1,0 +1,88 @@
+spring:
+  config:
+    activate:
+      on-profile: local3
+  cache:
+    ehcache:
+      config: cache/ehcache.xml
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mariadb:10://localhost///
+    username: root
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    open-in-view: false
+  sql:
+    init:
+      data-locations: classpath:database/init/*.sql
+      mode: always
+  mail:
+    host: smtp.dooray.com
+    port: 465
+    username: skkim@aimslas.com
+    password: autocapture00!
+    properties:
+      mail:
+        smtp:
+          auth: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+          starttls:
+            required: true
+            enable: true
+logging:
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: info
+    com.aimskr.ac2: debug
+  file:
+    name: logs/application-info.log
+server:
+  port: 44303
+  http:
+    port: 8083
+  error:
+    include-exception: true
+    include-stacktrace: always
+  ssl:
+    enabled: true
+    key-store: "/etc/httpd/conf/cert/autocapture.jks"
+    key-store-type: "JKS"
+    key-store-password: autocapture
+    key-alias: 1
+    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
+    trust-store-password: autocapture
+autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
+  kakaoSftpip: test
+  kakaoSftpPort:
+  kakaoSftpUser:
+  kakaoSftpKey:
+  kakaoSftpPwd:
+  kakaoSftpPath:
+  kakaoApiServer:
+  kakaoResultPath:
+  kakaoCredential:
+  kakaoQaPath:
+  frontUrl: https://dev.aimskr.com:4434
+filepath: # 이미지 파일 처리를 위한 설정 정보
+  importDir: /home/shez/images/shez/import
+  originDir: /home/shez/images/shez/origin/phone
+  acDir: /home/shez/images/shez/ac
+  visorgDir: /home/shez/images/shez/visorg
+  visDir: /home/shez/images/shez/vis
+  reportDir: /home/shez/images/shez/report
+control:
+  autoReturn: false
+  dupCheck: true
+  requestValidation: true
+  alertMode: true
+  alertEmail: "jhlee@aimslas.com"
+file:
+  upload-dir: /home/shez/images/shez/origin/phone
+
