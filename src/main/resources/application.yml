@@ -4,7 +4,7 @@ spring:
     active: prod
     group:
         dev:
-          - common
+            - common
         test:
             - common
         prod:
@@ -59,18 +59,96 @@ springdoc:
   default-produces-media-type: application/json
   paths-to-match:
     - /v2/**
-kakao:
-  rest:
-    api:
-      key: 604c6e11b1d783ee69f53f2a7596517d
 file:
-  upload-dir: /home/hana/images/hana/origin/phone
+  upload-dir: /home/hana/images/enc/hana/phone
 
 ---
 spring:
   config:
     activate:
-      on-profile: dev # 개발계
+      on-profile: dev
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/hana?characterEncoding=utf8mb4
+    username: root
+    password: autocapture00!
+    hikari:
+      poolName: Hikari
+      maximum-pool-size: 50
+      minimum-idle: 2
+      max-lifetime: 30000
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    open-in-view: false
+logging:
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: info
+    com.aimskr.ac2: debug
+    org.apache.http: debug
+  file:
+    name: logs/application-info.log
+server:
+  port: 44305
+  http:
+    port: 8085
+  error:
+    include-exception: true
+    include-stacktrace: always
+  ssl:
+    enabled: true
+    key-store: "/etc/httpd/conf/cert/autocapture.jks"
+    key-store-type: "JKS"
+    key-store-password: autocapture
+    key-alias: 1
+    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
+    trust-store-password: autocapture
+autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
+  sftpip: 10.1.201.72
+  sftpPort: 2022
+  sftpUser: aimsftp
+  sftpKey:
+  sftpPwd: dpdlatm1!
+  sftpPath: /files/ftpfile/aims/send/
+  apiServer: https://dgate.hanainsure.co.kr:31010/aims/ProcResult
+  resultPath:
+  credential:
+  qaPath:
+  frontUrl: https://dev.aimskr.com:4435
+filepath: # 이미지 파일 처리를 위한 설정 정보
+  originDir: /home/hana/images/enc/hana/origin
+  acDir: /home/hana/images/enc/hana/ac
+  visorgDir: /home/hana/images/enc/hana/visorg
+  visDir: /home/hana/images/enc/hana/vis
+  reportDir: /home/hana/images/enc/hana/report
+control:
+  autoReturn: true
+  dupCheck: false
+  requestValidation: false
+  alertMode: true
+  alertEmail: "jhlee@aimslas.com"
+  errorEmail:
+    - "jhlee@aimslas.com"
+    - "skkim@aimslas.com"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://localhost:3306/hana?characterEncoding=utf8mb4
@@ -105,9 +183,9 @@ logging:
   file:
     name: logs/application-info.log
 server:
-  port: 44306
+  port: 44305
   http:
-    port: 8086
+    port: 8085
   error:
     include-exception: true
     include-stacktrace: always
@@ -120,117 +198,38 @@ server:
     trust-store: "/etc/httpd/conf/cert/autocapture.ts"
     trust-store-password: autocapture
 autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-  kakaoSftpip: 211.62.190.54
-  kakaoSftpPort: 22
-  kakaoSftpUser: aims
-  kakaoSftpKey: /home/hana/cert/aims_rsa
-  kakaoSftpPwd: aims0310!
-  kakaoSftpPath: /
-  kakaoApiServer: https://api-claim-sandbox-aims-in.kakaoinsure.net
-  kakaoResultPath: /claim/v2/receipt/ocr
-  kakaoCredential: c8a1e047c18a84a2c7001c09534854cc7d8506fcaac3175466ba7d9434d19d575b8f2a213148972c6081fa72b1d371b9
-  kakaoQaPath: /ocr/qa
-  frontUrl: https://dev.aimskr.com:4436
+  sftpip: 172.16.213.92
+  sftpPort: 22022
+  sftpUser: carrot
+  sftpKey:
+  sftpPwd: aims0310!
+  sftpPath: /home/hana/test_image/
+  apiServer:
+  resultPath:
+  credential:
+  qaPath:
+  frontUrl: https://dev.aimskr.com:4435
 filepath: # 이미지 파일 처리를 위한 설정 정보
-  importDir: /home/hana/images/hana/import
-  originDir: /home/hana/images/hana/origin
-  acDir: /home/hana/images/hana/ac
-  visorgDir: /home/hana/images/hana/visorg
-  visDir: /home/hana/images/hana/vis
-  reportDir: /home/hana/images/hana/report
-control:
-  autoReturn: true
-  dupCheck: false
-  requestValidation: true
-  alertMode: true
-  alertEmail: "jhlee@aimslas.com"
-  errorEmail: "jhlee@aimslas.com"
-
----
-spring:
-  config:
-    activate:
-      on-profile: test   # 검증계
-  datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/hanatest?characterEncoding=utf8mb4
-    username: root
-    password: autocapture00!
-    hikari:
-      poolName: Hikari
-      maximum-pool-size: 50
-      minimum-idle: 2
-      max-lifetime: 30000
-      auto-commit: false
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
-  redis:
-    host: localhost
-    port: 6379
-  jpa:
-    hibernate:
-      ddl-auto: update
-      show-sql: true
-    open-in-view: false
-logging:
-  pattern:
-    console: "%d %-5level %logger : %msg%n"
-    file: "%d %-5level [%thread] %logger : %msg%n"
-  level:
-    root: info
-    com.aimskr.ac2: debug
-  file:
-    name: logs/application-info.log
-server:
-  port: 24306
-  http:
-    port: 28086
-  error:
-    include-exception: true
-    include-stacktrace: always
-  ssl:
-    enabled: true
-    key-store: "/etc/httpd/conf/cert/autocapture.jks"
-    key-store-type: "JKS"
-    key-store-password: autocapture
-    key-alias: 1
-    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
-    trust-store-password: autocapture
-autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-  kakaoSftpip: test
-  kakaoSftpPort:
-  kakaoSftpUser:
-  kakaoSftpKey:
-  kakaoSftpPwd:
-  kakaoSftpPath:
-  kakaoApiServer:
-  kakaoResultPath:
-  kakaoCredential:
-  kakaoQaPath:
-  frontUrl: https://dev.aimskr.com:34436
-filepath: # 이미지 파일 처리를 위한 설정 정보
-  importDir: /home/hana/images/hana/import
-  originDir: /home/hana/images/hana/origin
-  acDir: /home/hana/images/hana/ac
-  visorgDir: /home/hana/images/hana/visorg
-  visDir: /home/hana/images/hana/vis
-  reportDir: /home/hana/images/hana/report
+  originDir: /home/hana/images/enc/hana/origin
+  acDir: /home/hana/images/enc/hana/ac
+  visorgDir: /home/hana/images/enc/hana/visorg
+  visDir: /home/hana/images/enc/hana/vis
+  reportDir: /home/hana/images/enc/hana/report
 control:
   autoReturn: false
   dupCheck: false
   requestValidation: false
   alertMode: false
   alertEmail: "jhlee@aimslas.com"
-  errorEmail: "jhlee@aimslas.com"
+  errorEmail:
+    - "jhlee@aimslas.com"
+    - "skkim@aimslas.com"
 
 ---
 spring:
   config:
     activate:
-      on-profile: prod  # 운영계
+      on-profile: prod
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://172.16.213.96:3306/hana?characterEncoding=utf8mb4
@@ -265,9 +264,9 @@ logging:
   file:
     name: logs/application-info.log
 server:
-  port: 44306
+  port: 44305
   http:
-    port: 8086
+    port: 8085
   error:
     include-exception: true
     include-stacktrace: always
@@ -280,28 +279,29 @@ server:
     trust-store: "/etc/httpd/conf/cert/autocapture.ts"
     trust-store-password: autocapture
 autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-  kakaoSftpip: 211.62.190.56
-  kakaoSftpPort: 22
-  kakaoSftpUser: aims
-  kakaoSftpKey: /home/kakao/cert/aims_rsa
-  kakaoSftpPwd: aims0310!
-  kakaoSftpPath: /
-  kakaoApiServer: https://api-claim-prod-aims-in.kakaoinsure.net
-  kakaoResultPath: /claim/v2/receipt/ocr
-  kakaoCredential: 30bc3e9d8d34fe335960c0da41d38d804fd946606f356ab6dbf26ee12f71ba76731520c42c423a455b4337d8084d16af
-  kakaoQaPath: /claim/v2/receipt/ocr
-  frontUrl: https://capture.aimskr.com:4436
+  sftpip: 121.189.57.76
+  sftpPort: 22
+  sftpUser: aims
+  sftpKey: /home/hana/cert/aims_rsa
+  sftpPwd: aims0310!
+  sftpPath: /
+  apiServer: https://p-fepap.carrotins.com:30051/fep.onlineService/AIMS
+  resultPath: /claim/v2/receipt/ocr
+  credential: 30bc3e9d8d34fe335960c0da41d38d804fd946606f356ab6dbf26ee12f71ba76731520c42c423a455b4337d8084d16af
+  qaPath: /claim/v2/receipt/ocr
+  frontUrl: https://capture.aimskr.com:4435
 filepath: # 이미지 파일 처리를 위한 설정 정보
-  importDir: /home/hana/images/hana/import
-  originDir: /home/hana/images/hana/origin
-  acDir: /home/hana/images/hana/ac
-  visorgDir: /home/hana/images/hana/visorg
-  visDir: /home/hana/images/hana/vis
-  reportDir: /home/hana/images/hana/report
+  originDir: /home/hana/images/enc/hana/origin
+  acDir: /home/hana/images/enc/hana/ac
+  visorgDir: /home/hana/images/enc/hana/visorg
+  visDir: /home/hana/images/enc/hana/vis
+  reportDir: /home/hana/images/enc/hana/report
 control:
   autoReturn: false
   dupCheck: true
   requestValidation: true
   alertMode: true
   alertEmail: "bkkim@aimslas.com"
-  errorEmail: "jhlee@aimslas.com"
+  errorEmail:
+    - "jhlee@aimslas.com"
+    - "skkim@aimslas.com"

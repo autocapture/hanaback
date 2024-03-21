@@ -59,24 +59,23 @@ server:
     trust-store: "/etc/httpd/conf/cert/autocapture.ts"
     trust-store-password: autocapture
 autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-  kakaoSftpip: test
-  kakaoSftpPort:
-  kakaoSftpUser:
-  kakaoSftpKey:
-  kakaoSftpPwd:
-  kakaoSftpPath:
-  kakaoApiServer:
-  kakaoResultPath:
-  kakaoCredential:
-  kakaoQaPath:
+  sftpip: test
+  sftpPort:
+  sftpUser:
+  sftpKey:
+  sftpPwd:
+  sftpPath:
+  apiServer:
+  resultPath:
+  credential:
+  qaPath:
   frontUrl: https://dev.aimskr.com:4434
 filepath: # 이미지 파일 처리를 위한 설정 정보
-  importDir: /home/shez/images/shez/import
-  originDir: /home/shez/images/shez/origin/phone
-  acDir: /home/shez/images/shez/ac
-  visorgDir: /home/shez/images/shez/visorg
-  visDir: /home/shez/images/shez/vis
-  reportDir: /home/shez/images/shez/report
+  originDir: /home/carrot/images/enc/carrot/origin
+  acDir: /home/carrot/images/enc/carrot/ac
+  visorgDir: /home/carrot/images/enc/carrot/visorg
+  visDir: /home/carrot/images/enc/carrot/vis
+  reportDir: /home/carrot/images/enc/carrot/report
 control:
   autoReturn: false
   dupCheck: true
@@ -84,5 +83,5 @@ control:
   alertMode: true
   alertEmail: "jhlee@aimslas.com"
 file:
-  upload-dir: /home/shez/images/shez/origin/phone
+  upload-dir: /home/carrot/images/carrot/origin/phone
 
