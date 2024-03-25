@@ -86,9 +86,9 @@ public class AssignResponseDto {
                 .accrNo(assign.getAccrNo())
                 .dmSeqno(assign.getDmSeqno())
                 .nrdNm(assign.getNrdNm())
-                .rqstType(assign.getRqstType())
+//                .rqstType(assign.getRqstType())
                 .rqstTime(assign.getRqstTime())
-                .orgRqstTime(assign.getOrgRqstTime())
+//                .orgRqstTime(assign.getOrgRqstTime())
                 .imgCnt(assign.getImgCnt())
                 .accidentType(assign.getAccidentType())
                 .requestJson(assign.getRequestJson())
@@ -115,11 +115,11 @@ public class AssignResponseDto {
         this.id = assign.getId();
         this.accrNo = assign.getAccrNo();
         this.dmSeqno = assign.getDmSeqno();
-        this.rqstType = assign.getRqstType();
+//        this.rqstType = assign.getRqstType();
         this.nrdNm = assign.getNrdNm();
         this.rqstTime = assign.getRqstTime();
         this.accidentType = assign.getAccidentType();
-        this.orgRqstTime = assign.getOrgRqstTime();
+//        this.orgRqstTime = assign.getOrgRqstTime();
         this.imgCnt = assign.getImgCnt();
         this.requestJson = assign.getRequestJson();
         this.responseJson = assign.getResponseJson();

@@ -35,7 +35,7 @@ public class ImageProcessor {
      */
     public void preProcessImage(ImportDto importDto, ImgFileInfoDto imgFileInfoDto) throws Exception {
         try {
-            log.debug("[preProcessImage] - {}", imgFileInfoDto.getImgId());
+            log.debug("[preProcessImage] - {}", imgFileInfoDto.getIMG_ID());
             String originFilePath = fileUtil.calcOriginFilePath(importDto, imgFileInfoDto);
             String acDir = fileUtil.calcAcDir(importDto);
             String acFilePath = fileUtil.calcAcFilePath(importDto, imgFileInfoDto);
@@ -47,7 +47,7 @@ public class ImageProcessor {
 
             if (bufferedImage != null) {
 
-                if (imgFileInfoDto.getFileNm().indexOf("png") > 0){
+                if (imgFileInfoDto.getIMG_FILE_NM().indexOf("png") > 0){
                     BufferedImage afterImg  = changePngToJpg(bufferedImage);
                     ImageIO.write(afterImg, "jpg", new File(acFilePath));
                 }else{

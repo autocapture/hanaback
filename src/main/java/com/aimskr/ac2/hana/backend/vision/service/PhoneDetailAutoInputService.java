@@ -30,7 +30,7 @@ public class PhoneDetailAutoInputService {
 
     public void autoInputPhoneDetail(ImportDto importDto, ImgFileInfoDto imgFileInfoDto, List<ValueBox> boxList, List<String> rows, String labelString){
 
-        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getFileNm());
+        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getIMG_FILE_NM());
         List<String> identifier = cacheService.getDetailKeywords().get(ItemType.RPDT_ITEM_AMOUNT);
         List<PhoneAccd> accdList = cacheService.getPhoneAccd();
 
@@ -87,8 +87,8 @@ public class PhoneDetailAutoInputService {
                 if (roundedRatio == 0.1 || roundedRatio == 0.0) {
 
                     AiPhoneRepairDetail aiPhoneRepairDetail = AiPhoneRepairDetail.builder()
-                            .accrNo(importDto.getAccrNo())
-                            .dmSeqno(importDto.getDmSeqno())
+                            .accrNo(importDto.getACD_NO())
+                            .dmSeqno(importDto.getRCT_SEQ())
                             .fileName(fileName)
                             .accdCd(phoneAccdDto.getAccdCd())
                             .accdNm(phoneAccdDto.getAccdNm())

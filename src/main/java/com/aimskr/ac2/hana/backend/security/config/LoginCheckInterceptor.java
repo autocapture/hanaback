@@ -13,7 +13,7 @@ public class LoginCheckInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final HttpSession session = request.getSession();
         String path = request.getRequestURI();
-        if(path.contains("/v2/hana/login") || path.contains("/v2/hana/logout")) {
+        if(path.contains("/hana/v1/login") || path.contains("/hana/v1/logout")) {
             //접근 경로가 로그인, 로그아웃인 경우 체크 예외
             return true;
         } else if (session.getAttribute("scopedTarget.userInfo") == null) {

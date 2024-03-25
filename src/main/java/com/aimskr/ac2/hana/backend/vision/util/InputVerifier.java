@@ -33,9 +33,9 @@ public class InputVerifier {
     @Transactional
     public VisionResult verifyInput(ImportDto importDto, ImgFileInfoDto imgFileInfoDto, List<AiPhoneRepair> aiPhoneRepairs, DocType docType){
 
-        String accrNo = importDto.getAccrNo();
-        String dmSeqno = importDto.getDmSeqno();
-        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getFileNm());
+        String accrNo = importDto.getACD_NO();
+        String dmSeqno = importDto.getRCT_SEQ();
+        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getIMG_FILE_NM());
 
         List<AiPhoneRepair> aiPhoneRepairPrevs = aiPhoneRepairRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
 

@@ -5,8 +5,6 @@ spring:
     group:
         dev:
             - common
-        test:
-            - common
         prod:
             - common
 
@@ -102,9 +100,9 @@ logging:
   file:
     name: logs/application-info.log
 server:
-  port: 44305
+  port: 44306
   http:
-    port: 8085
+    port: 8086
   error:
     include-exception: true
     include-stacktrace: always
@@ -118,7 +116,7 @@ server:
     trust-store-password: autocapture
 autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
   sftpip: 10.1.201.72
-  sftpPort: 2022
+  sftpPort: 22
   sftpUser: aimsftp
   sftpKey:
   sftpPwd: dpdlatm1!
@@ -127,7 +125,7 @@ autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 
   resultPath:
   credential:
   qaPath:
-  frontUrl: https://dev.aimskr.com:4435
+  frontUrl: https://dev.aimskr.com:4436
 filepath: # 이미지 파일 처리를 위한 설정 정보
   originDir: /home/hana/images/enc/hana/origin
   acDir: /home/hana/images/enc/hana/ac
@@ -139,87 +137,6 @@ control:
   dupCheck: false
   requestValidation: false
   alertMode: true
-  alertEmail: "jhlee@aimslas.com"
-  errorEmail:
-    - "jhlee@aimslas.com"
-    - "skkim@aimslas.com"
-
----
-spring:
-  config:
-    activate:
-      on-profile: test
-  datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/hana?characterEncoding=utf8mb4
-    username: root
-    password: autocapture00!
-    hikari:
-      poolName: Hikari
-      maximum-pool-size: 50
-      minimum-idle: 2
-      max-lifetime: 30000
-      auto-commit: false
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
-  redis:
-    host: localhost
-    port: 6379
-  jpa:
-    hibernate:
-      ddl-auto: update
-      show-sql: true
-    open-in-view: false
-logging:
-  pattern:
-    console: "%d %-5level %logger : %msg%n"
-    file: "%d %-5level [%thread] %logger : %msg%n"
-  level:
-    root: info
-    com.aimskr.ac2: debug
-  file:
-    name: logs/application-info.log
-server:
-  port: 44305
-  http:
-    port: 8085
-  error:
-    include-exception: true
-    include-stacktrace: always
-  ssl:
-    enabled: true
-    key-store: "/etc/httpd/conf/cert/autocapture.jks"
-    key-store-type: "JKS"
-    key-store-password: autocapture
-    key-alias: 1
-    trust-store: "/etc/httpd/conf/cert/autocapture.ts"
-    trust-store-password: autocapture
-autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-  sftpip: 172.16.213.92
-  sftpPort: 22022
-  sftpUser: carrot
-  sftpKey:
-  sftpPwd: aims0310!
-  sftpPath: /home/hana/test_image/
-  apiServer:
-  resultPath:
-  credential:
-  qaPath:
-  frontUrl: https://dev.aimskr.com:4435
-filepath: # 이미지 파일 처리를 위한 설정 정보
-  originDir: /home/hana/images/enc/hana/origin
-  acDir: /home/hana/images/enc/hana/ac
-  visorgDir: /home/hana/images/enc/hana/visorg
-  visDir: /home/hana/images/enc/hana/vis
-  reportDir: /home/hana/images/enc/hana/report
-control:
-  autoReturn: false
-  dupCheck: false
-  requestValidation: false
-  alertMode: false
   alertEmail: "jhlee@aimslas.com"
   errorEmail:
     - "jhlee@aimslas.com"
@@ -264,9 +181,9 @@ logging:
   file:
     name: logs/application-info.log
 server:
-  port: 44305
+  port: 44306
   http:
-    port: 8085
+    port: 8086
   error:
     include-exception: true
     include-stacktrace: always
@@ -279,17 +196,17 @@ server:
     trust-store: "/etc/httpd/conf/cert/autocapture.ts"
     trust-store-password: autocapture
 autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-  sftpip: 121.189.57.76
+  sftpip: 10.1.200.92
   sftpPort: 22
-  sftpUser: aims
-  sftpKey: /home/hana/cert/aims_rsa
-  sftpPwd: aims0310!
-  sftpPath: /
-  apiServer: https://p-fepap.carrotins.com:30051/fep.onlineService/AIMS
-  resultPath: /claim/v2/receipt/ocr
-  credential: 30bc3e9d8d34fe335960c0da41d38d804fd946606f356ab6dbf26ee12f71ba76731520c42c423a455b4337d8084d16af
-  qaPath: /claim/v2/receipt/ocr
-  frontUrl: https://capture.aimskr.com:4435
+  sftpUser: aimsftp
+  sftpKey:
+  sftpPwd: dpdlatm1!
+  sftpPath: /files/ftpfile/aims/send/
+  apiServer: https://gate.hanainsure.co.kr:31010/aims/ProcResult
+  resultPath:
+  credential:
+  qaPath:
+  frontUrl: https://capture.aimskr.com:4436
 filepath: # 이미지 파일 처리를 위한 설정 정보
   originDir: /home/hana/images/enc/hana/origin
   acDir: /home/hana/images/enc/hana/ac

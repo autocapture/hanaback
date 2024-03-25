@@ -60,7 +60,7 @@ public class RetryService {
         List<AiPhoneRepair> aiPhoneRepairs;
         String accidentCode = "";
 
-        if (Constant.PHONE_REPAIR.equals(importDto.getApiFlgCd())){
+        if (Constant.PHONE_REPAIR.equals("importDto.getApiFlgCd()")){
             accidentCode = AccidentType.DAMAGE.getCode();
         }
 

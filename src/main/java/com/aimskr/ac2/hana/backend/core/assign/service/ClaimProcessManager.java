@@ -63,11 +63,11 @@ public class ClaimProcessManager {
      */
     public void processImages(ImportDto importDto) {
         // 1. 다운로드 완료시간 업데이트
-        assignService.updateDownloadTime(importDto.getAccrNo(), importDto.getDmSeqno());
+        assignService.updateDownloadTime(importDto.getACD_NO(), importDto.getRCT_SEQ());
 
         // 2. 이미지 처리
         Integer sequence = 1;
-        for (ImgFileInfoDto imgFileInfoDto : importDto.getImgList()) {
+        for (ImgFileInfoDto imgFileInfoDto : importDto.getIMG_LST()) {
             VisionResult visionResult = VisionResult.createInitialResult();
             ImageProcessingResultCode imageProcessingResultCode = ImageProcessingResultCode.NORMAL;
 
@@ -82,7 +82,7 @@ public class ClaimProcessManager {
                 String md5Hash = imageProcessor.generateMD5((hash.getHashValue()).toByteArray());
                 boolean isDup = false;
                 String duppedFile = "";
-                if (imgFileInfoDto.getFileNm().toLowerCase().contains("pdf")){
+                if (imgFileInfoDto.getIMG_FILE_NM().toLowerCase().contains("pdf")){
 
                     imageProcessingResultCode = ImageProcessingResultCode.NOT_SUPPORT;
                     imageService.saveImage(importDto, imgFileInfoDto, isDup, duppedFile,
@@ -97,9 +97,9 @@ public class ClaimProcessManager {
                     if (existImageHash == null) {
                         ImageHash imageHash = ImageHash.builder()
                                 .hash(md5Hash.toString())
-                                .accrNo(importDto.getAccrNo())
-                                .dmSeqno(importDto.getDmSeqno())
-                                .imageDocumentId(imgFileInfoDto.getImgId())
+                                .accrNo(importDto.getACD_NO())
+                                .dmSeqno(importDto.getRCT_SEQ())
+                                .imageDocumentId(imgFileInfoDto.getIMG_ID())
                                 .build();
                         imageService.saveImageHash(imageHash);
                     } else {
@@ -115,7 +115,7 @@ public class ClaimProcessManager {
                 String autocaptureImage = fileUtil.calcAcFilePath(importDto, imgFileInfoDto);
 
                 visionResult = retryService.autoInput(autocaptureImage, importDto, imgFileInfoDto);
-                phoneRepairService.saveDetailFromAiDetails(importDto.getAccrNo(), importDto.getDmSeqno(), FileUtil.changeExtToJpg(imgFileInfoDto.getFileNm()));
+                phoneRepairService.saveDetailFromAiDetails(importDto.getACD_NO(), importDto.getRCT_SEQ(), FileUtil.changeExtToJpg(imgFileInfoDto.getIMG_FILE_NM()));
 
                 // 2.5 이미지 정보 및 OCR 결과 저장
                 log.debug("[processImages] - saveImage - imgFileInfoDto : {}", imgFileInfoDto);
@@ -156,7 +156,7 @@ public class ClaimProcessManager {
 
         String qaOwner = assignRuleService.getQaAssign();
 
-        ResultDto resultDto = makeSuccessResultDto(importDto.getACD_NO(), importDto.getRCT_SEQ(), importDto.getApiFlgCd());
+        ResultDto resultDto = makeSuccessResultDto(importDto.getACD_NO(), importDto.getRCT_SEQ(), "importDto.getApiFlgCd()");
         String isResultValid = resultDto.checkValid();
         if (isResultValid.equals(ResultDto.INVALID)){
             log.debug("[processImages] - result is invalid : {}", resultDto);
@@ -188,7 +188,7 @@ public class ClaimProcessManager {
 
 
     @Transactional
-    public ResultDto makeSuccessResultDto(String accrNo, String dmSeqno){
+    public ResultDto makeSuccessResultDto(String accrNo, String dmSeqno, String apiFlgCd){
         List<PhoneImageResultDto> imageResults = new ArrayList<>();
         List<ImageResponseDto> images = imageService.findByKey(accrNo, dmSeqno);
         for (ImageResponseDto image: images){

@@ -53,7 +53,8 @@ public class AsyncService {
         String accrNo = importDto.getACD_NO();
         String dmSeqno = importDto.getRCT_SEQ();
 
-        ResultDto resultDto = claimProcessManager.makeSuccessResultDto(accrNo, dmSeqno);
+        //TODO
+        ResultDto resultDto = claimProcessManager.makeSuccessResultDto(accrNo, dmSeqno, "");
         log.debug("[processDupRequest] receiptNo : {}, receiptSeq : {}", accrNo, dmSeqno);
         assignService.finishWithQA(accrNo, dmSeqno, resultDto);
 
