@@ -42,8 +42,8 @@ public class FileUtil {
 //    }
 //
     public String calcFtpFilePath(ImportDto importDto, ImgFileInfoDto imgFileInfoDto) {
-        return autocaptureConfig.getSftpPath() + importDto.getACD_NO()
-                + "/" + importDto.getRCT_SEQ() + "/" + FileUtil.calcOriginFilename(imgFileInfoDto);
+        return autocaptureConfig.getSftpPath() + importDto.calcReqDate()
+                + "/" + importDto.getAcdNo() + "/" + FileUtil.calcOriginFilename(imgFileInfoDto);
     }
 
     public String calcOriginFilePath(ImportDto importDto, ImgFileInfoDto imgFileInfoDto) {
@@ -56,7 +56,7 @@ public class FileUtil {
 
     public static String calcOriginFilename(ImgFileInfoDto imgFileInfoDto) {
 //        return FileUtil.extractFileName(imgFileInfoDto.getImgId());
-        return imgFileInfoDto.getIMG_FILE_NM();
+        return imgFileInfoDto.getImgFileNm();
     }
     public static String calcUpdateFilename(ImgFileInfoDto imgFileInfoDto) {
         return FileUtil.changeExtToJpg(FileUtil.calcOriginFilename(imgFileInfoDto));
@@ -74,14 +74,14 @@ public class FileUtil {
 //
     public String calcOriginDir(ImportDto importDto) {
         return filepathConfig.getOriginDir() + "/"
-                + importDto.getACD_NO() + "/"
-                + importDto.getRCT_SEQ() + "/";
+                + importDto.calcReqDate() + "/"
+                + importDto.getAcdNo() + "/";
     }
 //
     public String calcAcDir(ImportDto importDto) {
         return filepathConfig.getAcDir() + "/"
-                + importDto.getACD_NO() + "/"
-                + importDto.getRCT_SEQ() + "/";
+                + importDto.calcReqDate() + "/"
+                + importDto.getAcdNo() + "/";
     }
 
 }

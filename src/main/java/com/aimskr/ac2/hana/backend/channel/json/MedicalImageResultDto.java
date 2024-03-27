@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MedicalImageResultDto extends ImageResultDto{
+public class MedicalImageResultDto {
 
     // 영수증ID
     private String rtxId;

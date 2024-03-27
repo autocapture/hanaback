@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PhoneImageResultDto extends ImageResultDto{
+public class PhoneImageResultDto {
 
     // 원본파일명 : /images/origin/ 에서 관리
     private String imgId;
@@ -47,10 +47,10 @@ public class PhoneImageResultDto extends ImageResultDto{
         }
 
         return PhoneImageResultDto.builder()
-                .imgId(imageResponseDto.getImgId())
-                .imgType(imageResponseDto.getDocType().getDocCode())
-                .items(null)
-                .accdList(null)
+//                .imgId(imageResponseDto.getImgId())
+//                .imgType(imageResponseDto.getDocType().getDocCode())
+//                .items(null)
+//                .accdList(null)
                 .build();
     }
 

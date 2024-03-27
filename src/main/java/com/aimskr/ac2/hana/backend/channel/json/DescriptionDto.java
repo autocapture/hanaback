@@ -1,6 +1,6 @@
 package com.aimskr.ac2.hana.backend.channel.json;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -10,8 +10,8 @@ import lombok.*;
 @ToString
 @Builder
 public class DescriptionDto {
-    @Schema(description = "정보key")
-    private String key;
-    @Schema(description = "정보value")
-    private String value;
+    @JsonProperty("INF_KEY")
+    private String infKey;
+    @JsonProperty("INF_VAL")
+    private String infVal;
 }

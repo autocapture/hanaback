@@ -91,12 +91,13 @@ spring:
     open-in-view: false
 logging:
   pattern:
-    console: "%d %-5level %logger : %msg%n"
-    file: "%d %-5level [%thread] %logger : %msg%n"
+    console: "%d %-5level %logger  %M - %line : %msg%n"
+    file: "%d %-5level [%thread] %logger{36} - %M - %line : %msg%n"
   level:
     root: info
     com.aimskr.ac2: debug
     org.apache.http: debug
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
   file:
     name: logs/application-info.log
 server:

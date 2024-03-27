@@ -1,6 +1,6 @@
 package com.aimskr.ac2.hana.backend.channel.json;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 /**
@@ -13,12 +13,12 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ImgFileInfoDto {
-    @Schema(description = "이미지문서번호")
-    private String IMG_DCM_NO;
-    @Schema(description = "이미지문서철번호")
-    private String IMG_DCMFL_NO;
-    @Schema(description = "이미지문서ID")
-    private String IMG_ID;
-    @Schema(description = "이미지파일명")
-    private String IMG_FILE_NM;
+    @JsonProperty("IMG_DCM_NO")
+    private String imgDcmNo;
+    @JsonProperty("IMG_DCMFL_NO")
+    private String imgDcmflNo;
+    @JsonProperty("IMG_ID")
+    private String imgId;
+    @JsonProperty("IMG_FILE_NM")
+    private String imgFileNm;
 }

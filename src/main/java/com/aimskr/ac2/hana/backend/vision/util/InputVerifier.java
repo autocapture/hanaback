@@ -8,18 +8,14 @@ import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairDetail;
 import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairDetailRepository;
 import com.aimskr.ac2.hana.backend.util.service.CacheService;
 import com.aimskr.ac2.hana.backend.vision.dto.VisionResult;
-import com.aimskr.ac2.hana.backend.vision.service.PhoneDetailAutoInputService;
 import com.aimskr.ac2.common.enums.detail.ItemType;
 import com.aimskr.ac2.common.enums.doc.DocType;
 import com.aimskr.ac2.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 //
 @Slf4j
@@ -33,9 +29,9 @@ public class InputVerifier {
     @Transactional
     public VisionResult verifyInput(ImportDto importDto, ImgFileInfoDto imgFileInfoDto, List<AiPhoneRepair> aiPhoneRepairs, DocType docType){
 
-        String accrNo = importDto.getACD_NO();
-        String dmSeqno = importDto.getRCT_SEQ();
-        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getIMG_FILE_NM());
+        String accrNo = importDto.getAcdNo();
+        String dmSeqno = importDto.getRctSeq();
+        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm());
 
         List<AiPhoneRepair> aiPhoneRepairPrevs = aiPhoneRepairRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
 

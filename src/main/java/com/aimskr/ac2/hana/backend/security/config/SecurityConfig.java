@@ -89,6 +89,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/hana/v1/member").permitAll()
                 .antMatchers(HttpMethod.POST, "/hana/v1/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/hana/v1/order").permitAll()
+                .antMatchers(HttpMethod.POST, "/hana/v1/reply").permitAll()
+                .antMatchers(HttpMethod.POST, "/hana/v1/mock").permitAll()
                 .antMatchers(HttpMethod.POST, "/hana/v1/check").permitAll()
                 .antMatchers(HttpMethod.POST, "/actuator/prometheus").permitAll()
                 .antMatchers(HttpMethod.POST, "/actuator/health").permitAll()

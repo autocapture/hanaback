@@ -20,8 +20,6 @@ import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairDetailRepository
 import com.aimskr.ac2.hana.backend.security.service.EmailService;
 import com.aimskr.ac2.common.config.AutocaptureConfig;
 import com.aimskr.ac2.common.config.ControlConfig;
-import com.aimskr.ac2.common.enums.Constant;
-import com.aimskr.ac2.common.enums.assign.RequestType;
 import com.aimskr.ac2.common.enums.doc.AccidentType;
 import com.aimskr.ac2.common.enums.doc.DocType;
 import com.aimskr.ac2.common.enums.status.AcceptStatus;
@@ -86,8 +84,8 @@ public class AssignService {
         }
 
         // 3. 기존에 존재하던 배당이면, 기존 배당목록 삭제
-        String accrNo = importDto.getACD_NO();
-        String dmSeqno = importDto.getRCT_SEQ();
+        String accrNo = importDto.getAcdNo();
+        String dmSeqno = importDto.getRctSeq();
         AssignResponseDto assignResponseDto = findByKey(accrNo, dmSeqno);
 
         assign.updateAcceptInfo(requestJson, acceptStatus);
@@ -101,8 +99,8 @@ public class AssignService {
      */
     @Transactional(readOnly = true)
     public boolean checkDupAssign(ImportDto importDto) {
-        String arrcNo = importDto.getACD_NO();
-        String dmSeqno = importDto.getRCT_SEQ();
+        String arrcNo = importDto.getAcdNo();
+        String dmSeqno = importDto.getRctSeq();
 
         AssignResponseDto assignResponseDto = findByKey(arrcNo, dmSeqno);
 
@@ -300,8 +298,8 @@ public class AssignService {
         assignRepository.save(assign);
         assign.updateResultDeliveryTime(LocalDateTime.now());
         assign.updateProcessResponseCode(ProcessResponseCode.ERROR);
-        String receiptNo = importDto.getACD_NO();
-        String receiptSeq = importDto.getRCT_SEQ();
+        String receiptNo = importDto.getAcdNo();
+        String receiptSeq = importDto.getRctSeq();
         ResultDto resultDtoWithError = ResultDto.buildErrorResult(importDto);
         assign.updateResponseJson(gson.toJson(resultDtoWithError));
 //        List<String> email = controlConfig.getErrorEmail();
@@ -323,8 +321,8 @@ public class AssignService {
     @Transactional
     public void finishWithFtpError(ImportDto importDto) {
         log.info("[finishWithError] ImportDto : {}", importDto);
-        String accrNo = importDto.getACD_NO();
-        String dmSeqno = importDto.getRCT_SEQ();
+        String accrNo = importDto.getAcdNo();
+        String dmSeqno = importDto.getRctSeq();
         Assign assign = assignRepository.findByKey(accrNo, dmSeqno)
                 .orElse(null);
         if (assign != null) {
@@ -351,7 +349,7 @@ public class AssignService {
 
     @Transactional
     public void applyQaAssign(ImportDto importDto, String qaOwner) {
-        Assign assign = assignRepository.findByKey(importDto.getACD_NO(), importDto.getRCT_SEQ()).orElse(null);
+        Assign assign = assignRepository.findByKey(importDto.getAcdNo(), importDto.getRctSeq()).orElse(null);
         if (assign != null){
             assign.updateStep(Step.ASSIGN);
             assign.updateQaOwner(qaOwner);

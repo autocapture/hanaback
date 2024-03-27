@@ -25,7 +25,7 @@ public class ChannelService {
 //    public void complete(ResultDto resultDto) {
     public ResponseEntity<String> complete(ResultDto resultDto) {
         log.debug("[complete] resultDto = {}", resultDto);
-        String accrNo = resultDto.getACD_NO();
+        String accrNo = resultDto.getAcdNo();
         RestTemplate restTemplate = buildRestTemplate();
         HttpHeaders requestHeaders = buildHeaders();
         log.debug("[complete] requestHeaders : {}", requestHeaders.toString());
@@ -34,7 +34,7 @@ public class ChannelService {
 
         HttpEntity<ResultDto> resultDtoHttpEntity = new HttpEntity<>(resultDto, requestHeaders);
 
-        String endPoint = buildEndPoint(resultDto.getACD_NO());
+        String endPoint = buildEndPoint(resultDto.getAcdNo());
         log.debug("[complete] endPoint : {}", endPoint);
         ResponseEntity<String>  finalResponse = restTemplate.exchange(endPoint, HttpMethod.POST, resultDtoHttpEntity, String.class);
 //        ResponseEntity<String>  finalResponse = restTemplate.postForEntity(endPoint, resultDtoHttpEntity, String.class);

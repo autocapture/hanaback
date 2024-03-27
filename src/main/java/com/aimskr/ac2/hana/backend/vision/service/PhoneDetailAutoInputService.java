@@ -12,7 +12,6 @@ import com.aimskr.ac2.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +29,7 @@ public class PhoneDetailAutoInputService {
 
     public void autoInputPhoneDetail(ImportDto importDto, ImgFileInfoDto imgFileInfoDto, List<ValueBox> boxList, List<String> rows, String labelString){
 
-        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getIMG_FILE_NM());
+        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm());
         List<String> identifier = cacheService.getDetailKeywords().get(ItemType.RPDT_ITEM_AMOUNT);
         List<PhoneAccd> accdList = cacheService.getPhoneAccd();
 
@@ -87,8 +86,8 @@ public class PhoneDetailAutoInputService {
                 if (roundedRatio == 0.1 || roundedRatio == 0.0) {
 
                     AiPhoneRepairDetail aiPhoneRepairDetail = AiPhoneRepairDetail.builder()
-                            .accrNo(importDto.getACD_NO())
-                            .dmSeqno(importDto.getRCT_SEQ())
+                            .accrNo(importDto.getAcdNo())
+                            .dmSeqno(importDto.getRctSeq())
                             .fileName(fileName)
                             .accdCd(phoneAccdDto.getAccdCd())
                             .accdNm(phoneAccdDto.getAccdNm())

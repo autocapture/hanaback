@@ -11,6 +11,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// TODO: 삭제
 public class ResultSubItem {
 
     // 표준코드

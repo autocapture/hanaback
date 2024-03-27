@@ -45,11 +45,11 @@ public class ImageService {
                           ImageProcessingResultCode imageProcessingResultCode,
                           Integer sequence){
 
-        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getIMG_FILE_NM());
+        String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm());
 
         Image prevRd = imageRepository.findByKeyAndFileName(
-                importDto.getACD_NO(),
-                importDto.getRCT_SEQ(),
+                importDto.getAcdNo(),
+                importDto.getRctSeq(),
                 fileName
         ).orElse(null);
 
@@ -71,9 +71,9 @@ public class ImageService {
 
         if (prevRd == null) {
             Image image = Image.builder()
-                    .accrNo(importDto.getACD_NO())
-                    .dmSeqno(importDto.getRCT_SEQ())
-                    .imgId(imgFileInfoDto.getIMG_ID())
+                    .accrNo(importDto.getAcdNo())
+                    .dmSeqno(importDto.getRctSeq())
+                    .imgId(imgFileInfoDto.getImgId())
                     .fileName(fileName)
                     .isDup(isDup)
                     .duppedFile(duppedFile)
@@ -90,7 +90,7 @@ public class ImageService {
             imageRepository.save(image);
             log.info("[ImageService - saveImages] RdImage 데이터 생성 : {}", image.toString());
         } else {
-            log.info("[ImageService - saveImages] RdImage 데이터 존재, 생성하지 않음, {}", imgFileInfoDto.getIMG_FILE_NM());
+            log.info("[ImageService - saveImages] RdImage 데이터 존재, 생성하지 않음, {}", imgFileInfoDto.getImgFileNm());
         }
     }
 

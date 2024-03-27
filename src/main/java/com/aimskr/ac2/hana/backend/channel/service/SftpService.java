@@ -35,7 +35,7 @@ public class SftpService {
             return false;
         }
 
-        for(ImgFileInfoDto imgFileInfoDto : importDto.getIMG_LST()) {
+        for(ImgFileInfoDto imgFileInfoDto : importDto.getImgLst()) {
             fileUtil.createDir(fileUtil.calcOriginDir(importDto));
             // 2. sftp에서 파일을 내려받아 저장
             String srcFilePath = fileUtil.calcFtpFilePath(importDto, imgFileInfoDto);

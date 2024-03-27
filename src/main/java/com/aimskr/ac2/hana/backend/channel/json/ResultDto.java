@@ -3,6 +3,7 @@ package com.aimskr.ac2.hana.backend.channel.json;
 import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.aimskr.ac2.common.enums.status.ProcessResponseCode;
 import com.aimskr.ac2.common.util.DateUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -25,43 +26,45 @@ public class ResultDto {
     public static final String VALID = "VALID";
     public static final String INVALID = "INVALID";
     // 의뢰요청ID
-    private String RQS_REQ_ID;
+    @JsonProperty("RQS_REQ_ID")
+    private String rqsReqId;
     // 파일송수신일련번호
-    private String ACD_NO;
+    @JsonProperty("ACD_NO")
+    private String acdNo;
     // 팩스일련번호
-    private String RCT_SEQ;
+    @JsonProperty("RCT_SEQ")
+    private String rctSeq;
     // 사고일자
-    private String ACD_DT;
+    @JsonProperty("ACD_DT")
+    private String acdDt;
     // 사고유형
-    private String CLM_TP_CD;
+    @JsonProperty("CLM_TP_CD")
+    private String clmTpCd;
     // 사고원인대분류코드
-    private String ACD_CAUS_LCTG_CD;
-    // 결과전송시간
-    private String PCS_DTM;
+    @JsonProperty("ACD_CAUS_LCTG_CD")
+    private String acdCausLctgCd;
+    // 처리일시
+    @JsonProperty("PCS_DTM")
+    private String pcsDtm;
     // AIMS 처리결과 코드
-    private String PCS_RSL_CD;
+    @JsonProperty("PCS_RSL_CD")
+    private String pcsRslCd;
     // AIMS 처리결과코드 상세
-    private String PCS_RSL_DTL_CD;
+    @JsonProperty("PCS_RSL_DTL_CD")
+    private String pcsRslDtlCd;
 
+    @JsonProperty("IMG_LST")
     List<? extends ImageResultDto> imgList;
 
-//    @JsonTypeInfo(
-//            use = JsonTypeInfo.Id.NAME,
-//            include = JsonTypeInfo.As.PROPERTY,
-//            property = "type")
-//    @JsonSubTypes({
-//            @JsonSubTypes.Type(value = PhoneImageResultDto.class, name = "phone"),
-//            @JsonSubTypes.Type(value = MedicalImageResultDto.class, name = "medical"),
-//    })
     public static ResultDto of(Assign assign) {
         return ResultDto.builder()
-                .RQS_REQ_ID(assign.getRqsReqId())
-                .ACD_NO(assign.getAccrNo())
-                .RCT_SEQ(assign.getDmSeqno())
-                .ACD_DT(assign.getAcdDt())
-                .PCS_RSL_CD(assign.getProcessResponseCode().getCode())
-                .PCS_RSL_DTL_CD(Optional.ofNullable(assign.getProcessResponseCodeDetail()).orElse(""))
-                .PCS_DTM(assign.getResultDeliveryTime().format(DateTimeFormatter.ofPattern(DateUtil.DATETIME_HANA)))
+                .rqsReqId(assign.getRqsReqId())
+                .acdNo(assign.getAccrNo())
+                .rctSeq(assign.getDmSeqno())
+                .acdDt(assign.getAcdDt())
+                .pcsRslCd(assign.getProcessResponseCode().getCode())
+                .pcsRslDtlCd(Optional.ofNullable(assign.getProcessResponseCodeDetail()).orElse(""))
+                .pcsDtm(assign.getResultDeliveryTime().format(DateTimeFormatter.ofPattern(DateUtil.DATETIME_HANA)))
                 // 이미지는 별도로 추가함
                 .imgList(null)
                 .build();
@@ -70,11 +73,11 @@ public class ResultDto {
     public static ResultDto buildErrorResult(ImportDto importDto) {
         LocalDateTime now = LocalDateTime.now();
         return ResultDto.builder()
-                .ACD_NO(importDto.getACD_NO())
-                .RCT_SEQ(importDto.getRCT_SEQ())
-                .PCS_RSL_CD(ProcessResponseCode.ERROR.getCode())
-                .PCS_RSL_DTL_CD(ProcessResponseCode.ERROR.getMessage())
-                .PCS_DTM(now.format(DateTimeFormatter.ofPattern(DateUtil.DATETIME_HANA)))
+                .acdNo(importDto.getAcdNo())
+                .rctSeq(importDto.getRctSeq())
+                .pcsRslCd(ProcessResponseCode.ERROR.getCode())
+                .pcsRslDtlCd(ProcessResponseCode.ERROR.getMessage())
+                .pcsDtm(now.format(DateTimeFormatter.ofPattern(DateUtil.DATETIME_HANA)))
                 .imgList(new ArrayList<>())
                 .build();
     }

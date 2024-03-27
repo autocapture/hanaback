@@ -37,11 +37,13 @@ public class AsyncService {
         // 3. 이미지 다운로드 성공하면 이미지 처리
         if (isSuccess) {
             log.debug("[processRequest] SFTP 이미지 다운로드 성공 : key= {}, value = {}", importDto.getKey(), "value");
+            // TODO
             claimProcessManager.processImages(importDto);
         }
         // 4. 이미지 다운로드가 실패하면 실패 상태로 배당 처리
         else {
             log.error("[processRequest] SFTP 이미지 다운로드 실패 : key= {}, value = {}", importDto.getKey(), "value");
+            // TODO: 결과 상태
 //            assignService.finishWithFtpError(importDto);
         }
 
@@ -50,8 +52,8 @@ public class AsyncService {
     public void processDupRequest(ImportDto importDto) {
         log.debug("[AsyncService processingRdRequest] 비동기 SFTP 이미지 처리 : key= {}, value = {}", importDto.getKey(), "value");
 
-        String accrNo = importDto.getACD_NO();
-        String dmSeqno = importDto.getRCT_SEQ();
+        String accrNo = importDto.getAcdNo();
+        String dmSeqno = importDto.getRctSeq();
 
         //TODO
         ResultDto resultDto = claimProcessManager.makeSuccessResultDto(accrNo, dmSeqno, "");

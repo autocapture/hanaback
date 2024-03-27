@@ -1,25 +1,30 @@
 package com.aimskr.ac2.hana.backend.channel.json;
 
 
-import com.aimskr.ac2.hana.backend.core.image.dto.ImageResponseDto;
-import com.aimskr.ac2.common.enums.doc.DocType;
-import com.aimskr.ac2.common.enums.image.ImageProcessingResultCode;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-@Slf4j
 @Getter
 @Setter
 @ToString
-//@AllArgsConstructor
-//@NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ImageResultDto {
-
-    // 원본파일명 : /images/origin/ 에서 관리
-
-//    private List<ResultItem> items;
-
-
+    @JsonProperty("IMG_DCM_NO")
+    private String imgDcmNo;
+    @JsonProperty("IMG_DCMFL_NO")
+    private String imgDcmflNo;
+    @JsonProperty("IMG_ID")
+    private String imgId;
+    @JsonProperty("IMG_DCM_TP_CD")
+    private String imgDcmTpCd;
+    @JsonProperty("IMG_FILE_NM")
+    private String imgFileNm;
+    @JsonProperty("IMG_PCS_RSL_CD")
+    private String imgPcsRslCd;
+    @JsonProperty("PCS_RSL_LST")
+    private List<ResultItem> pcsRslLst;
 }
