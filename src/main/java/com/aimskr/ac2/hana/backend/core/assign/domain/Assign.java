@@ -1,6 +1,8 @@
 package com.aimskr.ac2.hana.backend.core.assign.domain;
 
 import com.aimskr.ac2.common.domain.BaseTimeEntity;
+import com.aimskr.ac2.common.enums.AccidentCause;
+import com.aimskr.ac2.common.enums.ClaimType;
 import com.aimskr.ac2.common.enums.assign.RequestType;
 import com.aimskr.ac2.common.enums.doc.AccidentType;
 import com.aimskr.ac2.common.enums.status.AcceptStatus;
@@ -48,19 +50,20 @@ public class Assign extends BaseTimeEntity {
     @Column
     private String rqsReqId;
     // 사고유형
+    @Enumerated(EnumType.STRING)
     @Column
-    private String clmTpCd;
+    private ClaimType clmTpCd;
     // 사고원인대분류코드
+    @Enumerated(EnumType.STRING)
     @Column
-    private String acdCausLctgCd;
+    private AccidentCause acdCausLctgCd;
     // 요청시간
     @Column
     private LocalDateTime rqstTime;
-    // 피보험자명
+    // 피보험자명 - 암호화
     @Column(length = 50)
     private String nrdNm;
-
-    // 피보험자 생년월일
+    // 피보험자 생년월일 - 암호화
     @Column(length = 50)
     private String nrdBirth;
     // 이미지 수
@@ -143,7 +146,7 @@ public class Assign extends BaseTimeEntity {
     private String processResponseCodeDetail;
 
     /**
-     * 수신결과 Section (KAKAO에서 전달하는 기록)
+     * 수신결과 Section (HANA에서 전달하는 기록)
      */
     //////////////////////////////////////////////////////////
     // KAKAO 결과 수신시간

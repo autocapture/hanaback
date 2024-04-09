@@ -1,5 +1,7 @@
 package com.aimskr.ac2.hana.backend.channel.json;
 
+import com.aimskr.ac2.common.enums.AccidentCause;
+import com.aimskr.ac2.common.enums.ClaimType;
 import com.aimskr.ac2.common.util.DateUtil;
 import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -48,7 +50,8 @@ public class ImportDto {
 
     public String calcReqDate() {
         if (reqDtm != null && reqDtm.length() > 10) {
-            return reqDtm.substring(0, 4) + reqDtm.substring(5, 7) + reqDtm.substring(8, 10);
+//            return reqDtm.substring(0, 4) + reqDtm.substring(5, 7) + reqDtm.substring(8, 10);
+            return reqDtm.substring(0, 8);
         } else {
             return "99999999";
         }
@@ -69,10 +72,11 @@ public class ImportDto {
         if (!StringUtils.hasText(reqDtm)) {
             isValid = false;
             result += "/ 호출시간 없음";
-        } else if (!DateUtil.checkDateFormat(reqDtm, DateUtil.DATETIME_HANA)) {
-            isValid = false;
-            result += "/ 호출시간 형식오류 - " + reqDtm;
         }
+//        else if (!DateUtil.checkDateFormat(reqDtm, DateUtil.DATETIME_HANA)) {
+//            isValid = false;
+//            result += "/ 호출시간 형식오류 - " + reqDtm;
+//        }
         if (imgCnt < 1) {
             isValid = false;
             result += "/ 이미지수 없음";
@@ -100,8 +104,8 @@ public class ImportDto {
                 .rqsReqId(rqsReqId)
                 .accrNo(acdNo)
                 .dmSeqno(rctSeq)
-                .clmTpCd(clmTpCd)
-                .acdCausLctgCd(acdCausLctgCd)
+                .clmTpCd(ClaimType.findByCode(clmTpCd))
+                .acdCausLctgCd(AccidentCause.findByCode(acdCausLctgCd))
                 .acdDt(acdDt)
                 .rqstTime(DateUtil.convertLocalDateTimeFromNano(reqDtm))
                 .nrdNm(dmpeNm)
@@ -110,8 +114,7 @@ public class ImportDto {
                 .build();
     }
 
-    public String getKey() {
+    public String calcKey() {
         return this.acdNo + "_" + this.rctSeq;
     }
-
 }

@@ -7,6 +7,13 @@ import java.util.Arrays;
 @Getter
 public enum ItemType {
 
+    // 자동차보험금지급결의서 (CIPS)
+    CIPS_INS_COMPANY("CA0001", "insCompany", "자동차보험회사"),
+    CIPS_CLAIM_TYPE("CA0002", "claimType", "처리구분"),
+    CIPS_INJURY_GUP("CA0003", "injuryGup", "부상급항(급)"),
+    CIPS_INJURY_HANG("CA0004", "injuryHang", "부상급항(항)"),
+    CIPS_INS_NAME("CA0005", "insName", "피보험자명"),
+
     // 수리비명세서
     RPDT_ISSUE_DATE("RA0001", "issueDate", "발행일자"),
     RPDT_TOTAL_AMOUNT("RA0002", "totalAmount", "총합계"),

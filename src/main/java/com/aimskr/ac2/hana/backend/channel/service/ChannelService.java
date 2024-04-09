@@ -37,7 +37,6 @@ public class ChannelService {
         String endPoint = buildEndPoint(resultDto.getAcdNo());
         log.debug("[complete] endPoint : {}", endPoint);
         ResponseEntity<String>  finalResponse = restTemplate.exchange(endPoint, HttpMethod.POST, resultDtoHttpEntity, String.class);
-//        ResponseEntity<String>  finalResponse = restTemplate.postForEntity(endPoint, resultDtoHttpEntity, String.class);
         log.debug("[complete] fianlResponse : {}", finalResponse);
         log.debug("[complete]¡ finalResponse.getBody() : {}", finalResponse.getBody());
         return finalResponse;

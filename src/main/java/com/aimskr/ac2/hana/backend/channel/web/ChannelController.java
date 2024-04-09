@@ -9,7 +9,6 @@ import com.aimskr.ac2.hana.backend.channel.json.ResultDto;
 import com.aimskr.ac2.hana.backend.channel.service.AsyncService;
 import com.aimskr.ac2.hana.backend.core.assign.service.AssignService;
 import com.google.gson.Gson;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -29,15 +28,10 @@ import java.nio.charset.StandardCharsets;
 @RestController
 @RequestMapping("/hana/v1/")
 public class ChannelController {
-    public static final String PHONE_REPAIR = "P";
-    public static final String MED = "M";
-    public static final String CHECK = "check";
-
     private final AsyncService asyncService;
     private final AssignService assignService;
     private final Gson gson;
 
-    @Operation(summary = "요청접수", description = "AIMS에 처리를 요청하는 API", tags = "Channel")
     @PostMapping("/order")
     public ResponseEntity<AcceptResultDto> save(@RequestBody ImportDto importDto) {
         log.info("[save] /order - importDto : {},", gson.toJson(importDto));
@@ -59,12 +53,13 @@ public class ChannelController {
 
                 boolean duplicity = assignService.checkDupAssign(importDto);
                 // 중복요청일 경우, 배당을 하지 않고 INVALID로 응답
-                if (duplicity){
-                    asyncService.processDupRequest(importDto);
-                    return ResponseEntity.ok().body(AcceptResultDto.of(AcceptStatus.OK));
-                }
+//                if (duplicity){
+//                    asyncService.processDupRequest(importDto);
+//                    return ResponseEntity.ok().body(AcceptResultDto.of(AcceptStatus.OK));
+//                }
 
-                else if (validation.equals(ImportDto.VALID) && !duplicity) {
+//                else if (validation.equals(ImportDto.VALID) && !duplicity) {
+                if (validation.equals(ImportDto.VALID)) {
                     log.debug("[save] validation success - processRequest start");
                     asyncService.processRequest(importDto);
                     return ResponseEntity.ok().body(AcceptResultDto.of(AcceptStatus.OK));
@@ -75,11 +70,13 @@ public class ChannelController {
                 }
             }
             // R00 수신성공 or R99 수신오류인 경우
-            else {
+            else if (RequestCode.REQUEST.equals(requestCode)) {
                 // TODO 처리결과 업데이트
                 return ResponseEntity.ok().body(AcceptResultDto.of(AcceptStatus.OK));
+            } else {
+                log.error("[save] /order - invalid :Worng RequestCode : {}", importDto.getRqsTpCd());
+                return ResponseEntity.badRequest().body(AcceptResultDto.of(AcceptStatus.INVALID));
             }
-
         } catch (Exception e) {
             log.error("[save] /order - error : {}", e.getMessage());
             e.printStackTrace();
@@ -109,16 +106,41 @@ public class ChannelController {
         }
     }
 
+    @PostMapping("/reply2")
+    public void reply2(@RequestBody ResultDto resultDto) {
+        log.info("/hana/v1/reply - ResultDto : {}", resultDto);
+        log.info("/hana/v1/reply - ResultDto : {}", gson.toJson(resultDto));
+        try {
+            RestTemplate restTemplate = buildRestTemplate();
+            HttpHeaders requestHeaders = buildHeaders();
+
+            HttpEntity<ResultDto> resultDtoHttpEntity = new HttpEntity<>(resultDto, requestHeaders);
+            String endPoint = buildEndPoint2();
+            log.debug("[reply] endpoint : {}", endPoint);
+            ResponseEntity<String>  kakaoResponse = restTemplate.exchange(endPoint, HttpMethod.POST, resultDtoHttpEntity, String.class);
+            log.debug("[reply] Response : {}", kakaoResponse);
+            log.debug("[reply] Response.getBody() : {}", kakaoResponse.getBody());
+
+        } catch (Exception e) {
+            log.error("/shez/v2/reply - error : {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
     @PostMapping("/mock")
     public void mock(@RequestBody ResultDto resultDto) {
-        log.info("[save] /order - importDto : {},", gson.toJson(resultDto));
+        log.info("[mock] /mock - resultDto : {},", gson.toJson(resultDto));
     }
 
     // TODO - 임시코드 : 삭제할 것
     private String buildEndPoint() {
-//        return "https://dgate.hanainsure.co.kr:31010/aims/ProcResult";
+        return "https://dgate.hanainsure.co.kr:31010/aims/ProcResult";
+    }
+    private String buildEndPoint2() {
         return "https://dev.aimskr.com:44306/hana/v1/mock";
     }
+
 
     private RestTemplate buildRestTemplate() {
         RestTemplate restTemplate =  new RestTemplateBuilder()
@@ -129,6 +151,7 @@ public class ChannelController {
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         return restTemplate;
     }
+
     private HttpHeaders buildHeaders() {
         String timestamp = String.valueOf(System.currentTimeMillis());
         HttpHeaders requestHeaders = new HttpHeaders();

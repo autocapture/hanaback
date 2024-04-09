@@ -27,6 +27,7 @@ import com.aimskr.ac2.common.enums.status.ProcessResponseCode;
 import com.aimskr.ac2.common.enums.status.ResultAcceptCode;
 import com.aimskr.ac2.common.enums.status.Step;
 import com.aimskr.ac2.hana.backend.util.service.CacheService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -60,11 +61,18 @@ public class AssignService {
     private final Gson gson;
 
     @Transactional
-    public void saveAssign(ImportDto importDto) {
+    public void saveAssign(ImportDto importDto)  {
         // 1. 배당 객체 생성 및 초기 설정
         Assign assign = importDto.toEntity();
         AcceptStatus acceptStatus = AcceptStatus.OK;
+
         String requestJson = gson.toJson(importDto);
+        try {
+            requestJson = new ObjectMapper().writeValueAsString(importDto);
+        }  catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
 
 //        if (endpoint.equals(Constant.PHONE_REPAIR)){
 //            assign.updateAccidentType(AccidentType.DAMAGE);
@@ -90,7 +98,7 @@ public class AssignService {
 
         assign.updateAcceptInfo(requestJson, acceptStatus);
         assignRepository.save(assign);
-        log.debug("[saveAssign] saveAssign - " + importDto.getKey() + " DB 저장");
+        log.debug("[saveAssign] saveAssign - " + importDto.calcKey() + " DB 저장");
 
     }
 
@@ -151,10 +159,10 @@ public class AssignService {
 
         List<PhoneRepair> phoneRepairs = phoneRepairRepository.findByKey(receiptNo, receiptSeq);
 
-        // 영수증 합계 금액으로 자동회신 가능 여부 체크
-        if (checkAutoReturnableByTotalSum(receiptNo, receiptSeq, phoneRepairs)){
-            return true;
-        }
+//        // 영수증 합계 금액으로 자동회신 가능 여부 체크
+//        if (checkAutoReturnableByTotalSum(receiptNo, receiptSeq, phoneRepairs)){
+//            return true;
+//        }
         //주요 detail의 정확도로 자동회신 가능 여부 체크
         if (!checkAutoReturnableByAccuracy(phoneRepairs)) {
             log.debug("[checkAutoReturnable] checkAutoReturnableByAccuracy - receiptNo : {}, receiptSeq : {}", receiptNo, receiptSeq);
@@ -241,49 +249,49 @@ public class AssignService {
      * Heather 요청 사항: 자동회신 가능한 영수증의 사용금액 합계가 20,000원 이상인 경우에는 다른 영수증의 정합성과 관계없이 자동회신
      * 자동회신 가능한 영수증이라 함은, 14. 카드영수증으로 분류가 되었고, 중복이 아니고, 거래일자/거래시간/사용금액이 모두 정확도 0.9 이상인 영수증
      */
-    public boolean checkAutoReturnableByTotalSum(String receiptNo, String receiptSeq, List<PhoneRepair> phoneRepairs){
-
-        Map<String, List<PhoneRepair>> detailsByImage = new HashMap<>();
-
-        for (PhoneRepair phoneRepair : phoneRepairs){
-            detailsByImage.computeIfAbsent(phoneRepair.getFileName(), k -> new ArrayList<>()).add(phoneRepair);
-        }
-
-        List<Image> images = imageRepository.findByKey(receiptNo, receiptSeq);
-        List<String> validImages = images.stream()
-                .filter(i -> i.getIsDup() == false && DocType.CDRC.equals(i.getImgType()))
-                .map(Image::getFileName)
-                .toList();
-
-        int totalAmountSum = 0;
-
-        for (String fileName: detailsByImage.keySet()){
-            if (validImages.contains(fileName)){
-                List<PhoneRepair> detailsInImage = detailsByImage.get(fileName);
-                List<PhoneRepair> accuratePhoneRepairs = detailsInImage.stream()
-                        .filter(d -> (d.getItemName().equals("거래일자")||
-                                d.getItemName().equals("거래시간") ||
-                                d.getItemName().equals("사용금액")) &&
-                                d.getAccuracy() >= 0.9).toList();
-                if (accuratePhoneRepairs.size() == 3) {
-                    totalAmountSum += accuratePhoneRepairs.stream()
-                            .filter(d -> d.getItemName().equals("사용금액"))
-                            .mapToInt(d -> Integer.parseInt(d.getItemValue().replaceAll("\\D", "")))
-                            .sum();
-                }
-            }
-        }
-
-        if (totalAmountSum > 20000){
-            log.debug("[checkAutoReturnable] totalAmountSum is over 20000 - receiptNo : {}, receiptSeq : {}, totalAmountSum : {}",
-                    receiptNo, receiptSeq, totalAmountSum);
-            return true;
-        } else {
-            log.debug("[checkAutoReturnable] totalAmountSum is under 20000 - receiptNo : {}, receiptSeq : {}, totalAmountSum : {}",
-                    receiptNo, receiptSeq, totalAmountSum);
-            return false;
-        }
-    }
+//    public boolean checkAutoReturnableByTotalSum(String receiptNo, String receiptSeq, List<PhoneRepair> phoneRepairs){
+//
+//        Map<String, List<PhoneRepair>> detailsByImage = new HashMap<>();
+//
+//        for (PhoneRepair phoneRepair : phoneRepairs){
+//            detailsByImage.computeIfAbsent(phoneRepair.getFileName(), k -> new ArrayList<>()).add(phoneRepair);
+//        }
+//
+//        List<Image> images = imageRepository.findByKey(receiptNo, receiptSeq);
+//        List<String> validImages = images.stream()
+//                .filter(i -> i.getIsDup() == false && DocType.CDRC.equals(i.getImgType()))
+//                .map(Image::getFileName)
+//                .toList();
+//
+//        int totalAmountSum = 0;
+//
+//        for (String fileName: detailsByImage.keySet()){
+//            if (validImages.contains(fileName)){
+//                List<PhoneRepair> detailsInImage = detailsByImage.get(fileName);
+//                List<PhoneRepair> accuratePhoneRepairs = detailsInImage.stream()
+//                        .filter(d -> (d.getItemName().equals("거래일자")||
+//                                d.getItemName().equals("거래시간") ||
+//                                d.getItemName().equals("사용금액")) &&
+//                                d.getAccuracy() >= 0.9).toList();
+//                if (accuratePhoneRepairs.size() == 3) {
+//                    totalAmountSum += accuratePhoneRepairs.stream()
+//                            .filter(d -> d.getItemName().equals("사용금액"))
+//                            .mapToInt(d -> Integer.parseInt(d.getItemValue().replaceAll("\\D", "")))
+//                            .sum();
+//                }
+//            }
+//        }
+//
+//        if (totalAmountSum > 20000){
+//            log.debug("[checkAutoReturnable] totalAmountSum is over 20000 - receiptNo : {}, receiptSeq : {}, totalAmountSum : {}",
+//                    receiptNo, receiptSeq, totalAmountSum);
+//            return true;
+//        } else {
+//            log.debug("[checkAutoReturnable] totalAmountSum is under 20000 - receiptNo : {}, receiptSeq : {}, totalAmountSum : {}",
+//                    receiptNo, receiptSeq, totalAmountSum);
+//            return false;
+//        }
+//    }
 
     /**
      * 예외 Case - 처리 결과를 카카오에 전달
@@ -438,6 +446,7 @@ public class AssignService {
         String resultJson = "";
         try{
          resultJson = new ObjectMapper().writeValueAsString(resultDto);
+         log.debug("[finishWithQA] resultJson : {}", resultJson);
         } catch(Exception e){
             e.printStackTrace();
         }
@@ -452,6 +461,7 @@ public class AssignService {
 //        }
 
         log.debug("[finishWithQA] receiptNo : {}, receiptSeq : {} ", receiptNo, receiptSeq);
+        //TODO
         channelService.complete(resultDto);
 
         // TODO: QA Endpoint로 회신하도록 변경함. 향후 수정 필요
@@ -547,7 +557,7 @@ public class AssignService {
 //                    .toList();
 //        }
 
-        return assignRepository.searchByAcceptDate(step, qaOwner, accidentType, fromTime, toTime)
+        return assignRepository.searchByStepAndDate(step, fromTime, toTime)
                 .stream()
                 .map(AssignResponseDto::new)
                 .toList();

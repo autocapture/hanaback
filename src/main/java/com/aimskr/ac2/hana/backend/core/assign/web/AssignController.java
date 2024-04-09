@@ -47,11 +47,11 @@ public class AssignController {
 
     @Operation(summary = "QA 결과 전송", description = "QA 결과를 전송하는 API", tags = "Assign")
     @GetMapping("/done")
-    public void done(@RequestParam String accrNo, @RequestParam String dmSeqno, @RequestParam String apiFlgCd) {
+    public void done(@RequestParam String accrNo, @RequestParam String dmSeqno) {
 //        assignService.checkDupImageContentsWithinAssign(receiptNo, receiptSeq);
 //        assignService.checkDupImageContentsFromAll(receiptNo, receiptSeq);
         log.debug("[done] receiptNo : {}, receiptSeq : {}", accrNo, dmSeqno);
-        ResultDto resultDto = claimProcessManager.makeSuccessResultDto(accrNo, dmSeqno, apiFlgCd);
+        ResultDto resultDto = claimProcessManager.makeSuccessResultDto(accrNo, dmSeqno);
         assignService.finishWithQA(accrNo, dmSeqno, resultDto);
     }
 }

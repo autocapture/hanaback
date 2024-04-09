@@ -62,7 +62,9 @@ public class ResultDto {
                 .acdNo(assign.getAccrNo())
                 .rctSeq(assign.getDmSeqno())
                 .acdDt(assign.getAcdDt())
-                .pcsRslCd(assign.getProcessResponseCode().getCode())
+                .clmTpCd(assign.getClmTpCd().getCode())
+                .acdCausLctgCd(assign.getAcdCausLctgCd().getCode())
+                .pcsRslCd(assign.getProcessResponseCode() == null ? "" : assign.getProcessResponseCode().getCode())
                 .pcsRslDtlCd(Optional.ofNullable(assign.getProcessResponseCodeDetail()).orElse(""))
                 .pcsDtm(assign.getResultDeliveryTime().format(DateTimeFormatter.ofPattern(DateUtil.DATETIME_HANA)))
                 // 이미지는 별도로 추가함
@@ -86,7 +88,7 @@ public class ResultDto {
 
         String valid = ResultDto.VALID;
 
-        if (imgList.size() == 0){
+        if (imgList == null || imgList.size() == 0){
             return ResultDto.INVALID;
         }
 //

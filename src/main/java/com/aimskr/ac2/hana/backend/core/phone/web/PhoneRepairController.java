@@ -1,12 +1,6 @@
 package com.aimskr.ac2.hana.backend.core.phone.web;
 
 
-import com.aimskr.ac2.hana.backend.core.assign.service.AssignService;
-import com.aimskr.ac2.hana.backend.core.image.dto.ImageDtoETCS;
-import com.aimskr.ac2.hana.backend.core.image.dto.ImageDtoRPDT;
-import com.aimskr.ac2.hana.backend.core.image.dto.ImageDtoRPRC;
-import com.aimskr.ac2.hana.backend.core.image.dto.ImageResponseDto;
-import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
 import com.aimskr.ac2.hana.backend.core.phone.dto.PhoneRepairDetailListDto;
 import com.aimskr.ac2.hana.backend.core.phone.dto.PhoneRepairDetailResponseDto;
 import com.aimskr.ac2.hana.backend.core.phone.dto.PhoneRepairResponseDto;

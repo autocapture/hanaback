@@ -3,7 +3,7 @@ package com.aimskr.ac2.hana.backend.core.image.dto;
 import lombok.*;
 
 /**
- * 항공권 수정 DTO
+ * 기타 이미지 DTO
  */
 @Getter
 @Setter
@@ -13,6 +13,8 @@ import lombok.*;
 @Builder
 public class ImageDtoETCS {
     // COMMON
+    private String accrNo;
+    private String dmSeqno;
     private String fileName;
     private String korDocType;
 }

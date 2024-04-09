@@ -39,121 +39,121 @@ public class VisionService {
     private final CarrotFileRepository carrotFileRepository;
     private final PhoneExtractor phoneExtractor;
 
-    @Async
-    public void processPhone() {
-        log.info("processPhone");
-        doAutoInput();
-    }
-
-    public void doAutoInput() {
-        String baseDir = "/home/hana/images/enc/hana/phone";
-        Path baseDirPath = Path.of(baseDir);
-
-        try{
-            // 파일 방문자 구현을 사용하여 디렉토리 순회
-            Files.walkFileTree(baseDirPath, new SimpleFileVisitor<Path>() {
-//                int i = 0;
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    // 파일 처리 로직
-                    // 예: 파일 이름 출력
-//                    if (i > 50) return FileVisitResult.TERMINATE;
-
-                    if (Files.isDirectory(file)) {
-                        log.info("Directory : {}", file.toAbsolutePath());
-                    } else if (Files.isRegularFile(file)) {
-                        log.info("File : {}", file.toAbsolutePath());
-                        Path parentPath = file.getParent();
-                        Path lastDirectoryName = parentPath.getFileName();
-                        String accrNo = lastDirectoryName.toString();
-                        log.info("AccrNo : {}", accrNo);
-                        String fileName = file.getFileName().toString();
-
-                        if (carrotFileRepository.findByAccrNoAndImageName(accrNo, fileName) != null) {
-                            log.info("Already exist : {}", file.toAbsolutePath());
-                            return FileVisitResult.CONTINUE;
-                        }
-
-                        List<OCRBox> boxes = doOCR(file.toAbsolutePath().toString());
-                        List<ValueBox> valueBoxes = mergeAndSortOcrBoxes(boxes);
-                        String labelString = makeLabelString(valueBoxes);
-                        List<String> rows = mergeLabelsByRow(valueBoxes);
-
-                        String docType = documentTypeChecker.checkPhoneDocType(valueBoxes, labelString);
-                        log.info("DocType : {}", docType);
-                        log.info(labelString);
-                        CarrotFile carrotFile = CarrotFile.builder()
-                                .accrNo(accrNo)
-                                .imageName(file.getFileName().toString())
-                                .docType(docType)
-                                .labelString(labelString)
-                                .build();
-                        carrotFileRepository.save(carrotFile);
-
-                        if (docType.equals("수리비명세서") || docType.equals("서비스내역서")) {
-                            // Model 추출
-                            String model = phoneExtractor.findModel(boxes, rows, labelString);
-                            String manufacturer = "";
-                            if (model.equals("NOT_FOUND")) {
-                                manufacturer = "NOT_FOUND";
-                            } else if (model.contains("iPhone")) {
-                                manufacturer = "APPLE";
-                            } else if (model.contains("SM")) {
-                                manufacturer = "SAMSUNG";
-                            } else if (model.contains("LM")) {
-                                manufacturer = "LG";
-                            }
-                            // 수리비
-                            SubPhone suri = phoneExtractor.findSuri(boxes, rows, labelString);
-                            if (suri != null) {
-                                Phone phone = Phone.builder()
-                                        .accrNo(accrNo)
-                                        .imageName(file.getFileName().toString())
-                                        .modelCode(model)
-                                        .manufacturer(manufacturer)
-                                        .labelString(labelString)
-                                        .build();
-                                phone.update(suri);
-                                phoneRepository.save(phone);
-                            }
-
-                            // 부품비
-                            List<SubPhone> items = phoneExtractor.findItems(boxes, rows, labelString);
-                            for (SubPhone item : items) {
-                                Phone phone = Phone.builder()
-                                        .accrNo(accrNo)
-                                        .imageName(file.getFileName().toString())
-                                        .modelCode(model)
-                                        .manufacturer(manufacturer)
-                                        .labelString(labelString)
-                                        .build();
-                                phone.update(item);
-                                phoneRepository.save(phone);
-                            }
-                        }
-
-//            DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, importDto.getAccidentType());
-//            aiPhoneRepairs = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
-////            visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiDetails, classifyResult);
-//            visionResult.setContent(makeRawString(valueBoxes));
-                    } else {
-                        log.info("ELSE : {}", file.toAbsolutePath());
-                    }
-
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                    // 파일 방문 실패 시 처리 로직
-                    System.err.println(exc.getMessage());
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+//    @Async
+//    public void processPhone() {
+//        log.info("processPhone");
+//        doAutoInput();
+//    }
+//
+//    public void doAutoInput() {
+//        String baseDir = "/home/hana/images/enc/hana/phone";
+//        Path baseDirPath = Path.of(baseDir);
+//
+//        try{
+//            // 파일 방문자 구현을 사용하여 디렉토리 순회
+//            Files.walkFileTree(baseDirPath, new SimpleFileVisitor<Path>() {
+////                int i = 0;
+//                @Override
+//                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+//                    // 파일 처리 로직
+//                    // 예: 파일 이름 출력
+////                    if (i > 50) return FileVisitResult.TERMINATE;
+//
+//                    if (Files.isDirectory(file)) {
+//                        log.info("Directory : {}", file.toAbsolutePath());
+//                    } else if (Files.isRegularFile(file)) {
+//                        log.info("File : {}", file.toAbsolutePath());
+//                        Path parentPath = file.getParent();
+//                        Path lastDirectoryName = parentPath.getFileName();
+//                        String accrNo = lastDirectoryName.toString();
+//                        log.info("AccrNo : {}", accrNo);
+//                        String fileName = file.getFileName().toString();
+//
+//                        if (carrotFileRepository.findByAccrNoAndImageName(accrNo, fileName) != null) {
+//                            log.info("Already exist : {}", file.toAbsolutePath());
+//                            return FileVisitResult.CONTINUE;
+//                        }
+//
+//                        List<OCRBox> boxes = doOCR(file.toAbsolutePath().toString());
+//                        List<ValueBox> valueBoxes = mergeAndSortOcrBoxes(boxes);
+//                        String labelString = makeLabelString(valueBoxes);
+//                        List<String> rows = mergeLabelsByRow(valueBoxes);
+//
+//                        String docType = documentTypeChecker.checkPhoneDocType(valueBoxes, labelString);
+//                        log.info("DocType : {}", docType);
+//                        log.info(labelString);
+//                        CarrotFile carrotFile = CarrotFile.builder()
+//                                .accrNo(accrNo)
+//                                .imageName(file.getFileName().toString())
+//                                .docType(docType)
+//                                .labelString(labelString)
+//                                .build();
+//                        carrotFileRepository.save(carrotFile);
+//
+//                        if (docType.equals("수리비명세서") || docType.equals("서비스내역서")) {
+//                            // Model 추출
+//                            String model = phoneExtractor.findModel(boxes, rows, labelString);
+//                            String manufacturer = "";
+//                            if (model.equals("NOT_FOUND")) {
+//                                manufacturer = "NOT_FOUND";
+//                            } else if (model.contains("iPhone")) {
+//                                manufacturer = "APPLE";
+//                            } else if (model.contains("SM")) {
+//                                manufacturer = "SAMSUNG";
+//                            } else if (model.contains("LM")) {
+//                                manufacturer = "LG";
+//                            }
+//                            // 수리비
+//                            SubPhone suri = phoneExtractor.findSuri(boxes, rows, labelString);
+//                            if (suri != null) {
+//                                Phone phone = Phone.builder()
+//                                        .accrNo(accrNo)
+//                                        .imageName(file.getFileName().toString())
+//                                        .modelCode(model)
+//                                        .manufacturer(manufacturer)
+//                                        .labelString(labelString)
+//                                        .build();
+//                                phone.update(suri);
+//                                phoneRepository.save(phone);
+//                            }
+//
+//                            // 부품비
+//                            List<SubPhone> items = phoneExtractor.findItems(boxes, rows, labelString);
+//                            for (SubPhone item : items) {
+//                                Phone phone = Phone.builder()
+//                                        .accrNo(accrNo)
+//                                        .imageName(file.getFileName().toString())
+//                                        .modelCode(model)
+//                                        .manufacturer(manufacturer)
+//                                        .labelString(labelString)
+//                                        .build();
+//                                phone.update(item);
+//                                phoneRepository.save(phone);
+//                            }
+//                        }
+//
+////            DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, importDto.getAccidentType());
+////            aiPhoneRepairs = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
+//////            visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiDetails, classifyResult);
+////            visionResult.setContent(makeRawString(valueBoxes));
+//                    } else {
+//                        log.info("ELSE : {}", file.toAbsolutePath());
+//                    }
+//
+//                    return FileVisitResult.CONTINUE;
+//                }
+//
+//                @Override
+//                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+//                    // 파일 방문 실패 시 처리 로직
+//                    System.err.println(exc.getMessage());
+//                    return FileVisitResult.CONTINUE;
+//                }
+//            });
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 
 //    public VisionResult doAutoInput(String autocaptureImage, ImportDto importDto, ImgFileInfoDto imgFileInfoDto) {
 //

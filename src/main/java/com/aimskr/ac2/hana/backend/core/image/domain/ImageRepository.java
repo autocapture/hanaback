@@ -9,6 +9,9 @@ import java.util.Optional;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
+    @Query("SELECT a FROM Image a where a.rqsReqId = ?1")
+    List<Image> findByReqId(String reqId);
+
     @Query("SELECT a FROM Image a where a.accrNo = ?1 and a.dmSeqno = ?2")
     List<Image> findByKey(String accrNo, String dmSeqno);
 

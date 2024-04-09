@@ -1,10 +1,13 @@
 package com.aimskr.ac2.hana.backend.core.image.service;
 
 
+import com.aimskr.ac2.common.enums.InsCompany;
 import com.aimskr.ac2.hana.backend.channel.domain.ImageHash;
 import com.aimskr.ac2.hana.backend.channel.domain.ImageHashRepository;
 import com.aimskr.ac2.hana.backend.channel.json.ImgFileInfoDto;
 import com.aimskr.ac2.hana.backend.channel.json.ImportDto;
+import com.aimskr.ac2.hana.backend.core.detail.domain.Detail;
+import com.aimskr.ac2.hana.backend.core.detail.domain.DetailRepository;
 import com.aimskr.ac2.hana.backend.core.image.domain.Image;
 import com.aimskr.ac2.hana.backend.core.image.domain.ImageRepository;
 import com.aimskr.ac2.hana.backend.core.image.dto.*;
@@ -29,7 +32,8 @@ import java.util.List;
 public class ImageService {
     private final ImageRepository imageRepository;
     private final ImageHashRepository imageHashRepository;
-    private final PhoneRepairRepository phoneRepairRepository;
+    private final DetailRepository detailRepository;
+//    private final PhoneRepairRepository phoneRepairRepository;
 
     /**
      * 접수 시점 이미지 최초 저장 : 중복여부 / 입력대상 여부 저장
@@ -57,15 +61,15 @@ public class ImageService {
             duppedFile = "";
         }
         if (visionResult.getDocType() == null){
-            visionResult.setDocType(DocType.ECRC);
+            visionResult.setDocType(DocType.ETCS);
         }
 
         DocType ocrDocType = visionResult.getDocType();
         DocType docType = visionResult.getDocType();
 
-        if (ocrDocType.equals(DocType.MULT) || ocrDocType.equals(DocType.FLIP)){
-            docType = DocType.ETCS;
-        }
+//        if (ocrDocType.equals(DocType.MULT) || ocrDocType.equals(DocType.FLIP)){
+//            docType = DocType.ETCS;
+//        }
 
 
 
@@ -73,8 +77,10 @@ public class ImageService {
             Image image = Image.builder()
                     .accrNo(importDto.getAcdNo())
                     .dmSeqno(importDto.getRctSeq())
+                    .rqsReqId(importDto.getRqsReqId())
                     .imgId(imgFileInfoDto.getImgId())
                     .fileName(fileName)
+                    .originFileName(imgFileInfoDto.getImgFileNm())
                     .isDup(isDup)
                     .duppedFile(duppedFile)
                     .hashValue(hashValue)
@@ -179,78 +185,66 @@ public class ImageService {
     }
 
     @Transactional
-    public void updateRPDT(ImageDtoRPDT imageDtoRPDT) {
-        String accrNo = imageDtoRPDT.getAccrNo();
-        String dmSeqno = imageDtoRPDT.getDmSeqno();
-        String fileName = imageDtoRPDT.getFileName();
+    public void updateImageProcessingResultCode(String accrNo, String dmSeqno, String fileName, ImageProcessingResultCode imageProcessingResultCode) {
         Image image = imageRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName).orElse(null);
-        if (image == null) {
-            log.error("[updateCDRC] image is null, fileName : {}", fileName);
-        } else {
-            if (!imageDtoRPDT.getKorDocType().equals(image.getImgType().getKorName())) {
-                log.debug("[updateCDRC] DocType Changed : {}", imageDtoRPDT);
-                image.updateDocType(DocType.getEnumByKorName(imageDtoRPDT.getKorDocType()));
-            }
+        if (image != null) {
+            image.updateImageProcessingResultCode(imageProcessingResultCode);
         }
-
-        List<PhoneRepair> phoneRepairs = phoneRepairRepository.findByFileName(fileName);
-
-        // 삭제하고, 다시 저장
-        for (PhoneRepair phoneRepair : phoneRepairs) {
-            phoneRepairRepository.delete(phoneRepair);
-        }
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_ISSUE_DATE, imageDtoRPDT.getRa0001()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_TOTAL_AMOUNT, imageDtoRPDT.getRa0002()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_MANU_NUM, imageDtoRPDT.getRa0003()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_SERIAL_NUM, imageDtoRPDT.getRa0004()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_MODEL_CODE, imageDtoRPDT.getRa0005()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_IMEI, imageDtoRPDT.getRa0006()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_ITEM_AMOUNT, imageDtoRPDT.getRa0007()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPDT_RPR_AMOUNT, imageDtoRPDT.getRa0008()));
-
-        if (imageDtoRPDT.getIsDup() != null && !image.getImageProcessingResultCode().name().equals(imageDtoRPDT.getImageProcessingResultCode())){
-
-            image.updateImageProcessingResultCode(ImageProcessingResultCode.valueOf(imageDtoRPDT.getImageProcessingResultCode()));
-            image.updateIsDup(imageDtoRPDT.getIsDup());
-            image.updateDuppedFile(imageDtoRPDT.getDuppedFile());
-        }
-
     }
 
     @Transactional
-    public void updateRPRC(ImageDtoRPRC imageDtoRPRC) {
-        String fileName = imageDtoRPRC.getFileName();
-        Image image = imageRepository.findByFileName(fileName).orElse(null);
+    public void updateCIPS(ImageDtoCIPS imageDtoCIPS) {
+        String accrNo = imageDtoCIPS.getAccrNo();
+        String dmSeqno = imageDtoCIPS.getDmSeqno();
+        String fileName = imageDtoCIPS.getFileName();
+        Image image = imageRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName).orElse(null);
         if (image == null) {
-            log.error("[updateCDRC] image is null, fileName : {}", fileName);
+            log.error("[updateCIPS] image is null, fileName : {}", fileName);
         } else {
-            if (!imageDtoRPRC.getKorDocType().equals(image.getImgType().getKorName())) {
-                log.debug("[updateCDRC] DocType Changed : {}", imageDtoRPRC);
-                image.updateDocType(DocType.getEnumByKorName(imageDtoRPRC.getKorDocType()));
+            if (!imageDtoCIPS.getKorDocType().equals(image.getImgType().getKorName())) {
+                log.debug("[updateCIPS] DocType Changed : {}", imageDtoCIPS);
+                image.updateDocType(DocType.getEnumByKorName(imageDtoCIPS.getKorDocType()));
             }
         }
 
-        List<PhoneRepair> phoneRepairs = phoneRepairRepository.findByFileName(fileName);
+        List<Detail> details = detailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
+
 
         // 삭제하고, 다시 저장
-        for (PhoneRepair phoneRepair : phoneRepairs) {
-            phoneRepairRepository.delete(phoneRepair);
+        for (Detail detail : details) {
+            detailRepository.delete(detail);
         }
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPRC_RECEIVE_DATE, imageDtoRPRC.getRb0001()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPRC_ISSUE_DATE, imageDtoRPRC.getRb0002()));
-        phoneRepairRepository.save(PhoneRepair.create(image, ItemType.RPRC_TOTAL_AMOUNT, imageDtoRPRC.getRb0003()));
-
-        if (imageDtoRPRC.getIsDup() != null && !image.getImageProcessingResultCode().name().equals(imageDtoRPRC.getImageProcessingResultCode())){
-
-            image.updateImageProcessingResultCode(ImageProcessingResultCode.valueOf(imageDtoRPRC.getImageProcessingResultCode()));
-            image.updateIsDup(imageDtoRPRC.getIsDup());
-            image.updateDuppedFile(imageDtoRPRC.getDuppedFile());
-        }
-
+        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+                .itemCode("CA0001")
+                .itemName("자동차보험회사")
+                .itemValue(imageDtoCIPS.getCa0001())
+                .build());
+        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+                .itemCode("CA0002")
+                .itemName("처리구분")
+                .itemValue(imageDtoCIPS.getCa0002())
+                .build());
+        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+                .itemCode("CA0003")
+                .itemName("부상급항(급)")
+                .itemValue(imageDtoCIPS.getCa0003())
+                .build());
+        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+                .itemCode("CA0004")
+                .itemName("부상급항(항)")
+                .itemValue(imageDtoCIPS.getCa0004())
+                .build());
+        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+                .itemCode("CA0005")
+                .itemName("피보험자명")
+                .itemValue(imageDtoCIPS.getCa0005())
+                .build());
     }
 
     @Transactional
     public void updateETCS(ImageDtoETCS imageDtoETCS) {
+        String accrNo = imageDtoETCS.getAccrNo();
+        String dmSeqno = imageDtoETCS.getDmSeqno();
         String fileName = imageDtoETCS.getFileName();
         Image image = imageRepository.findByFileName(fileName).orElse(null);
         if (image == null) {
@@ -263,10 +257,10 @@ public class ImageService {
         }
 
         // 삭제
-//        List<Detail> details = detailRepository.findByFileName(fileName);
-//        for (Detail detail : details) {
-//            detailRepository.delete(detail);
-//        }
+        List<Detail> details = detailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
+        for (Detail detail : details) {
+            detailRepository.delete(detail);
+        }
     }
 //
 //    @Transactional

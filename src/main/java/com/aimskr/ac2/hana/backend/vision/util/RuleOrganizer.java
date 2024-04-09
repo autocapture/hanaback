@@ -61,36 +61,36 @@ public class RuleOrganizer {
     public void init(){
         claimRules = new HashMap<>();
         subscriptionRules = new HashMap<>();
-        // 01. 의료비영수증-입원
-        claimRules.put(DocType.MDRI, new ArrayList<>());
-        // 02. 의료비영수증-통원
-        claimRules.put(DocType.MDRO, new ArrayList<>());
-        // 03. 약국영수증
-        claimRules.put(DocType.MDRC, new ArrayList<>());
-        // 12. 수리비명세서
-        claimRules.put(DocType.RPDT, new ArrayList<>());
-        claimRules.get(DocType.RPDT).add(rpdtIssueDateRule);
-        claimRules.get(DocType.RPDT).add(rpdtImeiRule);
-        claimRules.get(DocType.RPDT).add(rpdtItemAmountRule);
-        claimRules.get(DocType.RPDT).add(rpdtManuNumRule);
-        claimRules.get(DocType.RPDT).add(rpdtModelCodeRule);
-        claimRules.get(DocType.RPDT).add(rpdtRprAmountRule);
-        claimRules.get(DocType.RPDT).add(rpdtSerialNumRule);
-        claimRules.get(DocType.RPDT).add(rpdtTotalAmountRule);
-
-
-        // 13. 수리비영수증
-        claimRules.put(DocType.RPRC, new ArrayList<>());
-        claimRules.get(DocType.RPRC).add(rprcIssueDateRule);
-        claimRules.get(DocType.RPRC).add(rprcReceiveDateRule);
-        claimRules.get(DocType.RPRC).add(rprcTotalAmountRule);
-
-        // 14. 부가서비스내여서
-        claimRules.put(DocType.RPSV, new ArrayList<>());
-        claimRules.get(DocType.RPSV).add(rpsvOtherInsRule);
-
-        // 98. 휴대폰청약서류
-        subscriptionRules.put(DocType.PHIF, new ArrayList<>());
+//        // 01. 의료비영수증-입원
+//        claimRules.put(DocType.MDRI, new ArrayList<>());
+//        // 02. 의료비영수증-통원
+//        claimRules.put(DocType.MDRO, new ArrayList<>());
+//        // 03. 약국영수증
+//        claimRules.put(DocType.MDRC, new ArrayList<>());
+//        // 12. 수리비명세서
+//        claimRules.put(DocType.RPDT, new ArrayList<>());
+//        claimRules.get(DocType.RPDT).add(rpdtIssueDateRule);
+//        claimRules.get(DocType.RPDT).add(rpdtImeiRule);
+//        claimRules.get(DocType.RPDT).add(rpdtItemAmountRule);
+//        claimRules.get(DocType.RPDT).add(rpdtManuNumRule);
+//        claimRules.get(DocType.RPDT).add(rpdtModelCodeRule);
+//        claimRules.get(DocType.RPDT).add(rpdtRprAmountRule);
+//        claimRules.get(DocType.RPDT).add(rpdtSerialNumRule);
+//        claimRules.get(DocType.RPDT).add(rpdtTotalAmountRule);
+//
+//
+//        // 13. 수리비영수증
+//        claimRules.put(DocType.RPRC, new ArrayList<>());
+//        claimRules.get(DocType.RPRC).add(rprcIssueDateRule);
+//        claimRules.get(DocType.RPRC).add(rprcReceiveDateRule);
+//        claimRules.get(DocType.RPRC).add(rprcTotalAmountRule);
+//
+//        // 14. 부가서비스내여서
+//        claimRules.put(DocType.RPSV, new ArrayList<>());
+//        claimRules.get(DocType.RPSV).add(rpsvOtherInsRule);
+//
+//        // 98. 휴대폰청약서류
+//        subscriptionRules.put(DocType.PHIF, new ArrayList<>());
 
 
         // 99.기타

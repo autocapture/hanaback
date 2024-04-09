@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 @Service
 public class DocumentTypeChecker { // 문서 서식 판별기
 
-    private final String[] keyRdOutStdGeneral = {"일자","코드","명칭", "금액", "횟수", "총액", "비급여"};
-    private final String[] keyRdInStdGeneral = {"항목","일자","코드","명칭", "금액", "횟수", "총액", "전액", "비급여"};
     private final CacheService cacheService;
 
     public long findWordFrequency(List<DocKeyword> docKeywords,
@@ -40,6 +38,20 @@ public class DocumentTypeChecker { // 문서 서식 판별기
         return frequency;
     }
 
+    // 자동차보험금지급내역서 인지 확인
+    public boolean isCarClaimDocType(List<ValueBox> boxList, String labelString){
+        labelString = labelString.toLowerCase().replace(" ", "");
+        if (labelString.indexOf("지급내역") > -1
+                || labelString.indexOf("지급결의") > -1
+                || labelString.indexOf("상해급수") > -1
+                || labelString.indexOf("상해등급") > -1){
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
     // 수리비명세서 인지 확인
     public String checkPhoneDocType(List<ValueBox> boxList, String labelString){
         if (labelString.indexOf("수리비명세서") > -1){
@@ -55,7 +67,6 @@ public class DocumentTypeChecker { // 문서 서식 판별기
             return "기타";
         }
     }
-
     public DocType getDocTypeFromFrequencyWordMap(Map<String, Long> mapByFrequency, String labelString, AccidentType accidentType){
 
         Comparator<Entry<String, Long>> comparator = new Comparator<Entry<String, Long>>() {
@@ -83,62 +94,64 @@ public class DocumentTypeChecker { // 문서 서식 판별기
     }
 
 
-    public DocType getDocumentType(List<ValueBox> boxList, String labelString, String accidentCd){
-
-        DocType docType = DocType.ETCS;
-
-        AccidentType accType = AccidentType.getEnum(accidentCd);
-
-        if (accType == null) {
-            return DocType.ETCS;
-        }
-
-        if (boxList.size() < 5){
-            return DocType.ETCS;
-        }
-
-        List<DocKeyword> dkListAll = cacheService.getDocKeywords();
-        List<DocKeyword> dkwListByAcType = dkListAll.stream()
-                .filter(dk -> accType.equals(dk.getAccidentType()) || dk.getAccidentType().equals(AccidentType.COMMON))
-                .collect(Collectors.toList());
-        Map<String, List<DocKeyword>> categoryDkwMap = dkwListByAcType.stream()
-                .collect(Collectors.groupingBy(DocKeyword::getWordCategory));
-
-        labelString = labelString.toLowerCase().replace(" ", "");
-
-        Map<String, Long> wordFrequencyMapConfLvl2 = new HashMap<>();
-        Map<String, Long> wordFrequencyMapConfLvl1 = new HashMap<>();
-
-        // calculate frequency of words by confidence level
-        for (Entry<String, List<DocKeyword>> entry: categoryDkwMap.entrySet()){
-            List<DocKeyword> dkws = entry.getValue();
-            String kw = entry.getKey();
-            long frequencyConf2 = findWordFrequency(dkws, labelString, 2);
-            long frequencyConf1 = findWordFrequency(dkws, labelString, 1);
-            if (frequencyConf2 > 0){
-                log.debug("[DocumentTypeChecker] mappedDocumentType - kw: {}, frequencyConf2: {}", kw, frequencyConf2);
-
-                wordFrequencyMapConfLvl2.put(kw, frequencyConf2);
-            }
-            if (frequencyConf1 > 0){
-                log.debug("[DocumentTypeChecker] mappedDocumentType - kw: {}, frequencyConf1: {}", kw, frequencyConf1);
-                wordFrequencyMapConfLvl1.put(kw, frequencyConf1);
-            }
-        }
-
-        if (wordFrequencyMapConfLvl2.size() > 0){
-            docType = getDocTypeFromFrequencyWordMap(wordFrequencyMapConfLvl2, labelString, accType);
-        }
-
-        if (wordFrequencyMapConfLvl2.size() == 0 && wordFrequencyMapConfLvl1.size() > 0) {
-            docType =  getDocTypeFromFrequencyWordMap(wordFrequencyMapConfLvl1, labelString, accType);
-        }
-
-        int wordFrequencyMapSize = wordFrequencyMapConfLvl2.size() + wordFrequencyMapConfLvl1.size();
-
-        return checkFinalDocTypeByShapeAndKeyword(boxList, labelString, docType, wordFrequencyMapSize);
-
-    }
+    // 문서 분류기
+//    public DocType getDocumentType(List<ValueBox> boxList, String labelString, String accidentCd){
+//
+//        DocType docType = DocType.ETCS;
+//
+//        AccidentType accType = AccidentType.getEnum(accidentCd);
+//
+////        if (accType == null) {
+////            return DocType.ETCS;
+////        }
+//
+//        if (boxList.size() < 5){
+//            return DocType.ETCS;
+//        }
+//
+//        List<DocKeyword> dkListAll = cacheService.getDocKeywords();
+//        List<DocKeyword> dkwListByAcType = dkListAll.stream()
+//                .filter(dk -> accType.equals(dk.getAccidentType()) || dk.getAccidentType().equals(AccidentType.COMMON))
+//                .collect(Collectors.toList());
+//        Map<String, List<DocKeyword>> categoryDkwMap = dkwListByAcType.stream()
+//                .collect(Collectors.groupingBy(DocKeyword::getWordCategory));
+//
+//        // 1줄로 만든걸 공백없애고 소문자로 일괄 변환
+//        labelString = labelString.toLowerCase().replace(" ", "");
+//
+//        Map<String, Long> wordFrequencyMapConfLvl2 = new HashMap<>();
+//        Map<String, Long> wordFrequencyMapConfLvl1 = new HashMap<>();
+//
+//        // calculate frequency of words by confidence level
+//        for (Entry<String, List<DocKeyword>> entry: categoryDkwMap.entrySet()){
+//            List<DocKeyword> dkws = entry.getValue();
+//            String kw = entry.getKey();
+//            long frequencyConf2 = findWordFrequency(dkws, labelString, 2);
+//            long frequencyConf1 = findWordFrequency(dkws, labelString, 1);
+//            if (frequencyConf2 > 0){
+//                log.debug("[DocumentTypeChecker] mappedDocumentType - kw: {}, frequencyConf2: {}", kw, frequencyConf2);
+//
+//                wordFrequencyMapConfLvl2.put(kw, frequencyConf2);
+//            }
+//            if (frequencyConf1 > 0){
+//                log.debug("[DocumentTypeChecker] mappedDocumentType - kw: {}, frequencyConf1: {}", kw, frequencyConf1);
+//                wordFrequencyMapConfLvl1.put(kw, frequencyConf1);
+//            }
+//        }
+//
+//        if (wordFrequencyMapConfLvl2.size() > 0){
+//            docType = getDocTypeFromFrequencyWordMap(wordFrequencyMapConfLvl2, labelString, accType);
+//        }
+//
+//        if (wordFrequencyMapConfLvl2.size() == 0 && wordFrequencyMapConfLvl1.size() > 0) {
+//            docType =  getDocTypeFromFrequencyWordMap(wordFrequencyMapConfLvl1, labelString, accType);
+//        }
+//
+//        int wordFrequencyMapSize = wordFrequencyMapConfLvl2.size() + wordFrequencyMapConfLvl1.size();
+//
+//        return checkFinalDocTypeByShapeAndKeyword(boxList, labelString, docType, wordFrequencyMapSize);
+//
+//    }
 
     /**
      * 하나의 이미지에 여러장의 영수증이 있는지 확인
@@ -161,57 +174,57 @@ public class DocumentTypeChecker { // 문서 서식 판별기
         return (double)width/height;
     }
 
-    public DocType checkFinalDocTypeByShapeAndKeyword(List<ValueBox> boxList, String labelString, DocType docType, int wordFrequencyMapSize){
-
-        double ratio = getOcrRangeRatio(boxList);
-
-        // 삼성페이 영수증 포맷
-        if (docType.equals(DocType.CDRF) || docType.equals(DocType.CDRC)){
-            if (labelString.indexOf("<영수증결제취소") > -1){
-                return DocType.CDRC;
-            }
-            if (labelString.indexOf("외상") > -1){
-                return DocType.ECRC;
-            }
-
-            if (labelString.indexOf("상품권매출전표") > -1 && labelString.indexOf("상품권상세내역") == -1){
-                return DocType.ECRC;
-            }
-
-        }
-
-        if (docType.equals(DocType.CDRC) || docType.equals(DocType.CDRF) || docType.equals(DocType.ECRC)){
-
-            if (ratio > 0.9 && boxList.size() > 20){
-
-                log.debug("[DocumentTypeChecker] getDocumentType - isMultipleReceipts: {}", DocType.MULT);
-                return DocType.MULT;
-            } else{
-
-                Pattern p = Pattern.compile("수량");
-                Matcher m = p.matcher(labelString);
-
-                int occurrence = 0;
-
-                while(m.find()){
-
-                    occurrence += 1;
-
-                }
-                if (occurrence > 1){
-                    return DocType.MULT;
-                }
-
-            }
-        }
-
-        if (docType.equals(DocType.ETCS)){
-            if (ratio < 0.8 && wordFrequencyMapSize == 0){
-                log.debug("[DocumentTypeChecker] getDocumentType - isFlippedRceipts: {}", DocType.FLIP);
-                return DocType.FLIP;
-            }
-        }
-        return docType;
-    }
+//    public DocType checkFinalDocTypeByShapeAndKeyword(List<ValueBox> boxList, String labelString, DocType docType, int wordFrequencyMapSize){
+//
+//        double ratio = getOcrRangeRatio(boxList);
+//
+//        // 삼성페이 영수증 포맷
+//        if (docType.equals(DocType.CDRF) || docType.equals(DocType.CDRC)){
+//            if (labelString.indexOf("<영수증결제취소") > -1){
+//                return DocType.CDRC;
+//            }
+//            if (labelString.indexOf("외상") > -1){
+//                return DocType.ECRC;
+//            }
+//
+//            if (labelString.indexOf("상품권매출전표") > -1 && labelString.indexOf("상품권상세내역") == -1){
+//                return DocType.ECRC;
+//            }
+//
+//        }
+//
+//        if (docType.equals(DocType.CDRC) || docType.equals(DocType.CDRF) || docType.equals(DocType.ECRC)){
+//
+//            if (ratio > 0.9 && boxList.size() > 20){
+//
+//                log.debug("[DocumentTypeChecker] getDocumentType - isMultipleReceipts: {}", DocType.MULT);
+//                return DocType.MULT;
+//            } else{
+//
+//                Pattern p = Pattern.compile("수량");
+//                Matcher m = p.matcher(labelString);
+//
+//                int occurrence = 0;
+//
+//                while(m.find()){
+//
+//                    occurrence += 1;
+//
+//                }
+//                if (occurrence > 1){
+//                    return DocType.MULT;
+//                }
+//
+//            }
+//        }
+//
+//        if (docType.equals(DocType.ETCS)){
+//            if (ratio < 0.8 && wordFrequencyMapSize == 0){
+//                log.debug("[DocumentTypeChecker] getDocumentType - isFlippedRceipts: {}", DocType.FLIP);
+//                return DocType.FLIP;
+//            }
+//        }
+//        return docType;
+//    }
 
 }

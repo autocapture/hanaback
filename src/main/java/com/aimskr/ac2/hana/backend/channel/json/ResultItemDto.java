@@ -45,14 +45,7 @@ public class ResultItemDto {
 
     List<? extends ImageResultDto> imgList;
 
-//    @JsonTypeInfo(
-//            use = JsonTypeInfo.Id.NAME,
-//            include = JsonTypeInfo.As.PROPERTY,
-//            property = "type")
-//    @JsonSubTypes({
-//            @JsonSubTypes.Type(value = PhoneImageResultDto.class, name = "phone"),
-//            @JsonSubTypes.Type(value = MedicalImageResultDto.class, name = "medical"),
-//    })
+
     public static ResultItemDto of(Assign assign) {
         return ResultItemDto.builder()
                 .RQS_REQ_ID(assign.getRqsReqId())

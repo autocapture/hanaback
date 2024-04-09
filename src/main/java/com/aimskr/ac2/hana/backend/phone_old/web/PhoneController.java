@@ -16,15 +16,15 @@ import javax.annotation.Resource;
 @RestController
 public class PhoneController {
 
-    private final VisionService visionService;
+//    private final VisionService visionService;
 
-    @Resource
-    private UserInfo userInfo;  // 세션 저장용 객체
+//    @Resource
+//    private UserInfo userInfo;  // 세션 저장용 객체
 
-    private static final Logger logger = LoggerFactory.getLogger(PhoneController.class);
+//    private static final Logger logger = LoggerFactory.getLogger(PhoneController.class);
 
     @GetMapping("/v2/hana/phone")
     public void processPhone() {
-        visionService.processPhone();
+//        visionService.processPhone();
     }
 }

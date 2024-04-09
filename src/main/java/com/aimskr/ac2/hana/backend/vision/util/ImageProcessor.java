@@ -1,8 +1,10 @@
 package com.aimskr.ac2.hana.backend.vision.util;
 
+import com.aimskr.ac2.common.enums.image.ImageProcessingResultCode;
 import com.aimskr.ac2.hana.backend.channel.json.ImgFileInfoDto;
 import com.aimskr.ac2.hana.backend.channel.json.ImportDto;
 import com.aimskr.ac2.common.util.FileUtil;
+import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
 import dev.brachtendorf.jimagehash.hash.Hash;
 import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
@@ -26,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 @Service
 public class ImageProcessor {
     private final FileUtil fileUtil;
+    private final ImageService imageService;
 
     // 동일한 포맷의 카드사용캡쳐에서 금액만 바뀌는 경우 중복으로 인식하여 Resolution 변경 32 -> 64
     private HashingAlgorithm hasher = new PerceptiveHash(64);
@@ -59,6 +62,7 @@ public class ImageProcessor {
                 File file = new File(originFilePath);
                 File newFile = new File(acFilePath);
                 Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                throw new RuntimeException("buffer is null");
             }
         }catch (Exception e) {
             e.printStackTrace();

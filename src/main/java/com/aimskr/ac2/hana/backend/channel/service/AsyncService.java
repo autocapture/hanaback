@@ -23,7 +23,7 @@ public class AsyncService {
      */
     @Async("threadPoolTaskExecutor")
     public void processRequest(ImportDto importDto) {
-        log.debug("[AsyncService processingRdRequest] 비동기 SFTP 이미지 처리 : key= {}, value = {}", importDto.getKey(), "value");
+        log.debug("[AsyncService processingRdRequest] 비동기 SFTP 이미지 처리 : key= {}, value = {}", importDto.calcKey(), "value");
 
 
         // 1. 요청정보 저장
@@ -36,13 +36,13 @@ public class AsyncService {
 
         // 3. 이미지 다운로드 성공하면 이미지 처리
         if (isSuccess) {
-            log.debug("[processRequest] SFTP 이미지 다운로드 성공 : key= {}, value = {}", importDto.getKey(), "value");
+            log.debug("[processRequest] SFTP 이미지 다운로드 성공 : key= {}, value = {}", importDto.calcKey(), "value");
             // TODO
             claimProcessManager.processImages(importDto);
         }
         // 4. 이미지 다운로드가 실패하면 실패 상태로 배당 처리
         else {
-            log.error("[processRequest] SFTP 이미지 다운로드 실패 : key= {}, value = {}", importDto.getKey(), "value");
+            log.error("[processRequest] SFTP 이미지 다운로드 실패 : key= {}, value = {}", importDto.calcKey(), "value");
             // TODO: 결과 상태
 //            assignService.finishWithFtpError(importDto);
         }
@@ -50,14 +50,14 @@ public class AsyncService {
     }
     @Async("threadPoolTaskExecutor")
     public void processDupRequest(ImportDto importDto) {
-        log.debug("[AsyncService processingRdRequest] 비동기 SFTP 이미지 처리 : key= {}, value = {}", importDto.getKey(), "value");
+        log.debug("[중복 요청] key= {}", importDto.calcKey());
 
         String accrNo = importDto.getAcdNo();
         String dmSeqno = importDto.getRctSeq();
 
         //TODO
-        ResultDto resultDto = claimProcessManager.makeSuccessResultDto(accrNo, dmSeqno, "");
-        log.debug("[processDupRequest] receiptNo : {}, receiptSeq : {}", accrNo, dmSeqno);
+        ResultDto resultDto = claimProcessManager.makeSuccessResultDto(accrNo, dmSeqno);
+        log.debug("[중복 요청] receiptNo : {}, receiptSeq : {}", accrNo, dmSeqno);
         assignService.finishWithQA(accrNo, dmSeqno, resultDto);
 
 

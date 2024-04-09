@@ -17,10 +17,15 @@ public class ImageResponseDto {
     private String accrNo;
     // 접수회차
     private String dmSeqno;
+    private String rqsReqId;
     // 원본파일명
     private String imgId;
     // 파일명 : /images/ac/ 에서 관리
     private String fileName;
+    private String originFileName;
+
+    private String imgDcmNo;
+    private String imgDcmflNo;
     // sequence
     private Integer sequence;
     // hash 값
@@ -50,8 +55,12 @@ public class ImageResponseDto {
         this.id = image.getId();
         this.accrNo = image.getAccrNo();
         this.dmSeqno = image.getDmSeqno();
+        this.rqsReqId = image.getRqsReqId();
+        this.imgDcmNo = image.getImgDcmNo();
+        this.imgDcmflNo = image.getImgDcmflNo();
         this.imgId = image.getImgId();
         this.fileName = image.getFileName();
+        this.originFileName = image.getOriginFileName();
         this.sequence = image.getSequence();
         this.hashValue = image.getHashValue();
         this.duppedFile = image.getDuppedFile();
@@ -74,6 +83,7 @@ public class ImageResponseDto {
                 .dmSeqno(image.getDmSeqno())
                 .imgId(image.getImgId())
                 .fileName(image.getFileName())
+                .originFileName(image.getOriginFileName())
                 .sequence(image.getSequence())
                 .hashValue(image.getHashValue())
                 .duppedFile(image.getDuppedFile())

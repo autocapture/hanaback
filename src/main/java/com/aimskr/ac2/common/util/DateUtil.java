@@ -13,8 +13,19 @@ public class DateUtil {
     public static final String YYYYMMDD = "yyyyMMdd";
     public static final String YYYYMMDD_SLASH = "yyyy/MM/dd";
     public static final String YYYYMMDD_DASH = "yyyy-MM-dd";
-    public static final String DATETIME_HANA = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    public static final String DATETIME_HANA = "yyyyMMddHHmmss";
     public static final String DATETIME_NANO = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    public static final String DATETIME = "yyyy-MM-dd HH:mm";
+
+    public static String nowWithFormat(String format) {
+        LocalDateTime now = LocalDateTime.now();
+
+        // 원하는 형식을 지정합니다.
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+
+        // 날짜와 시간을 지정된 형식으로 변환합니다.
+        return now.format(formatter);
+    }
 
 
 

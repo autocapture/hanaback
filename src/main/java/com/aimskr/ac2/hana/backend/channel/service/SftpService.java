@@ -42,7 +42,7 @@ public class SftpService {
             String destFilePath = fileUtil.calcOriginFilePath(importDto, imgFileInfoDto);
             try {
                 ImageProcessingResultCode resultCode = retryService.downloadFile(channelSftp, srcFilePath, destFilePath);
-                if (resultCode.equals(ImageProcessingResultCode.ERROR)){
+                if (resultCode.equals(ImageProcessingResultCode.FTP_ERROR)){
                     isSuccess = false;
                     log.error("[downloadMultiFile] - SFTP download failed : {}", srcFilePath);
                 }

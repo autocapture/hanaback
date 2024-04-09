@@ -1,30 +1,27 @@
 package com.aimskr.ac2.common.enums.doc;
 
+import com.aimskr.ac2.common.enums.ClaimType;
 import lombok.Getter;
 
 // 서류유형
 @Getter
 public enum DocType {
-    MDRI("medical_receipt_in", "01", "의료비영수증-입원", AccidentType.MEDICAL),
-    MDRO("medical_receipt_out", "02", "의료비영수증-통원", AccidentType.MEDICAL),
-    MDRC("medicine_receipt", "03", "약국영수증", AccidentType.MEDICAL),
+//    MDRI("medical_receipt_in", "01", "의료비영수증-입원", AccidentType.MEDICAL),
+//    MDRO("medical_receipt_out", "02", "의료비영수증-통원", AccidentType.MEDICAL),
+//    MDRC("medicine_receipt", "03", "약국영수증", AccidentType.MEDICAL),
+//    RPDT("repair_detail", "LI0607001A", "수리비명세서", AccidentType.DAMAGE),
+//    RPRC("repair_receipt", "LI0607002A", "수리비영수증", AccidentType.DAMAGE),
+//    RPSV("repair_service", "LI0607006G", "부가서비스내역서", AccidentType.DAMAGE),
+//    CDRC("card_receipt", "14", "카드영수증", AccidentType.DELAY),
+//    BDPS("boarding_pass", "15", "항공권", AccidentType.DELAY),
+//    CDRF("card_refund", "16", "카드취소영수증", AccidentType.COMMON),
+//    ECRC("etc_receipt", "17", "영수증기타", AccidentType.COMMON),
+//    MULT("multiple_receipt", "99", "기타", AccidentType.COMMON),
+//    FLIP("flipped_receipt", "99", "기타", AccidentType.COMMON),
+//    PHIF("phone_information", "98", "휴대폰청약서류", AccidentType.PHONEINFO),
 
-    RPDT("repair_detail", "LI0607001A", "수리비명세서", AccidentType.DAMAGE),
-    RPRC("repair_receipt", "LI0607002A", "수리비영수증", AccidentType.DAMAGE),
-    RPSV("repair_service", "LI0607006G", "부가서비스내역서", AccidentType.DAMAGE),
-
-    CDRC("card_receipt", "14", "카드영수증", AccidentType.DELAY),
-    BDPS("boarding_pass", "15", "항공권", AccidentType.DELAY),
-    CDRF("card_refund", "16", "카드취소영수증", AccidentType.COMMON),
-    ECRC("etc_receipt", "17", "영수증기타", AccidentType.COMMON),
-
-    MULT("multiple_receipt", "99", "기타", AccidentType.COMMON),
-    FLIP("flipped_receipt", "99", "기타", AccidentType.COMMON),
-
-
-    PHIF("phone_information", "98", "휴대폰청약서류", AccidentType.PHONEINFO),
-
-    ETCS("etc", "99", "기타", AccidentType.COMMON);
+    CIPS("car_insurance_payment_statement", "1001", "자동차보험금지급내역서", AccidentType.PHONEINFO),
+    ETCS("etc", "9999", "기타", AccidentType.COMMON);
 
 
     private final String docName;
@@ -69,4 +66,14 @@ public enum DocType {
         }
         return DocType.ETCS;
     }
+
+    public static DocType findByCode(String code) {
+        for (DocType value : values()) {
+            if (value.docCode.equals(code)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
 }

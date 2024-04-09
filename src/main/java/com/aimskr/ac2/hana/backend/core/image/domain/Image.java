@@ -32,12 +32,23 @@ public class Image extends BaseTimeEntity {
     // 접수회차
     @Column(length = 5)
     private String dmSeqno;
-    // 원본파일명
+    @Column
+    private String rqsReqId;
+    // 이미지번호
+    @Column
+    private String imgDcmNo;
+    // 이미지문서철번호
+    @Column
+    private String imgDcmflNo;
+    // 이미지문서 ID
     @Column(length = 255)
     private String imgId;
     // 파일명
     @Column(length = 255)
     private String fileName;
+    // 파일명
+    @Column(length = 255)
+    private String originFileName;
     /**
      * 기술적 처리 영역
      */

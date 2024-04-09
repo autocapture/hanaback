@@ -65,6 +65,7 @@ public class PhoneRepairService {
         phoneRepairRepository.save(phoneRepair);
     }
 
+    // TODO : 미사용
     @Transactional
     public void saveDetailFromAiDetails(String accrNo, String dmSeqno, String fileName){
 

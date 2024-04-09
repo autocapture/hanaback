@@ -91,13 +91,11 @@ spring:
     open-in-view: false
 logging:
   pattern:
-    console: "%d %-5level %logger  %M - %line : %msg%n"
-    file: "%d %-5level [%thread] %logger{36} - %M - %line : %msg%n"
+    console: "%d %-5level %logger[%line] : %msg%n"
+    file: "%d %-5level [%thread] %logger{36}[%line] : %msg%n"
   level:
     root: info
     com.aimskr.ac2: debug
-    org.apache.http: debug
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
   file:
     name: logs/application-info.log
 server:
@@ -123,6 +121,7 @@ autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 
   sftpPwd: dpdlatm1!
   sftpPath: /files/ftpfile/aims/send/
   apiServer: https://dgate.hanainsure.co.kr:31010/aims/ProcResult
+#  apiServer: https://dev.aimskr.com:44306/hana/v1/mock
   resultPath:
   credential:
   qaPath:
@@ -134,13 +133,12 @@ filepath: # 이미지 파일 처리를 위한 설정 정보
   visDir: /home/hana/images/enc/hana/vis
   reportDir: /home/hana/images/enc/hana/report
 control:
-  autoReturn: true
+  autoReturn: false
   dupCheck: false
   requestValidation: false
   alertMode: true
-  alertEmail: "jhlee@aimslas.com"
+  alertEmail: "skkim@aimslas.com"
   errorEmail:
-    - "jhlee@aimslas.com"
     - "skkim@aimslas.com"
 
 ---
@@ -219,7 +217,7 @@ control:
   dupCheck: true
   requestValidation: true
   alertMode: true
-  alertEmail: "bkkim@aimslas.com"
+  alertEmail: "hjpark@aimslas.com"
   errorEmail:
-    - "jhlee@aimslas.com"
     - "skkim@aimslas.com"
+    - "jhlee@aimslas.com"

@@ -1,6 +1,9 @@
 package com.aimskr.ac2.hana.backend.core.assign.dto;
 
 
+import com.aimskr.ac2.common.enums.AccidentCause;
+import com.aimskr.ac2.common.enums.ClaimType;
+import com.aimskr.ac2.common.util.AES256Cipher;
 import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.aimskr.ac2.common.enums.assign.RequestType;
 import com.aimskr.ac2.common.enums.doc.AccidentType;
@@ -24,9 +27,9 @@ import java.time.LocalDateTime;
 @ComponentScan(basePackages = "com.aimskr.ac2.common")
 public class AssignResponseDto {
     private Long id;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME, timezone = "Asia/Seoul")
     private LocalDateTime createdTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME, timezone = "Asia/Seoul")
     private LocalDateTime modifiedTime;
 
     /**
@@ -34,13 +37,16 @@ public class AssignResponseDto {
      */
     private String accrNo;
     private String dmSeqno;
-    private String nrdNm;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
+    private String rqsReqId;
+    private ClaimType clmTpCd;     // 사고유형
+    private AccidentCause acdCausLctgCd; // 사고원인대분류코드
+    private String acdDt;
+    private String nrdNm;       // 피보험자명 (복호화)
+    private String nrdBirth;    // 생년월일 (복호화)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME, timezone = "Asia/Seoul")
     private LocalDateTime rqstTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
-    private LocalDateTime orgRqstTime;
+
     private Integer imgCnt;
-    private RequestType rqstType;
     private String requestJson;
     private String responseJson;
     private AccidentType accidentType;
@@ -48,9 +54,9 @@ public class AssignResponseDto {
     /**
      * 접수완료 Section
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME, timezone = "Asia/Seoul")
     private LocalDateTime acceptTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME, timezone = "Asia/Seoul")
     private LocalDateTime downloadTime;
     private AcceptStatus acceptStatus;
     private String acceptMessage;
@@ -66,14 +72,14 @@ public class AssignResponseDto {
     /**
      * 처리완료 Section (Autocapture에서 처리하는 기록)
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME, timezone = "Asia/Seoul")
     private LocalDateTime resultDeliveryTime;
     private ProcessResponseCode processResponseCode;
 
     /**
      * 수신결과 Section (KAKAO에서 전달하는 기록)
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME_HANA, timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATETIME, timezone = "Asia/Seoul")
     private LocalDateTime resultAcceptTime;
     private ResultAcceptCode resultAcceptCode;
 
@@ -85,10 +91,13 @@ public class AssignResponseDto {
                 // 기본정보
                 .accrNo(assign.getAccrNo())
                 .dmSeqno(assign.getDmSeqno())
-                .nrdNm(assign.getNrdNm())
-//                .rqstType(assign.getRqstType())
+                .rqsReqId(assign.getRqsReqId())
+                .clmTpCd(assign.getClmTpCd())
+                .acdCausLctgCd(assign.getAcdCausLctgCd())
+                .acdDt(assign.getAcdDt())
+                .nrdNm(AES256Cipher.decrypt(assign.getNrdNm(), assign.getRqsReqId()))
+                .nrdBirth(AES256Cipher.decrypt(assign.getNrdBirth(), assign.getRqsReqId()))
                 .rqstTime(assign.getRqstTime())
-//                .orgRqstTime(assign.getOrgRqstTime())
                 .imgCnt(assign.getImgCnt())
                 .accidentType(assign.getAccidentType())
                 .requestJson(assign.getRequestJson())
@@ -116,10 +125,14 @@ public class AssignResponseDto {
         this.accrNo = assign.getAccrNo();
         this.dmSeqno = assign.getDmSeqno();
 //        this.rqstType = assign.getRqstType();
-        this.nrdNm = assign.getNrdNm();
+        this.rqsReqId = assign.getRqsReqId();
+        this.clmTpCd = assign.getClmTpCd();
+        this.acdCausLctgCd = assign.getAcdCausLctgCd();
+        this.acdDt = assign.getAcdDt();
+        this.nrdNm = AES256Cipher.decrypt(assign.getNrdNm(), assign.getRqsReqId());
+        this.nrdBirth = AES256Cipher.decrypt(assign.getNrdBirth(), assign.getRqsReqId());
         this.rqstTime = assign.getRqstTime();
         this.accidentType = assign.getAccidentType();
-//        this.orgRqstTime = assign.getOrgRqstTime();
         this.imgCnt = assign.getImgCnt();
         this.requestJson = assign.getRequestJson();
         this.responseJson = assign.getResponseJson();
@@ -138,8 +151,13 @@ public class AssignResponseDto {
     }
 
     public String getStepKorName() {
-        return this.step.getKorName();
+        return this.step == null ? "" : this.step.getKorName();
     }
-    public String getRqstTypeMessage() {return this.rqstType.getMessage();}
-    public String getAccidentTypeMessage() {return this.accidentType.getMessage();}
+    public String getClaimType() {
+        return this.clmTpCd == null? "" : this.clmTpCd.getName();
+    }
+    public String getAccidentCause() {
+        return this.acdCausLctgCd.getName();
+    }
+
 }

@@ -1,17 +1,20 @@
 package com.aimskr.ac2.hana.backend.core.assign.service;
 
+import com.aimskr.ac2.common.enums.InsCompany;
+import com.aimskr.ac2.common.enums.ProcessType;
+import com.aimskr.ac2.common.enums.status.ProcessResponseCode;
+import com.aimskr.ac2.common.util.DateUtil;
 import com.aimskr.ac2.hana.backend.channel.domain.ImageHash;
 import com.aimskr.ac2.hana.backend.channel.json.*;
 
 import com.aimskr.ac2.hana.backend.channel.service.RetryService;
 import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.aimskr.ac2.hana.backend.core.assign.domain.AssignRepository;
+import com.aimskr.ac2.hana.backend.core.detail.domain.Detail;
+import com.aimskr.ac2.hana.backend.core.detail.domain.DetailRepository;
 import com.aimskr.ac2.hana.backend.core.image.dto.ImageResponseDto;
 import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairDetail;
 import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairDetailRepository;
-import com.aimskr.ac2.hana.backend.core.phone.dto.PhoneRepairResponseDto;
-import com.aimskr.ac2.hana.backend.core.phone.dto.PhoneRepairDetailResponseDto;
 import com.aimskr.ac2.hana.backend.core.phone.service.PhoneRepairService;
 import com.aimskr.ac2.hana.backend.member.service.AssignRuleService;
 import com.aimskr.ac2.hana.backend.security.service.EmailService;
@@ -31,7 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.aimskr.ac2.common.util.DateUtil.DATETIME_HANA;
 
 
 @Slf4j
@@ -53,6 +57,7 @@ public class ClaimProcessManager {
     private final AssignRuleService assignRuleService;
     private final EmailService emailService;
     private final AssignRepository assignRepository;
+    private final DetailRepository detailRepository;
 
 
 
@@ -81,14 +86,15 @@ public class ClaimProcessManager {
                 String md5Hash = imageProcessor.generateMD5((hash.getHashValue()).toByteArray());
                 boolean isDup = false;
                 String duppedFile = "";
-                if (imgFileInfoDto.getImgFileNm().toLowerCase().contains("pdf")){
 
+                // PDF 처리
+                if (imgFileInfoDto.getImgFileNm().toLowerCase().contains("pdf")){
                     imageProcessingResultCode = ImageProcessingResultCode.NOT_SUPPORT;
                     imageService.saveImage(importDto, imgFileInfoDto, isDup, duppedFile,
                             md5Hash, visionResult, imageProcessingResultCode, sequence++);
                     continue;
                 }
-
+                // 중복이미지 처리
                 if (controlConfig.isDupCheck()) {
                     // 중복검사 설정이 On일 때만 처리
                     log.debug("[processImages] - checkDup - imgFileInfoDto : {}", imgFileInfoDto);
@@ -113,8 +119,10 @@ public class ClaimProcessManager {
                 log.debug("[processImages] - doOCR - imgFileInfoDto : {}", imgFileInfoDto);
                 String autocaptureImage = fileUtil.calcAcFilePath(importDto, imgFileInfoDto);
 
+                // 문서 분류와 합쳐져있음
                 visionResult = retryService.autoInput(autocaptureImage, importDto, imgFileInfoDto);
-                phoneRepairService.saveDetailFromAiDetails(importDto.getAcdNo(), importDto.getRctSeq(), FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm()));
+
+//                phoneRepairService.saveDetailFromAiDetails(importDto.getAcdNo(), importDto.getRctSeq(), FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm()));
 
                 // 2.5 이미지 정보 및 OCR 결과 저장
                 log.debug("[processImages] - saveImage - imgFileInfoDto : {}", imgFileInfoDto);
@@ -123,14 +131,15 @@ public class ClaimProcessManager {
 
             } catch (Exception e) {
                 log.error("[processImages] - error : {}", e.getMessage());
+
                 e.printStackTrace();
                 visionResult.setError(true);
                 visionResult.setQa(true);
                 visionResult.setInputRequired(false);
                 visionResult.setDocType(DocType.ETCS);
-
+                // 예외가 나면 에러 이미지로 저장
                 imageService.saveImage(importDto, imgFileInfoDto, false, "",
-                        "", visionResult, ImageProcessingResultCode.NORMAL, sequence++);
+                        "", visionResult, ImageProcessingResultCode.FTP_ERROR, sequence++);
             }
         }
 
@@ -155,7 +164,7 @@ public class ClaimProcessManager {
 
         String qaOwner = assignRuleService.getQaAssign();
 
-        ResultDto resultDto = makeSuccessResultDto(importDto.getAcdNo(), importDto.getRctSeq(), "importDto.getApiFlgCd()");
+        ResultDto resultDto = makeSuccessResultDto(importDto.getAcdNo(), importDto.getRctSeq());
         String isResultValid = resultDto.checkValid();
         if (isResultValid.equals(ResultDto.INVALID)){
             log.debug("[processImages] - result is invalid : {}", resultDto);
@@ -163,20 +172,22 @@ public class ClaimProcessManager {
         }
 
         // 3. 자동회신 or QA배당
-        if (controlConfig.isAutoReturn() || autoReturnable) {
-            log.info("'[processImages] autoReturn ImportDto : {}", importDto);
-            qaOwner = "AIP";
-            assignService.finishWithAIP(importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
-        } else {
+//        if (controlConfig.isAutoReturn() || autoReturnable) {
+//            log.info("'[processImages] autoReturn ImportDto : {}", importDto);
+//            qaOwner = "AIP";
+//            assignService.finishWithAIP(importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
+//        } else {
+//
+//            log.info("[processImages] assign ImportDto : {}, QaOwner : {}", importDto, qaOwner);
+//            imageService.updateQaStatus(importDto.getAcdNo(), importDto.getRctSeq(), true);
+//            assignService.applyQaAssign(importDto, qaOwner);
+//        }
 
-            log.info("[processImages] assign ImportDto : {}, QaOwner : {}", importDto, qaOwner);
-            imageService.updateQaStatus(importDto.getAcdNo(), importDto.getRctSeq(), true);
-            assignService.applyQaAssign(importDto, qaOwner);
-        }
+        assignService.applyQaAssign(importDto, qaOwner);
 
         if (controlConfig.isAlertMode()){
             try{
-                log.debug("[processImages] sendAssignAlert - " + importDto.getKey() + " 메일 발송");
+                log.debug("[processImages] sendAssignAlert - " + importDto.calcKey() + " 메일 발송");
                 String email = controlConfig.getAlertEmail();
                 emailService.sendAssignAlert(qaOwner, importDto.getAcdNo() + "_" + importDto.getRctSeq(), email);
             } catch(Exception e){
@@ -187,66 +198,63 @@ public class ClaimProcessManager {
 
 
     @Transactional
-    public ResultDto makeSuccessResultDto(String accrNo, String dmSeqno, String apiFlgCd){
-        List<PhoneImageResultDto> imageResults = new ArrayList<>();
-        List<ImageResponseDto> images = imageService.findByKey(accrNo, dmSeqno);
-        for (ImageResponseDto image: images){
-            List<ResultItem> items = new ArrayList<>();
-            List<ResultSubItem> accdList = new ArrayList<>();
-            if (!image.getDocType().equals(DocType.ETCS)){
-                items = makePhoneResultItems(image.getAccrNo(), image.getDmSeqno(), image.getFileName());
-            }
-            if (image.getDocType().equals(DocType.RPDT)){
-                accdList = makePhoneResultSubItems(image.getAccrNo(), image.getDmSeqno(), image.getFileName());
-
-            }
-        }
-
-        log.debug("[makeResultDto] imageResults : {}", imageResults);
-
+    public ResultDto makeSuccessResultDto(String accrNo, String dmSeqno){
+        Assign assign = assignRepository.findByKey(accrNo, dmSeqno).orElse(null);
         assignService.updateSuccess(accrNo, dmSeqno);
 
-        ResultDto resultDto = ResultDto.builder().build();
-        Assign assign = assignRepository.findByKey(accrNo, dmSeqno).orElse(null);
+        int cntOfCIPS = 0;
 
-
-        if (assign != null){
-            resultDto = ResultDto.of(assign);
-        } else {
-            log.error("[makeResultDto] assign is null - receiptNo : {}, receiptSeq : {}", accrNo, dmSeqno);
+        List<ImageResponseDto> images = imageService.findByKey(accrNo, dmSeqno);
+        List<ImageResultDto> imgList = new ArrayList<>();
+        for (ImageResponseDto image: images){
+            ImageResultDto imageResponseDto = ImageResultDto.of(image);
+            List<ResultItem> resultItems = new ArrayList<>();
+            if (image.getDocType().equals(DocType.CIPS)){
+                resultItems = makeResultItems(image.getAccrNo(), image.getDmSeqno(), image.getFileName());
+                cntOfCIPS++;
+            }
+            imageResponseDto.setPcsRslLst(resultItems);
+            imgList.add(imageResponseDto);
         }
-//        resultDto.setImgList(imageResults);
-        //TODO: 수정
-        resultDto.setImgList(null);
 
+        ResultDto resultDto = ResultDto.of(assign);
+        resultDto.setPcsDtm(DateUtil.nowWithFormat(DATETIME_HANA));
+        ProcessResponseCode result = ProcessResponseCode.SUCCESS;
+        if (cntOfCIPS > 0){
+            result = ProcessResponseCode.SUCCESS;
+        } else {
+            result = ProcessResponseCode.NA;
+        }
+        resultDto.setPcsRslCd(result.getCode());
+        resultDto.setPcsRslDtlCd("");
+        resultDto.setImgList(imgList);
         log.debug("[makeResultDto] ResultDto : {}", resultDto);
         return resultDto;
     }
 
-    public List<ResultItem> makePhoneResultItems(String accrNo, String dmSeqno, String fileName){
+    public List<ResultItem> makeResultItems(String accrNo, String dmSeqno, String fileName){
         List<ResultItem> resultItems = new ArrayList<>();
-        List<PhoneRepairResponseDto> details = phoneRepairService.findByKeyAndFileName(accrNo, dmSeqno, fileName);
+        List<Detail> details = detailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
 
-        for (PhoneRepairResponseDto detail: details){
-//            ResultItem resultItem = ResultItem.of(detail);
-            //TODO: 수
-            ResultItem resultItem = ResultItem.builder().build();
+        for (Detail detail: details){
+            String itemCode = detail.getItemCode();
+            String itemValue = detail.getItemValue();
+
+            if (itemCode.equals("CA0001")) { // 자동차보험회사
+                itemValue = InsCompany.findByName(itemValue).getCode();
+            } else if (itemCode.equals("CA0002")) { // 처리구분
+                itemValue = ProcessType.findByName(itemValue).getCode();
+            } else if (itemCode.equals("CA0005")) { // 피보험자명
+                itemValue = itemValue.equals("일치") ? "1" : "0";
+            }
+
+            ResultItem resultItem = ResultItem.builder()
+                    .trmCd(itemCode)
+                    .trmVal(itemValue)
+                    .build();
             resultItems.add(resultItem);
         }
         return resultItems;
-    }
-
-    public List<ResultSubItem> makePhoneResultSubItems(String accrNo, String dmSeqno, String fileName){
-        List<ResultSubItem> resultSubItems = new ArrayList<>();
-
-        List<PhoneRepairDetail> details = phoneRepairDetailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
-        List<PhoneRepairDetailResponseDto> phoneRepairDetailResponseDtos = details.stream().map(PhoneRepairDetailResponseDto::new).collect(Collectors.toList());
-
-        for (PhoneRepairDetailResponseDto dtos: phoneRepairDetailResponseDtos){
-            ResultSubItem resultSubItem = ResultSubItem.of(dtos);
-            resultSubItems.add(resultSubItem);
-        }
-        return resultSubItems;
     }
 
 }

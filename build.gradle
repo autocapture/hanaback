@@ -45,7 +45,7 @@ configurations {
 }
 
 bootJar {
-    archiveFileName = "hana-0.1.2.jar"
+    archiveFileName = "hana-1.0.0.jar"
 }
 
 repositories {

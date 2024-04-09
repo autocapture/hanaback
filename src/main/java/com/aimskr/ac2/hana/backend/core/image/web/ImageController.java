@@ -33,18 +33,18 @@ public class ImageController {
     }
 
     @Operation(summary = "이미지 정보 수정 - 항공권", description = "항공권 및 항목값을 전달하여 수정", tags = "Image")
-    @PostMapping(value="/update/RPDT")
-    public void updateRPDT(@RequestBody ImageDtoRPDT imageDtoRPDT) {
-        log.debug("[updateBDPS] ImageDtoRPDT : {}", imageDtoRPDT);
-        imageService.updateRPDT(imageDtoRPDT);
+    @PostMapping(value="/update/CIPS")
+    public void updateCIPS(@RequestBody ImageDtoCIPS imageDtoCIPS) {
+        log.debug("[updateCIPS] ImageDtoCIPS : {}", imageDtoCIPS);
+        imageService.updateCIPS(imageDtoCIPS);
     }
 
-    @Operation(summary = "이미지 정보 수정 - 카드취소영수증", description = "카드취소영수증 및 항목값을 전달하여 수정", tags = "Image")
-    @PostMapping(value="/update/RPRC")
-    public void updateCDRF(@RequestBody ImageDtoRPRC imageDtoRPRC) {
-        log.debug("[updateCDRF] ImageDtoRPRC : {}", imageDtoRPRC);
-        imageService.updateRPRC(imageDtoRPRC);
-    }
+//    @Operation(summary = "이미지 정보 수정 - 카드취소영수증", description = "카드취소영수증 및 항목값을 전달하여 수정", tags = "Image")
+//    @PostMapping(value="/update/RPRC")
+//    public void updateCDRF(@RequestBody ImageDtoRPRC imageDtoRPRC) {
+//        log.debug("[updateCDRF] ImageDtoRPRC : {}", imageDtoRPRC);
+//        imageService.updateRPRC(imageDtoRPRC);
+//    }
 
     @Operation(summary = "이미지 정보 수정 - 기타", description = "기타영수증을 전달하여 수정", tags = "Image")
     @PostMapping(value="/update/ETCS")

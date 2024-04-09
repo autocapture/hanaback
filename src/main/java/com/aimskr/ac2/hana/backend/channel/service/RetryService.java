@@ -57,12 +57,12 @@ public class RetryService {
     public VisionResult autoInput(String autocaptureImage, ImportDto importDto, ImgFileInfoDto imgFileInfoDto) throws AutoReturnFailedException {
 
         log.debug("[autoInput] - autocaptureImage : {}", autocaptureImage);
-        List<AiPhoneRepair> aiPhoneRepairs;
+//        List<AiPhoneRepair> aiPhoneRepairs;
         String accidentCode = "";
 
-        if (Constant.PHONE_REPAIR.equals("importDto.getApiFlgCd()")){
-            accidentCode = AccidentType.DAMAGE.getCode();
-        }
+//        if (Constant.PHONE_REPAIR.equals("importDto.getApiFlgCd()")){
+//            accidentCode = AccidentType.DAMAGE.getCode();
+//        }
 
         visionResult = VisionResult.createInitialResult();
 
@@ -75,13 +75,17 @@ public class RetryService {
         List<ValueBox> valueBoxes = visionService.mergeAndSortOcrBoxes(boxes);
         String labelString = visionService.makeLabelString(valueBoxes);
         List<String> rows = visionService.mergeLabelsByRow(valueBoxes);
-        DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, labelString, accidentCode);
+        //TODO: 향후 확대시 문서분류 수정 필요
+//        DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, labelString, accidentCode);
+        DocType classifyResult = documentTypeChecker.isCarClaimDocType(valueBoxes, labelString) ? DocType.CIPS : DocType.ETCS;
+        visionResult.setDocType(classifyResult);
+
         log.debug("[autoInput] - DocType : {}", classifyResult.toString());
-        aiPhoneRepairs = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
-        if (classifyResult.equals(DocType.RPDT)){
-            phoneDetailAutoInputService.autoInputPhoneDetail(importDto, imgFileInfoDto, valueBoxes, rows, labelString);
-        }
-        visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiPhoneRepairs, classifyResult);
+//        aiPhoneRepairs = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
+//        if (classifyResult.equals(DocType.RPDT)){
+//            phoneDetailAutoInputService.autoInputPhoneDetail(importDto, imgFileInfoDto, valueBoxes, rows, labelString);
+//        }
+//        visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiPhoneRepairs, classifyResult);
         visionResult.setContent(visionService.makeRawString(valueBoxes));
 
 //        if (!visionService.checkEssentialItems(classifyResult, aiDetails)){
@@ -101,7 +105,7 @@ public class RetryService {
     @Recover
     public ImageProcessingResultCode recover(SftpException e){
         log.debug("[recover] - SftpException : {}", e.toString());
-        return ImageProcessingResultCode.ERROR;
+        return ImageProcessingResultCode.FTP_ERROR;
     }
 
 

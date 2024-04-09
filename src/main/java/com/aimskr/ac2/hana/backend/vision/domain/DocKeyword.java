@@ -37,6 +37,14 @@ public class DocKeyword{
     @Column
     private Integer confidence;
 
+    // 4,'COMMON','type',1,'passport','passport'
+    // (41,'MEDICAL','type',2,'수술확인서','surgery_certificate')
+    //   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    //  `accident_type` varchar(255) DEFAULT NULL,
+    //  `attribute` varchar(45) DEFAULT NULL,
+    //  `confidence` int(11) DEFAULT NULL,
+    //  `word` varchar(45) DEFAULT NULL,
+    //  `word_category` varchar(45) DEFAULT NULL,
     @Builder
     public DocKeyword(
             AccidentType accidentType,

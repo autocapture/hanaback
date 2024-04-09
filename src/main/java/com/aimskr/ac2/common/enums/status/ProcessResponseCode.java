@@ -7,11 +7,11 @@ import java.util.Arrays;
 // AIMS처리결과코드
 @Getter
 public enum ProcessResponseCode {
-    SUCCESS("R00", "정상처리"),
-    QA("R10", "QA 진행 중"),
-    DISMISS("R20", "처리불가"),
-    ERROR("R30", "이미지 다운로드 오류"),
-    TIMEOVER("R99", "시스템 오류");
+    SUCCESS("R00", "정상 처리"),
+    DISMISS("R20", "처리 불가"),
+    FTP_ERR("R30", "SFTP 오류"),
+    NA("R40", "입력 대상 없음"),
+    ERROR("R99", "시스템 오류");
 
 
     private String code;

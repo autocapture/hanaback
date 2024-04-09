@@ -32,6 +32,13 @@ public interface AssignRepository extends JpaRepository<Assign, Long> {
 
     @Query("SELECT a FROM Assign a where "
             + "(?1 is null or a.step = ?1) "
+            + "and (?2 is null or a.acceptTime >= ?2) "
+            + "and (?3 is null or a.acceptTime < ?3) "
+            + "ORDER BY a.acceptTime ASC")
+    List<Assign> searchByStepAndDate(String step, LocalDateTime fromTime, LocalDateTime toTime);
+
+    @Query("SELECT a FROM Assign a where "
+            + "(?1 is null or a.step = ?1) "
             + "and (?2 is null or a.qaOwner = ?2) "
             + "and (?3 is null or a.accidentType = ?3) "
             + "ORDER BY a.acceptTime ASC")
