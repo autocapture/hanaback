@@ -101,7 +101,7 @@ public class EmailService {
         MimeMessage  message = javaMailSender.createMimeMessage();
 
         message.addRecipients(RecipientType.TO, mailAddress);//보내는 대상
-        message.setSubject(qaOwner + ": Carrot 배정알림");//제목
+        message.setSubject(qaOwner + ": 하나손해보험 배정알림");//제목
 
         String msgg="";
         msgg+= "<div style='margin:100px;'>";
@@ -123,7 +123,7 @@ public class EmailService {
         }
 
         message.addRecipients(RecipientType.TO, String.join(",", mailAddress));//보내는 대상
-        message.setSubject(stage + ": Carrot 오류알림");//제목
+        message.setSubject(stage + ": 하나손해보험 오류알림");//제목
 
         String msgg="";
         msgg+= "<div style='margin:100px;'>";
