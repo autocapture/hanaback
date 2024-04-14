@@ -4,6 +4,7 @@ import com.aimskr.ac2.hana.backend.channel.domain.ImageHashRepository;
 import com.aimskr.ac2.hana.backend.channel.json.CompleteDto;
 import com.aimskr.ac2.hana.backend.channel.json.ImportDto;
 import com.aimskr.ac2.hana.backend.channel.json.ResultDto;
+import com.aimskr.ac2.hana.backend.channel.service.AsyncService;
 import com.aimskr.ac2.hana.backend.channel.service.ChannelService;
 import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.aimskr.ac2.hana.backend.core.assign.domain.AssignRepository;
@@ -59,6 +60,12 @@ public class AssignService {
     private final CacheService cacheService;
     private final ChannelService channelService;
     private final Gson gson;
+
+    @Transactional(readOnly = true)
+    public AssignResponseDto findById(Long id) {
+        Assign assign = assignRepository.findById(id).orElse(null);
+        return AssignResponseDto.of(assign);
+    }
 
     @Transactional
     public void saveAssign(ImportDto importDto)  {
@@ -228,7 +235,7 @@ public class AssignService {
                     log.debug("[checkAutoReturnable] accuracy is low - itemName : {}, accuracy : {}",
                             phoneRepair.getItemName(), phoneRepair.getAccuracy());
                     autoreturnable = false;
-                    Image image = imageRepository.findByFileName(phoneRepair.getFileName()).orElse(null);
+                    Image image = imageRepository.findByFileName("", phoneRepair.getFileName()).orElse(null);
 //                    image.updateQaReason(QaReason.ACCURACY.getMessage());
                 }
                 if (phoneRepair.getItemName().equals("사용금액")){
@@ -236,7 +243,7 @@ public class AssignService {
                         log.debug("[checkAutoReturnable] negative Amount - itemName : {}, amount : {}",
                                 phoneRepair.getItemName(), phoneRepair.getItemValue());
                         autoreturnable = false;
-                        Image image = imageRepository.findByFileName(phoneRepair.getFileName()).orElse(null);
+                        Image image = imageRepository.findByFileName("", phoneRepair.getFileName()).orElse(null);
 //                        image.updateQaReason(QaReason.NEGATIVE.getMessage());
                     }
                 }
@@ -472,9 +479,9 @@ public class AssignService {
     }
 
     @Transactional
-    public void deleteDetailsETCS(String receiptNo, String receiptSeq){
+    public void deleteDetailsETCS(String rqsReqId, String receiptNo, String receiptSeq){
 
-        List<ImageResponseDto> images = imageService.findByKey(receiptNo, receiptSeq);
+        List<ImageResponseDto> images = imageService.findByKey(rqsReqId, receiptNo, receiptSeq);
         List<String> etcsImages = images.stream()
                 .filter(i -> i.getDocType().equals(DocType.ETCS))
                 .map(ImageResponseDto::getFileName).collect(Collectors.toList());

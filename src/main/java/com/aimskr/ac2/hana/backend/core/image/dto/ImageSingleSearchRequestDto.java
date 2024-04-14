@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ImageSingleSearchRequestDto {
+    private String rqsReqId;
     private String accrNo;
     private String dmSeqno;
     private String fileName;

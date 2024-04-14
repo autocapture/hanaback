@@ -164,7 +164,7 @@ public class ClaimProcessManager {
 
         String qaOwner = assignRuleService.getQaAssign();
 
-        ResultDto resultDto = makeSuccessResultDto(importDto.getAcdNo(), importDto.getRctSeq());
+        ResultDto resultDto = makeSuccessResultDto(importDto.getRqsTpCd(), importDto.getAcdNo(), importDto.getRctSeq());
         String isResultValid = resultDto.checkValid();
         if (isResultValid.equals(ResultDto.INVALID)){
             log.debug("[processImages] - result is invalid : {}", resultDto);
@@ -198,19 +198,19 @@ public class ClaimProcessManager {
 
 
     @Transactional
-    public ResultDto makeSuccessResultDto(String accrNo, String dmSeqno){
+    public ResultDto makeSuccessResultDto(String rqsReqId, String accrNo, String dmSeqno){
         Assign assign = assignRepository.findByKey(accrNo, dmSeqno).orElse(null);
         assignService.updateSuccess(accrNo, dmSeqno);
 
         int cntOfCIPS = 0;
 
-        List<ImageResponseDto> images = imageService.findByKey(accrNo, dmSeqno);
+        List<ImageResponseDto> images = imageService.findByKey(rqsReqId, accrNo, dmSeqno);
         List<ImageResultDto> imgList = new ArrayList<>();
         for (ImageResponseDto image: images){
             ImageResultDto imageResponseDto = ImageResultDto.of(image);
             List<ResultItem> resultItems = new ArrayList<>();
             if (image.getDocType().equals(DocType.CIPS)){
-                resultItems = makeResultItems(image.getAccrNo(), image.getDmSeqno(), image.getFileName());
+                resultItems = makeResultItems(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
                 cntOfCIPS++;
             }
             imageResponseDto.setPcsRslLst(resultItems);
@@ -232,9 +232,9 @@ public class ClaimProcessManager {
         return resultDto;
     }
 
-    public List<ResultItem> makeResultItems(String accrNo, String dmSeqno, String fileName){
+    public List<ResultItem> makeResultItems(String rqsReqId, String accrNo, String dmSeqno, String fileName){
         List<ResultItem> resultItems = new ArrayList<>();
-        List<Detail> details = detailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
+        List<Detail> details = detailRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName);
 
         for (Detail detail: details){
             String itemCode = detail.getItemCode();

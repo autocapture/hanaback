@@ -21,8 +21,8 @@ public class DetailService {
     private final DetailRepository detailRepository;
 
     @Transactional(readOnly = true)
-    public List<DetailResponseDto> findByFileName(String  fileName) {
-        List<DetailResponseDto> detailResponseDtos = detailRepository.findByFileName(fileName)
+    public List<DetailResponseDto> findByFileName(String rqsReqId, String  fileName) {
+        List<DetailResponseDto> detailResponseDtos = detailRepository.findByFileName(rqsReqId, fileName)
                 .stream()
                 .map(DetailResponseDto::new)
                 .toList();
@@ -33,10 +33,11 @@ public class DetailService {
 
     @Transactional(readOnly = true)
     public List<DetailResponseDto> findByKey(ImageSearchRequestDto imageSearchRequestDto) {
+        String rqsReqId = imageSearchRequestDto.getRqsReqId();
         String accrNo = imageSearchRequestDto.getAccrNo();
         String dmSeqno = imageSearchRequestDto.getDmSeqno();
 
-        List<DetailResponseDto> detailResponseDtos = detailRepository.findByKey(accrNo, dmSeqno)
+        List<DetailResponseDto> detailResponseDtos = detailRepository.findByKey(rqsReqId, accrNo, dmSeqno)
                 .stream()
                 .map(DetailResponseDto::new)
                 .toList();
@@ -47,12 +48,13 @@ public class DetailService {
 
     @Transactional(readOnly = true)
     public List<DetailResponseDto> findByKeyAndFileName(ImageSingleSearchRequestDto imageSingleSearchRequestDto) {
+        String rqsReqId = imageSingleSearchRequestDto.getRqsReqId();
         String accrNo = imageSingleSearchRequestDto.getAccrNo();
         String dmSeqno = imageSingleSearchRequestDto.getDmSeqno();
         String fileName = imageSingleSearchRequestDto.getFileName();
 
         List<DetailResponseDto> detailResponseDtos
-                = detailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName)
+                = detailRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName)
                 .stream()
                 .map(DetailResponseDto::new)
                 .toList();

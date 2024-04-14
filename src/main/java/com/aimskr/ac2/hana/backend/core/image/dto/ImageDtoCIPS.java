@@ -13,10 +13,12 @@ import lombok.*;
 @Builder
 public class ImageDtoCIPS {
     // COMMON
+    private String rqsReqId;
     private String accrNo;
     private String dmSeqno;
     private String fileName;
     private String korDocType;
+    private String resultCode;
 
     // DETAIL
     private String ca0001; // 보험회사

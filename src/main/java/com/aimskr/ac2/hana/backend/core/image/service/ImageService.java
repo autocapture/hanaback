@@ -102,7 +102,7 @@ public class ImageService {
 
     @Transactional
     public void updateQaStatus(String receiptNo, String receiptSeq, boolean qaStatus){
-        List<Image> images = imageRepository.findByKey(receiptNo, receiptSeq);
+        List<Image> images = imageRepository.findByKey(receiptNo, receiptNo, receiptSeq);
 
         for (Image image: images){
             image.updateQaStatus(qaStatus);
@@ -130,8 +130,8 @@ public class ImageService {
 //    }
 
     @Transactional(readOnly = true)
-    public List<ImageResponseDto> search(String receiptNo, String receiptSeq) {
-        List<ImageResponseDto> imageResponseDtos = imageRepository.findByKey(receiptNo, receiptSeq)
+    public List<ImageResponseDto> search(String rqsReqId, String receiptNo, String receiptSeq) {
+        List<ImageResponseDto> imageResponseDtos = imageRepository.findByKey(rqsReqId, receiptNo, receiptSeq)
                 .stream()
                 .map(ImageResponseDto::new)
                 .toList();
@@ -141,8 +141,8 @@ public class ImageService {
     }
 
     @Transactional(readOnly = true)
-    public List<ImageResponseDto> findByKey(String accrNo, String dmSeqno) {
-        List<ImageResponseDto> imageResponseDtos = imageRepository.findByKey(accrNo, dmSeqno)
+    public List<ImageResponseDto> findByKey(String rqsReqId, String accrNo, String dmSeqno) {
+        List<ImageResponseDto> imageResponseDtos = imageRepository.findByKey(rqsReqId, accrNo, dmSeqno)
                 .stream()
                 .map(ImageResponseDto::new)
                 .toList();
@@ -161,11 +161,11 @@ public class ImageService {
     }
 
     @Transactional(readOnly = true)
-    public ImageResponseDto findByFileName(String fileName) {
+    public ImageResponseDto findByFileName(String rqsReqId, String fileName) {
 
-        ImageResponseDto imageResponseDto = ImageResponseDto.of(imageRepository.findByFileName(fileName).orElse(null));
+        ImageResponseDto imageResponseDto = ImageResponseDto.of(imageRepository.findByFileName(rqsReqId, fileName).orElse(null));
         if (StringUtils.hasText(imageResponseDto.getDuppedFile())){
-            Image duppedImage = imageRepository.findByFileName(imageResponseDto.getDuppedFile()).orElse(null);
+            Image duppedImage = imageRepository.findByFileName(rqsReqId, imageResponseDto.getDuppedFile()).orElse(null);
             if (duppedImage != null){
                 imageResponseDto.setDuppedAccrNo(duppedImage.getAccrNo());
             }
@@ -194,10 +194,12 @@ public class ImageService {
 
     @Transactional
     public void updateCIPS(ImageDtoCIPS imageDtoCIPS) {
+        String rqsReqId = imageDtoCIPS.getRqsReqId();
         String accrNo = imageDtoCIPS.getAccrNo();
         String dmSeqno = imageDtoCIPS.getDmSeqno();
         String fileName = imageDtoCIPS.getFileName();
         Image image = imageRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName).orElse(null);
+
         if (image == null) {
             log.error("[updateCIPS] image is null, fileName : {}", fileName);
         } else {
@@ -205,36 +207,50 @@ public class ImageService {
                 log.debug("[updateCIPS] DocType Changed : {}", imageDtoCIPS);
                 image.updateDocType(DocType.getEnumByKorName(imageDtoCIPS.getKorDocType()));
             }
+            if (!imageDtoCIPS.getResultCode().equals(image.getImageProcessingResultCode().getName())) {
+                log.debug("[updateCIPS] ImageProcessingResultCode Changed : {}", imageDtoCIPS);
+                image.updateImageProcessingResultCode(ImageProcessingResultCode.findByName(imageDtoCIPS.getResultCode()));
+            }
         }
 
-        List<Detail> details = detailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
+        List<Detail> details = detailRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName);
 
 
         // 삭제하고, 다시 저장
         for (Detail detail : details) {
             detailRepository.delete(detail);
         }
-        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+        detailRepository.save(Detail.builder()
+                .rqsReqId(rqsReqId)
+                .accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
                 .itemCode("CA0001")
                 .itemName("자동차보험회사")
                 .itemValue(imageDtoCIPS.getCa0001())
                 .build());
-        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+        detailRepository.save(Detail.builder()
+                .rqsReqId(rqsReqId)
+                .accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
                 .itemCode("CA0002")
                 .itemName("처리구분")
                 .itemValue(imageDtoCIPS.getCa0002())
                 .build());
-        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+        detailRepository.save(Detail.builder()
+                .rqsReqId(rqsReqId)
+                .accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
                 .itemCode("CA0003")
                 .itemName("부상급항(급)")
                 .itemValue(imageDtoCIPS.getCa0003())
                 .build());
-        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+        detailRepository.save(Detail.builder()
+                .rqsReqId(rqsReqId)
+                .accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
                 .itemCode("CA0004")
                 .itemName("부상급항(항)")
                 .itemValue(imageDtoCIPS.getCa0004())
                 .build());
-        detailRepository.save(Detail.builder().accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
+        detailRepository.save(Detail.builder()
+                .rqsReqId(rqsReqId)
+                .accrNo(accrNo).dmSeqno(dmSeqno).fileName(fileName)
                 .itemCode("CA0005")
                 .itemName("피보험자명")
                 .itemValue(imageDtoCIPS.getCa0005())
@@ -243,21 +259,28 @@ public class ImageService {
 
     @Transactional
     public void updateETCS(ImageDtoETCS imageDtoETCS) {
+        String rqsReqId = imageDtoETCS.getRqsReqId();
         String accrNo = imageDtoETCS.getAccrNo();
         String dmSeqno = imageDtoETCS.getDmSeqno();
         String fileName = imageDtoETCS.getFileName();
-        Image image = imageRepository.findByFileName(fileName).orElse(null);
+        Image image = imageRepository.findByFileName(rqsReqId, fileName).orElse(null);
         if (image == null) {
             log.error("[updateETCS] image is null, fileName : {}", fileName);
         } else {
             if (!imageDtoETCS.getKorDocType().equals(image.getImgType().getKorName())) {
                 log.debug("[updateETCS] DocType Changed : {}", imageDtoETCS);
                 image.updateDocType(DocType.getEnumByKorName(imageDtoETCS.getKorDocType()));
+
             }
+            if (!imageDtoETCS.getResultCode().equals(image.getImageProcessingResultCode().getName())) {
+                log.debug("[updateETCS] ImageProcessingResultCode Changed : {}", imageDtoETCS);
+                image.updateImageProcessingResultCode(ImageProcessingResultCode.findByName(imageDtoETCS.getResultCode()));
+            }
+
         }
 
         // 삭제
-        List<Detail> details = detailRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName);
+        List<Detail> details = detailRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName);
         for (Detail detail : details) {
             detailRepository.delete(detail);
         }

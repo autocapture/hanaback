@@ -20,8 +20,8 @@ public class DetailController {
 
     @Operation(summary = "상세값을 파일명으로 조회", description = "인식/입력된 상세값을 조회하는 API", tags = "Detail")
     @GetMapping(value="/get")
-    public List<DetailResponseDto> get(@RequestParam String fileName) {
-        return detailService.findByFileName(fileName);
+    public List<DetailResponseDto> get(@RequestParam String rqsReqId,@RequestParam String fileName) {
+        return detailService.findByFileName(rqsReqId, fileName);
     }
 
     // Key값으로 조회

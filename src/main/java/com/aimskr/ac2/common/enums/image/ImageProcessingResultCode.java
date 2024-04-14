@@ -23,10 +23,19 @@ public enum ImageProcessingResultCode {
         this.name = name;
     }
 
-    public static String getNameFromCode(String stepName) {
-        for (ImageProcessingResultCode step: values()){
-            if (step.code.equals(stepName)){
-                return step.name;
+    public static ImageProcessingResultCode findByCode(String code) {
+        for (ImageProcessingResultCode imageProcessingResultCode: values()){
+            if (imageProcessingResultCode.code.equals(code)){
+                return imageProcessingResultCode;
+            }
+        }
+        return null;
+    }
+
+    public static ImageProcessingResultCode findByName(String name) {
+        for (ImageProcessingResultCode imageProcessingResultCode: values()){
+            if (imageProcessingResultCode.name.equals(name)){
+                return imageProcessingResultCode;
             }
         }
         return null;

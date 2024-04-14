@@ -13,8 +13,10 @@ import lombok.*;
 @Builder
 public class ImageDtoETCS {
     // COMMON
+    private String rqsReqId;
     private String accrNo;
     private String dmSeqno;
     private String fileName;
     private String korDocType;
+    private String resultCode;
 }

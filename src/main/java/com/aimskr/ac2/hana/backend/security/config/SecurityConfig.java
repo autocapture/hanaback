@@ -111,6 +111,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/hana/v1/assign/viewall").permitAll()
                 .antMatchers(HttpMethod.GET, "/hana/v1/assign/done").permitAll()
                 .antMatchers(HttpMethod.POST, "/hana/v1/assign/search").permitAll()
+                .antMatchers(HttpMethod.PUT, "/hana/v1/assign/retry/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/hana/v1/detail/get").permitAll()
                 .antMatchers(HttpMethod.POST, "/hana/v1/detail/findByKey").permitAll()
                 .antMatchers(HttpMethod.POST, "/hana/v1/detail/findByKeyAndFileName").permitAll()

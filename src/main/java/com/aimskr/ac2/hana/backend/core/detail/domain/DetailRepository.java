@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DetailRepository extends JpaRepository<Detail, Long>{
-    @Query("SELECT k FROM Detail k WHERE k.accrNo = ?1 AND k.dmSeqno = ?2")
-    List<Detail> findByKey(String accrNo, String dmSeqno);
+    @Query("SELECT k FROM Detail k WHERE k.rqsReqId = ?1 AND k.accrNo = ?2 AND k.dmSeqno = ?3")
+    List<Detail> findByKey(String rqsReqId, String accrNo, String dmSeqno);
 
-    @Query("SELECT k FROM Detail k WHERE k.accrNo = ?1 AND k.dmSeqno = ?2 AND k.fileName = ?3")
-    List<Detail> findByKeyAndFileName(String accrNo, String dmSeqno, String fileName);
+    @Query("SELECT k FROM Detail k WHERE k.rqsReqId = ?1 AND k.accrNo = ?2 AND k.dmSeqno = ?3 AND k.fileName = ?4")
+    List<Detail> findByKeyAndFileName(String rqsReqId, String accrNo, String dmSeqno, String fileName);
 
-    @Query("SELECT k FROM Detail k WHERE k.fileName = ?1")
-    List<Detail> findByFileName(String fileName);
+    @Query("SELECT k FROM Detail k WHERE k.rqsReqId = ?1 AND k.fileName = ?2")
+    List<Detail> findByFileName(String rqsReqId, String fileName);
 
     @Query("SELECT k FROM Detail k WHERE k.accrNo = ?1 and k.dmSeqno = ?2 and k.itemName = ?3")
     List<Detail> findItemValueByItemName(String accrNo, String dmSeqno, String itemName);
