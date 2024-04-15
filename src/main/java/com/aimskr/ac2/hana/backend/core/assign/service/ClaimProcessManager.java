@@ -241,9 +241,9 @@ public class ClaimProcessManager {
             String itemValue = detail.getItemValue();
 
             if (itemCode.equals("CA0001")) { // 자동차보험회사
-                itemValue = InsCompany.findByName(itemValue).getCode();
+                itemValue = InsCompany.findByName(itemValue) == null ? "" : InsCompany.findByName(itemValue).getCode();
             } else if (itemCode.equals("CA0002")) { // 처리구분
-                itemValue = ProcessType.findByName(itemValue).getCode();
+                itemValue = ProcessType.findByName(itemValue) == null ? "" : ProcessType.findByName(itemValue).getCode();
             } else if (itemCode.equals("CA0005")) { // 피보험자명
                 itemValue = itemValue.equals("일치") ? "1" : "0";
             }
