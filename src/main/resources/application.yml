@@ -114,14 +114,20 @@ server:
     trust-store: "/etc/httpd/conf/cert/autocapture.ts"
     trust-store-password: autocapture
 autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-  sftpip: 10.1.201.72
-  sftpPort: 22
-  sftpUser: aimsftp
+#  sftpip: 10.1.201.72
+#  sftpPort: 22
+#  sftpUser: aimsftp
+#  sftpKey:
+#  sftpPwd: dpdlatm1!
+#  sftpPath: /files/ftpfile/aims/send/
+#  apiServer: https://dgate.hanainsure.co.kr:31010/aims/ProcResult
+  sftpip: 172.16.213.92
+  sftpPort: 22022
+  sftpUser: hana
   sftpKey:
-  sftpPwd: dpdlatm1!
-  sftpPath: /files/ftpfile/aims/send/
-  apiServer: https://dgate.hanainsure.co.kr:31010/aims/ProcResult
-#  apiServer: https://dev.aimskr.com:44306/hana/v1/mock
+  sftpPwd: aims0310!
+  sftpPath: /home/hwgi/images/test/hana/
+  apiServer: https://dev.aimskr.com:44306/hana/v1/mock
   resultPath:
   credential:
   qaPath:

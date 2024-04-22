@@ -10,12 +10,16 @@ import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -46,23 +50,39 @@ public class ImageProcessor {
             File originImage = new File(originFilePath);
             Files.createDirectories(Paths.get(acDir));
             Runtime.getRuntime().exec("chmod -R 777 " + acDir);
-            BufferedImage bufferedImage = ensureOpaque(ImageIO.read(originImage));
 
-            if (bufferedImage != null) {
-
-                if (imgFileInfoDto.getImgFileNm().indexOf("png") > 0){
-                    BufferedImage afterImg  = changePngToJpg(bufferedImage);
-                    ImageIO.write(afterImg, "jpg", new File(acFilePath));
-                }else{
-                    ImageIO.write(bufferedImage, "jpg", new File(acFilePath));
+            if (imgFileInfoDto.getImgFileNm().toLowerCase().indexOf("pdf") > 0){
+                // PDF 이미지 전처리
+                try (PDDocument document = PDDocument.load(originImage)) {
+                    log.debug("[preProcessImage] - PDF - {}", originFilePath);
+                    PDFRenderer renderer = new PDFRenderer(document);
+                    // PDF의 첫 페이지를 렌더링 (0은 첫 페이지를 의미)
+                    BufferedImage image = renderer.renderImageWithDPI(0, 300, ImageType.RGB);
+                    // 이미지를 JPG 형식으로 저장
+                    ImageIO.write(image, "JPEG", new File(acFilePath));
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                log.debug("[preProcessImage] - {}", acFilePath);
             } else {
-                log.error("[preProcessImage] buffer is null - {}", originFilePath);
-                File file = new File(originFilePath);
-                File newFile = new File(acFilePath);
-                Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                throw new RuntimeException("buffer is null");
+                // PDF가 아닌 경우 이미지 전처리
+                BufferedImage bufferedImage = ensureOpaque(ImageIO.read(originImage));
+
+                if (bufferedImage != null) {
+
+                    if (imgFileInfoDto.getImgFileNm().indexOf("png") > 0){
+                        BufferedImage afterImg  = changePngToJpg(bufferedImage);
+                        ImageIO.write(afterImg, "jpg", new File(acFilePath));
+                    }else{
+                        ImageIO.write(bufferedImage, "jpg", new File(acFilePath));
+                    }
+                    log.debug("[preProcessImage] - {}", acFilePath);
+                } else {
+                    log.error("[preProcessImage] buffer is null - {}", originFilePath);
+                    File file = new File(originFilePath);
+                    File newFile = new File(acFilePath);
+                    Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    throw new RuntimeException("buffer is null");
+                }
             }
         }catch (Exception e) {
             e.printStackTrace();

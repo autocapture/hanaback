@@ -87,13 +87,6 @@ public class ClaimProcessManager {
                 boolean isDup = false;
                 String duppedFile = "";
 
-                // PDF 처리
-                if (imgFileInfoDto.getImgFileNm().toLowerCase().contains("pdf")){
-                    imageProcessingResultCode = ImageProcessingResultCode.NOT_SUPPORT;
-                    imageService.saveImage(importDto, imgFileInfoDto, isDup, duppedFile,
-                            md5Hash, visionResult, imageProcessingResultCode, sequence++);
-                    continue;
-                }
                 // 중복이미지 처리
                 if (controlConfig.isDupCheck()) {
                     // 중복검사 설정이 On일 때만 처리

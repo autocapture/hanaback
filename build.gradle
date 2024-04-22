@@ -45,7 +45,7 @@ configurations {
 }
 
 bootJar {
-    archiveFileName = "hana-1.0.2.jar"
+    archiveFileName = "hana-1.0.4.jar"
 }
 
 repositories {
@@ -85,6 +85,9 @@ dependencies {
 
     // Base - 런타임에 클래스 기반 spock mock을 만들기 위해서 필요
     testImplementation('net.bytebuddy:byte-buddy:1.12.10')
+
+    // Apache PDFBox 라이브러리 추가
+    implementation 'org.apache.pdfbox:pdfbox:2.0.24'
 
     // Image Hashing
     implementation group: 'dev.brachtendorf', name: 'JImageHash', version: '1.0.0'
