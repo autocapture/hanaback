@@ -425,6 +425,10 @@ public class AssignService {
         log.debug("[finishWithAIP] receiptNo : {}, receiptSeq : {} ", accrNo, dmSeqno);
 
         channelService.complete(resultDto);
+        if (assign != null){
+            assign.updateStep(Step.RETURN);
+            assign.updateResultDeliveryTime(LocalDateTime.now());
+        }
     }
 
     /**

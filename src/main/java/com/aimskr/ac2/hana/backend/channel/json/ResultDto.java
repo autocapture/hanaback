@@ -1,5 +1,6 @@
 package com.aimskr.ac2.hana.backend.channel.json;
 
+import com.aimskr.ac2.common.enums.doc.DocType;
 import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.aimskr.ac2.common.enums.status.ProcessResponseCode;
 import com.aimskr.ac2.common.util.DateUtil;
@@ -91,16 +92,20 @@ public class ResultDto {
         if (imgList == null || imgList.size() == 0){
             return ResultDto.INVALID;
         }
-//
-//        for (ImageResultDto imageResultDto : images){
-//            if (!imageResultDto.getImgType().equals(DocType.ETCS.getDocCode()) && imageResultDto.getItems().size() == 0){
-//                return ResultDto.INVALID;
-//            }
-//            if (imageResultDto.getItems().size() > 10){
-//                return ResultDto.INVALID;
-//            }
-//        }
 
         return valid;
+    }
+
+    public boolean isAllEtcs() {
+        boolean result = true;
+
+        // 1개라도 ETCS가 아닌게 있으면, false를 리턴
+        for (ImageResultDto imageResultDto : imgList){
+            if (imageResultDto.getImgDcmTpCd().equals(DocType.CIPS.getDocCode()) && imageResultDto.getPcsRslLst().size() != 0){
+                return false;
+            }
+        }
+
+        return result;
     }
 }

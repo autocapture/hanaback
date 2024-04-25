@@ -114,20 +114,20 @@ server:
     trust-store: "/etc/httpd/conf/cert/autocapture.ts"
     trust-store-password: autocapture
 autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 관리
-#  sftpip: 10.1.201.72
-#  sftpPort: 22
-#  sftpUser: aimsftp
-#  sftpKey:
-#  sftpPwd: dpdlatm1!
-#  sftpPath: /files/ftpfile/aims/send/
-#  apiServer: https://dgate.hanainsure.co.kr:31010/aims/ProcResult
-  sftpip: 172.16.213.92
-  sftpPort: 22022
-  sftpUser: hana
+  sftpip: 10.1.201.72
+  sftpPort: 22
+  sftpUser: aimsftp
   sftpKey:
-  sftpPwd: aims0310!
-  sftpPath: /home/hwgi/images/test/hana/
-  apiServer: https://dev.aimskr.com:44306/hana/v1/mock
+  sftpPwd: dpdlatm1!
+  sftpPath: /files/ftpfile/aims/send/
+  apiServer: https://dgate.hanainsure.co.kr:31010/aims/ProcResult
+#  sftpip: 172.16.213.92
+#  sftpPort: 22022
+#  sftpUser: hana
+#  sftpKey:
+#  sftpPwd: aims0310!
+#  sftpPath: /home/hwgi/images/test/hana/
+#  apiServer: https://dev.aimskr.com:44306/hana/v1/mock
   resultPath:
   credential:
   qaPath:
@@ -178,8 +178,8 @@ spring:
     open-in-view: false
 logging:
   pattern:
-    console: "%d %-5level %logger : %msg%n"
-    file: "%d %-5level [%thread] %logger : %msg%n"
+    console: "%d %-5level %logger[%line] : %msg%n"
+    file: "%d %-5level [%thread] %logger{36}[%line] : %msg%n"
   level:
     root: info
     com.aimskr.ac2: debug

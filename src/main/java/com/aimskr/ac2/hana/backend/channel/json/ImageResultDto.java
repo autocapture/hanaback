@@ -21,7 +21,7 @@ public class ImageResultDto {
     @JsonProperty("IMG_ID")
     private String imgId;
     @JsonProperty("IMG_DCM_TP_CD")
-    private String imgDcmTpCd;
+    private String imgDcmTpCd;  // DocType의 Code
     @JsonProperty("IMG_FILE_NM")
     private String imgFileNm;
     @JsonProperty("IMG_PCS_RSL_CD")

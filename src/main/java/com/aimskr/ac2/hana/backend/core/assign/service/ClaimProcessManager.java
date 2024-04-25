@@ -175,16 +175,25 @@ public class ClaimProcessManager {
 //            imageService.updateQaStatus(importDto.getAcdNo(), importDto.getRctSeq(), true);
 //            assignService.applyQaAssign(importDto, qaOwner);
 //        }
+        // 전부 ETCS면
+        if (resultDto.isAllEtcs()) {
+            log.info("'[All ETCS] autoReturn result : {}", resultDto);
+            qaOwner = "AIP";
+            assignService.applyQaAssign(importDto, qaOwner);
+            assignService.finishWithAIP(importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
+        }
+        // 1개라도 CIPS가 있으면
+        else {
+            assignService.applyQaAssign(importDto, qaOwner);
 
-        assignService.applyQaAssign(importDto, qaOwner);
-
-        if (controlConfig.isAlertMode()){
-            try{
-                log.debug("[processImages] sendAssignAlert - " + importDto.calcKey() + " 메일 발송");
-                String email = controlConfig.getAlertEmail();
-                emailService.sendAssignAlert(qaOwner, importDto.getAcdNo() + "_" + importDto.getRctSeq(), email);
-            } catch(Exception e){
-                e.printStackTrace();
+            if (controlConfig.isAlertMode()){
+                try{
+                    log.debug("[processImages] sendAssignAlert - " + importDto.calcKey() + " 메일 발송");
+                    String email = controlConfig.getAlertEmail();
+                    emailService.sendAssignAlert(qaOwner, importDto.getAcdNo() + "_" + importDto.getRctSeq(), email);
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -44,6 +44,8 @@ public class DocumentTypeChecker { // 문서 서식 판별기
         if (labelString.indexOf("지급내역") > -1
                 || labelString.indexOf("지급결의") > -1
                 || labelString.indexOf("상해급수") > -1
+                || labelString.indexOf("보상처리") > -1
+                || labelString.indexOf("공제처리") > -1
                 || labelString.indexOf("상해등급") > -1){
             return true;
 
