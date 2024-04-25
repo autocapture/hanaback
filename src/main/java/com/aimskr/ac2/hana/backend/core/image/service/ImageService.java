@@ -136,7 +136,7 @@ public class ImageService {
                 .map(ImageResponseDto::new)
                 .toList();
 
-        log.debug("[KakaoImageService findByKey] size : {}", imageResponseDtos.size());
+        log.debug("[HanaImageService findByKey] size : {}", imageResponseDtos.size());
         return imageResponseDtos;
     }
 
@@ -147,7 +147,7 @@ public class ImageService {
                 .map(ImageResponseDto::new)
                 .toList();
 
-        log.debug("[KakaoImageService findByKey] size : {}", imageResponseDtos.size());
+        log.debug("[HanaImageService findByKey] size : {}", imageResponseDtos.size());
         return imageResponseDtos;
     }
 
