@@ -99,26 +99,26 @@ public class ImageService {
             log.info("[ImageService - saveImages] RdImage 데이터 존재, 생성하지 않음, {}", imgFileInfoDto.getImgFileNm());
         }
     }
-
-    @Transactional
-    public void updateQaStatus(String receiptNo, String receiptSeq, boolean qaStatus){
-        List<Image> images = imageRepository.findByKey(receiptNo, receiptNo, receiptSeq);
-
-        for (Image image: images){
-            image.updateQaStatus(qaStatus);
-        }
-    }
-
-    @Transactional
-    public void updateDuplicity(String receiptNo, String receiptSeq, String fileName, String duppedFile){
-        Image image = imageRepository.findByKeyAndFileName(receiptNo, receiptSeq, fileName).orElse(null);
-
-        if (image != null){
-            image.updateImageProcessingResultCode(ImageProcessingResultCode.DUPLICATE);
-            image.updateDuppedFile(duppedFile);
-        }
-
-    }
+//
+//    @Transactional
+//    public void updateQaStatus(String receiptNo, String receiptSeq, boolean qaStatus){
+//        List<Image> images = imageRepository.findByKey(receiptNo, receiptNo, receiptSeq);
+//
+//        for (Image image: images){
+//            image.updateQaStatus(qaStatus);
+//        }
+//    }
+//
+//    @Transactional
+//    public void updateDuplicity(String receiptNo, String receiptSeq, String fileName, String duppedFile){
+//        Image image = imageRepository.findByKeyAndFileName(receiptNo, receiptSeq, fileName).orElse(null);
+//
+//        if (image != null){
+//            image.updateImageProcessingResultCode(ImageProcessingResultCode.DUPLICATE);
+//            image.updateDuppedFile(duppedFile);
+//        }
+//
+//    }
 
 //    @Transactional
 //    public void updateImageAccuracy(String accrNo, String dmSeqno, ImageResultDto imageResultDto){
@@ -131,23 +131,25 @@ public class ImageService {
 
     @Transactional(readOnly = true)
     public List<ImageResponseDto> search(String rqsReqId, String receiptNo, String receiptSeq) {
+        log.debug("[HanaImageService search] rqsReqId : {} , receiptNo : {}, receiptSeq : {}", rqsReqId, receiptNo, receiptSeq);
         List<ImageResponseDto> imageResponseDtos = imageRepository.findByKey(rqsReqId, receiptNo, receiptSeq)
                 .stream()
                 .map(ImageResponseDto::new)
                 .toList();
 
-        log.debug("[KakaoImageService findByKey] size : {}", imageResponseDtos.size());
+        log.debug("[HanaImageService search] size : {}", imageResponseDtos.size());
         return imageResponseDtos;
     }
 
     @Transactional(readOnly = true)
     public List<ImageResponseDto> findByKey(String rqsReqId, String accrNo, String dmSeqno) {
+        log.debug("[HanaImageService findByKey] rqsReqId : {} , accrNo : {}, dmSeqno : {}", rqsReqId, accrNo, dmSeqno);
         List<ImageResponseDto> imageResponseDtos = imageRepository.findByKey(rqsReqId, accrNo, dmSeqno)
                 .stream()
                 .map(ImageResponseDto::new)
                 .toList();
 
-        log.debug("[KakaoImageService findByKey] size : {}", imageResponseDtos.size());
+        log.debug("[HanaImageService findByKey] size : {}", imageResponseDtos.size());
         return imageResponseDtos;
     }
 

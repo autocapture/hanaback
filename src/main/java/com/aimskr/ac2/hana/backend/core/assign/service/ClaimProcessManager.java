@@ -157,7 +157,7 @@ public class ClaimProcessManager {
 
         String qaOwner = assignRuleService.getQaAssign();
 
-        ResultDto resultDto = makeSuccessResultDto(importDto.getRqsTpCd(), importDto.getAcdNo(), importDto.getRctSeq());
+        ResultDto resultDto = makeSuccessResultDto(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq());
         String isResultValid = resultDto.checkValid();
         if (isResultValid.equals(ResultDto.INVALID)){
             log.debug("[processImages] - result is invalid : {}", resultDto);
@@ -176,7 +176,7 @@ public class ClaimProcessManager {
 //            assignService.applyQaAssign(importDto, qaOwner);
 //        }
         // 전부 ETCS면
-        if (resultDto.isAllEtcs()) {
+        if (resultDto.calcAllEtcs()) {
             log.info("'[All ETCS] autoReturn result : {}", resultDto);
             qaOwner = "AIP";
             assignService.applyQaAssign(importDto, qaOwner);
@@ -207,6 +207,7 @@ public class ClaimProcessManager {
         int cntOfCIPS = 0;
 
         List<ImageResponseDto> images = imageService.findByKey(rqsReqId, accrNo, dmSeqno);
+        log.debug("[makeResultDto] images : {}", images);
         List<ImageResultDto> imgList = new ArrayList<>();
         for (ImageResponseDto image: images){
             ImageResultDto imageResponseDto = ImageResultDto.of(image);

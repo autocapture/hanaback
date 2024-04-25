@@ -482,21 +482,21 @@ public class AssignService {
 //        }
     }
 
-    @Transactional
-    public void deleteDetailsETCS(String rqsReqId, String receiptNo, String receiptSeq){
-
-        List<ImageResponseDto> images = imageService.findByKey(rqsReqId, receiptNo, receiptSeq);
-        List<String> etcsImages = images.stream()
-                .filter(i -> i.getDocType().equals(DocType.ETCS))
-                .map(ImageResponseDto::getFileName).collect(Collectors.toList());
-
-        for (String fileName: etcsImages){
-            List<PhoneRepair> phoneRepairs = phoneRepairRepository.findByKeyAndFileName(receiptNo, receiptSeq, fileName);
-            for (PhoneRepair phoneRepair : phoneRepairs){
-                phoneRepairRepository.delete(phoneRepair);
-            }
-        }
-    }
+//    @Transactional
+//    public void deleteDetailsETCS(String rqsReqId, String receiptNo, String receiptSeq){
+//
+//        List<ImageResponseDto> images = imageService.findByKey(rqsReqId, receiptNo, receiptSeq);
+//        List<String> etcsImages = images.stream()
+//                .filter(i -> i.getDocType().equals(DocType.ETCS))
+//                .map(ImageResponseDto::getFileName).collect(Collectors.toList());
+//
+//        for (String fileName: etcsImages){
+//            List<PhoneRepair> phoneRepairs = phoneRepairRepository.findByKeyAndFileName(receiptNo, receiptSeq, fileName);
+//            for (PhoneRepair phoneRepair : phoneRepairs){
+//                phoneRepairRepository.delete(phoneRepair);
+//            }
+//        }
+//    }
 
     /**
      * 카카오 최종결과 수신 업데이트

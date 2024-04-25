@@ -33,7 +33,7 @@ public class AssignResponseDto {
     private LocalDateTime modifiedTime;
 
     /**
-     * 기본 정보 Section (Kakao에서 접수한 전문)
+     * 기본 정보 Section (HANA에서 접수한 전문)
      */
     private String accrNo;
     private String dmSeqno;

@@ -99,10 +99,7 @@ public class ChannelService {
 
     public HttpHeaders buildHeaders() {
         String timestamp = String.valueOf(System.currentTimeMillis());
-//        String authHeader = "KakaoPI " + HmacUtil.generate(autocaptureConfig.getKakaoCredential(), path, timestamp);
         HttpHeaders requestHeaders = new HttpHeaders();
-//        requestHeaders.set("Authorization", authHeader);
-        // set ("Authorization" , "KakaoPI fjdksalfjdksalfjlakfjdksalfjksalf")
         requestHeaders.set("tlmSpecd", "0200");
         requestHeaders.set("txCode", "transLseX102");
         requestHeaders.set("stfno", "7900002");
