@@ -71,6 +71,7 @@ public class ClaimProcessManager {
 
         // 2. 이미지 처리
         Integer sequence = 1;
+        boolean hasError = false;
         for (ImgFileInfoDto imgFileInfoDto : importDto.getImgLst()) {
             VisionResult visionResult = VisionResult.createInitialResult();
             ImageProcessingResultCode imageProcessingResultCode = ImageProcessingResultCode.NORMAL;
@@ -133,6 +134,7 @@ public class ClaimProcessManager {
                 // 예외가 나면 에러 이미지로 저장
                 imageService.saveImage(importDto, imgFileInfoDto, false, "",
                         "", visionResult, ImageProcessingResultCode.FTP_ERROR, sequence++);
+                hasError = true;
             }
         }
 
@@ -175,14 +177,14 @@ public class ClaimProcessManager {
 //            imageService.updateQaStatus(importDto.getAcdNo(), importDto.getRctSeq(), true);
 //            assignService.applyQaAssign(importDto, qaOwner);
 //        }
-        // 전부 ETCS면
-        if (resultDto.calcAllEtcs()) {
+        // 전부 ETCS이고, FTP_ERROR가 없었다면
+        if (resultDto.calcAllEtcs() && !hasError) {
             log.info("'[All ETCS] autoReturn result : {}", resultDto);
             qaOwner = "AIP";
             assignService.applyQaAssign(importDto, qaOwner);
             assignService.finishWithAIP(importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
         }
-        // 1개라도 CIPS가 있으면
+        // 1개라도 CIPS가 있거나, FTP_ERROR가 있었다면
         else {
             assignService.applyQaAssign(importDto, qaOwner);
 

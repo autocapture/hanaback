@@ -21,6 +21,10 @@ dependencyManagement {
     }
 }
 
+bootJar {
+    archiveFileName = "hana-1.0.5.jar"
+}
+
 java {
     sourceCompatibility = '17'
 }
@@ -44,9 +48,7 @@ configurations {
     }
 }
 
-bootJar {
-    archiveFileName = "hana-1.0.5.jar"
-}
+
 
 repositories {
     mavenCentral()

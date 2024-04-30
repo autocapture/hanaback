@@ -405,7 +405,7 @@ public class AssignService {
     }
 
     /**
-     * 정상 Case - 처리 결과를 카카오에 자동회신
+     * 정상 Case - 처리 결과를 하나에 자동회신
      */
     @Transactional
     public void finishWithAIP(String accrNo, String dmSeqno, ResultDto resultDto) {

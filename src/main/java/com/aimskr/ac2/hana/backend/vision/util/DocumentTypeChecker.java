@@ -46,7 +46,9 @@ public class DocumentTypeChecker { // 문서 서식 판별기
                 || labelString.indexOf("상해급수") > -1
                 || labelString.indexOf("보상처리") > -1
                 || labelString.indexOf("공제처리") > -1
-                || labelString.indexOf("상해등급") > -1){
+                || labelString.indexOf("상해등급") > -1
+                || (labelString.indexOf("사고사실") > -1 && labelString.indexOf("확인서") > -1)
+        ){
             return true;
 
         } else {
