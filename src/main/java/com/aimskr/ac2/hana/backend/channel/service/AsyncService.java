@@ -89,7 +89,7 @@ public class AsyncService {
         //TODO
         ResultDto resultDto = claimProcessManager.makeSuccessResultDto(rqsReqId, accrNo, dmSeqno);
         log.debug("[중복 요청] receiptNo : {}, receiptSeq : {}", accrNo, dmSeqno);
-        assignService.finishWithQA(accrNo, dmSeqno, resultDto);
+        assignService.finishWithQA(rqsReqId, accrNo, dmSeqno, resultDto);
 
 
     }

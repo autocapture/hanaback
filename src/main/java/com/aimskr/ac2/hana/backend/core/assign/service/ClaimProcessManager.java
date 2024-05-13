@@ -67,7 +67,7 @@ public class ClaimProcessManager {
      */
     public void processImages(ImportDto importDto) {
         // 1. 다운로드 완료시간 업데이트
-        assignService.updateDownloadTime(importDto.getAcdNo(), importDto.getRctSeq());
+        assignService.updateDownloadTime(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq());
 
         // 2. 이미지 처리
         Integer sequence = 1;
@@ -182,7 +182,7 @@ public class ClaimProcessManager {
             log.info("'[All ETCS] autoReturn result : {}", resultDto);
             qaOwner = "AIP";
             assignService.applyQaAssign(importDto, qaOwner);
-            assignService.finishWithAIP(importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
+            assignService.finishWithAIP(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
         }
         // 1개라도 CIPS가 있거나, FTP_ERROR가 있었다면
         else {
@@ -203,8 +203,8 @@ public class ClaimProcessManager {
 
     @Transactional
     public ResultDto makeSuccessResultDto(String rqsReqId, String accrNo, String dmSeqno){
-        Assign assign = assignRepository.findByKey(accrNo, dmSeqno).orElse(null);
-        assignService.updateSuccess(accrNo, dmSeqno);
+        Assign assign = assignRepository.findByKey(rqsReqId, accrNo, dmSeqno).orElse(null);
+        assignService.updateSuccess(rqsReqId, accrNo, dmSeqno);
 
         int cntOfCIPS = 0;
 

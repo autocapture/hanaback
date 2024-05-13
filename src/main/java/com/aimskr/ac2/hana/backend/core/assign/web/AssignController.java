@@ -37,8 +37,8 @@ public class AssignController {
 
     @Operation(summary = "키값으로 배당 조회", description = "배당 1건을 조회할 때 사용하는 API", tags = "Assign")
     @GetMapping("/get")
-    public AssignResponseDto get(@RequestParam String accrNo, @RequestParam String dmSeqno) {
-        return assignService.findByKey(accrNo, dmSeqno);
+    public AssignResponseDto get(@RequestParam String rqsReqId, @RequestParam String accrNo, @RequestParam String dmSeqno) {
+        return assignService.findByKey(rqsReqId, accrNo, dmSeqno);
     }
 
     @Operation(summary = "검색조건으로 배당 조회", description = "검색조건에 해당하는 배당 조회 시 사용하는 API", tags = "Assign")
@@ -77,6 +77,6 @@ public class AssignController {
 //        assignService.checkDupImageContentsFromAll(receiptNo, receiptSeq);
         log.debug("[done] receiptNo : {}, receiptSeq : {}", accrNo, dmSeqno);
         ResultDto resultDto = claimProcessManager.makeSuccessResultDto(rqsReqId, accrNo, dmSeqno);
-        assignService.finishWithQA(accrNo, dmSeqno, resultDto);
+        assignService.finishWithQA(rqsReqId, accrNo, dmSeqno, resultDto);
     }
 }

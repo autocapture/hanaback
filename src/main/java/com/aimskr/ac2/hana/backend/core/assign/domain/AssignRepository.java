@@ -17,8 +17,8 @@ public interface AssignRepository extends JpaRepository<Assign, Long> {
             + "ORDER BY a.acceptTime ASC")
     List<Assign> findForManagement(String step, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query("SELECT a FROM Assign a where a.accrNo = ?1 and a.dmSeqno = ?2")
-    Optional<Assign> findByKey(String accrNo, String dmSeqno);
+    @Query("SELECT a FROM Assign a where a.rqsReqId = ?1 and a.accrNo = ?2 and a.dmSeqno = ?3")
+    Optional<Assign> findByKey(String rqsReqId, String accrNo, String dmSeqno);
 
     // TODO: acceptTime -> requestTime
     @Query("SELECT a FROM Assign a where "

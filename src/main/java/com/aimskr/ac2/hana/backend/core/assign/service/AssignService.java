@@ -99,9 +99,10 @@ public class AssignService {
         }
 
         // 3. 기존에 존재하던 배당이면, 기존 배당목록 삭제
+        String rqsReqId = importDto.getRqsReqId();
         String accrNo = importDto.getAcdNo();
         String dmSeqno = importDto.getRctSeq();
-        AssignResponseDto assignResponseDto = findByKey(accrNo, dmSeqno);
+        AssignResponseDto assignResponseDto = findByKey(rqsReqId, accrNo, dmSeqno);
 
         assign.updateAcceptInfo(requestJson, acceptStatus);
         assignRepository.save(assign);
@@ -114,10 +115,11 @@ public class AssignService {
      */
     @Transactional(readOnly = true)
     public boolean checkDupAssign(ImportDto importDto) {
+        String rqsReqId = importDto.getRqsReqId();
         String arrcNo = importDto.getAcdNo();
         String dmSeqno = importDto.getRctSeq();
 
-        AssignResponseDto assignResponseDto = findByKey(arrcNo, dmSeqno);
+        AssignResponseDto assignResponseDto = findByKey(rqsReqId, arrcNo, dmSeqno);
 
         if (assignResponseDto != null){
             return true;
@@ -336,9 +338,10 @@ public class AssignService {
     @Transactional
     public void finishWithFtpError(ImportDto importDto) {
         log.info("[finishWithError] ImportDto : {}", importDto);
+        String rqsReqId = importDto.getRqsReqId();
         String accrNo = importDto.getAcdNo();
         String dmSeqno = importDto.getRctSeq();
-        Assign assign = assignRepository.findByKey(accrNo, dmSeqno)
+        Assign assign = assignRepository.findByKey(rqsReqId, accrNo, dmSeqno)
                 .orElse(null);
         if (assign != null) {
             assign.updateFinishWithError();
@@ -364,7 +367,7 @@ public class AssignService {
 
     @Transactional
     public void applyQaAssign(ImportDto importDto, String qaOwner) {
-        Assign assign = assignRepository.findByKey(importDto.getAcdNo(), importDto.getRctSeq()).orElse(null);
+        Assign assign = assignRepository.findByKey(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq()).orElse(null);
         if (assign != null){
             assign.updateStep(Step.ASSIGN);
             assign.updateQaOwner(qaOwner);
@@ -375,8 +378,8 @@ public class AssignService {
     }
 
     @Transactional
-    public void updateSuccess(String receiptNo, String receiptSeq){
-        Assign assign = assignRepository.findByKey(receiptNo, receiptSeq).orElse(null);
+    public void updateSuccess(String rqsReqId, String receiptNo, String receiptSeq){
+        Assign assign = assignRepository.findByKey(rqsReqId, receiptNo, receiptSeq).orElse(null);
 
         if (assign != null){
             assign.updateStep(Step.RETURN);
@@ -390,9 +393,10 @@ public class AssignService {
     @Transactional
     public void updatComplete(CompleteDto completeDto) {
 
+        String rqsReqId = completeDto.getRQS_REQ_ID();
         String accrNo = completeDto.getACD_NO();
         String dmSeqno = completeDto.getRCT_SEQ();
-        Assign assign = assignRepository.findByKey(accrNo, dmSeqno).orElse(null);
+        Assign assign = assignRepository.findByKey(rqsReqId, accrNo, dmSeqno).orElse(null);
         ResultAcceptCode resultAcceptCode = ResultAcceptCode.getEnum(completeDto.getRCI_RSL_CD());
 
         if (assign != null){
@@ -408,8 +412,8 @@ public class AssignService {
      * 정상 Case - 처리 결과를 하나에 자동회신
      */
     @Transactional
-    public void finishWithAIP(String accrNo, String dmSeqno, ResultDto resultDto) {
-        Assign assign = assignRepository.findByKey(accrNo, dmSeqno).orElse(null);
+    public void finishWithAIP(String rqsReqId, String accrNo, String dmSeqno, ResultDto resultDto) {
+        Assign assign = assignRepository.findByKey(rqsReqId, accrNo, dmSeqno).orElse(null);
         String resultJson = "";
         try{
             resultJson = new ObjectMapper().writeValueAsString(resultDto);
@@ -435,8 +439,8 @@ public class AssignService {
      * 정상 Case - 처리 결과를 카카오에 자동회신
      */
     @Transactional
-    public void noticeQAAssign(String accrNo, String dmSeqno, ResultDto resultDto) {
-        Assign assign = assignRepository.findByKey(accrNo, dmSeqno).orElse(null);
+    public void noticeQAAssign(String rqsReqId, String accrNo, String dmSeqno, ResultDto resultDto) {
+        Assign assign = assignRepository.findByKey(rqsReqId, accrNo, dmSeqno).orElse(null);
 
         if (assign != null){
             assign.updateQaOwner("AIP");
@@ -452,8 +456,8 @@ public class AssignService {
      * 정상 Case - QA 처리 결과를 회신
      */
     @Transactional
-    public void finishWithQA(String receiptNo, String receiptSeq, ResultDto resultDto) {
-        Assign assign = assignRepository.findByKey(receiptNo, receiptSeq).orElse(null);
+    public void finishWithQA(String rqsReqId, String receiptNo, String receiptSeq, ResultDto resultDto) {
+        Assign assign = assignRepository.findByKey(rqsReqId, receiptNo, receiptSeq).orElse(null);
         String resultJson = "";
         try{
          resultJson = new ObjectMapper().writeValueAsString(resultDto);
@@ -503,7 +507,7 @@ public class AssignService {
      */
     @Transactional
     public void complete(CompleteDto completeDto){
-        Assign assign = assignRepository.findByKey(completeDto.getACD_NO(), completeDto.getRCT_SEQ())
+        Assign assign = assignRepository.findByKey(completeDto.getRQS_REQ_ID(), completeDto.getACD_NO(), completeDto.getRCT_SEQ())
                 .orElseThrow(() -> new IllegalArgumentException("해당 배당목록이 없습니다."));
         assign.updateComplete(
                 ResultAcceptCode.getEnum(completeDto.getRCI_RSL_CD()),
@@ -515,22 +519,22 @@ public class AssignService {
      * processImages 시작시점에 수행
      */
     @Transactional
-    public void updateDownloadTime(String receiptNo, String receiptSeq){
-        Assign assign = assignRepository.findByKey(receiptNo, receiptSeq)
+    public void updateDownloadTime(String rqsReqId, String receiptNo, String receiptSeq){
+        Assign assign = assignRepository.findByKey(rqsReqId, receiptNo, receiptSeq)
                 .orElseThrow(() -> new IllegalArgumentException("해당 배당목록이 없습니다."));
         assign.updateDownloadTime();
     }
 
     @Transactional(readOnly = true)
-    public AssignResponseDto findByKey(String receiptNo, String receiptSeq) {
-        Assign assign = assignRepository.findByKey(receiptNo, receiptSeq)
+    public AssignResponseDto findByKey(String rqsReqId, String receiptNo, String receiptSeq) {
+        Assign assign = assignRepository.findByKey(rqsReqId, receiptNo, receiptSeq)
                 .orElse(null);
         return AssignResponseDto.of(assign);
     }
 
     @Transactional(readOnly = true)
-    public Assign getAssignByKey(String receiptNo, String receiptSeq) {
-        return  assignRepository.findByKey(receiptNo, receiptSeq).orElse(null);
+    public Assign getAssignByKey(String rqsReqId, String receiptNo, String receiptSeq) {
+        return  assignRepository.findByKey(rqsReqId, receiptNo, receiptSeq).orElse(null);
     }
 
     @Transactional
