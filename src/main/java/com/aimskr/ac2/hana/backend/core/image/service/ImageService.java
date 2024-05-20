@@ -52,6 +52,7 @@ public class ImageService {
         String fileName = FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm());
 
         Image prevRd = imageRepository.findByKeyAndFileName(
+                importDto.getRqsReqId(),
                 importDto.getAcdNo(),
                 importDto.getRctSeq(),
                 fileName
@@ -110,8 +111,8 @@ public class ImageService {
     }
 
     @Transactional
-    public void updateDuplicity(String receiptNo, String receiptSeq, String fileName, String duppedFile){
-        Image image = imageRepository.findByKeyAndFileName(receiptNo, receiptSeq, fileName).orElse(null);
+    public void updateDuplicity(String rqsReqId, String receiptNo, String receiptSeq, String fileName, String duppedFile){
+        Image image = imageRepository.findByKeyAndFileName(rqsReqId, receiptNo, receiptSeq, fileName).orElse(null);
 
         if (image != null){
             image.updateImageProcessingResultCode(ImageProcessingResultCode.DUPLICATE);
@@ -154,6 +155,7 @@ public class ImageService {
     @Transactional(readOnly = true)
     public ImageResponseDto findByKeyAndFileName(ImageSingleSearchRequestDto imageSingleSearchRequestDto) {
         return ImageResponseDto.of(imageRepository.findByKeyAndFileName(
+                imageSingleSearchRequestDto.getRqsReqId(),
                 imageSingleSearchRequestDto.getAccrNo(),
                 imageSingleSearchRequestDto.getDmSeqno(),
                 imageSingleSearchRequestDto.getFileName()
@@ -185,8 +187,8 @@ public class ImageService {
     }
 
     @Transactional
-    public void updateImageProcessingResultCode(String accrNo, String dmSeqno, String fileName, ImageProcessingResultCode imageProcessingResultCode) {
-        Image image = imageRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName).orElse(null);
+    public void updateImageProcessingResultCode(String rqsReqId, String accrNo, String dmSeqno, String fileName, ImageProcessingResultCode imageProcessingResultCode) {
+        Image image = imageRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName).orElse(null);
         if (image != null) {
             image.updateImageProcessingResultCode(imageProcessingResultCode);
         }
@@ -198,7 +200,7 @@ public class ImageService {
         String accrNo = imageDtoCIPS.getAccrNo();
         String dmSeqno = imageDtoCIPS.getDmSeqno();
         String fileName = imageDtoCIPS.getFileName();
-        Image image = imageRepository.findByKeyAndFileName(accrNo, dmSeqno, fileName).orElse(null);
+        Image image = imageRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName).orElse(null);
 
         if (image == null) {
             log.error("[updateCIPS] image is null, fileName : {}", fileName);
