@@ -1,7 +1,6 @@
 package com.aimskr.ac2.hana.backend.core.image.web;
 
 
-import com.aimskr.ac2.hana.backend.core.assign.service.AssignService;
 import com.aimskr.ac2.hana.backend.core.image.dto.*;
 import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +37,12 @@ public class ImageController {
         imageService.updateCIPS(imageDtoCIPS);
     }
 
+    @Operation(summary = "이미지 정보 수정 - 항공권", description = "항공권 및 항목값을 전달하여 수정", tags = "Image")
+    @PostMapping(value="/update/DIAG")
+    public void updateDIAG(@RequestBody ImageDtoDIAG imageDtoDIAG) {
+        log.debug("[updateCIPS] ImageDtoCIPS : {}", imageDtoDIAG);
+        imageService.updateDIAG(imageDtoDIAG);
+    }
 
     @Operation(summary = "이미지 정보 수정 - 기타", description = "기타영수증을 전달하여 수정", tags = "Image")
     @PostMapping(value="/update/ETCS")

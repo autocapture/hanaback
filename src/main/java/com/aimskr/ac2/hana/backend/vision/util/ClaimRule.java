@@ -1,8 +1,8 @@
 package com.aimskr.ac2.hana.backend.vision.util;
 
-import com.aimskr.ac2.hana.backend.core.phone.domain.AiPhoneRepair;
 import com.aimskr.ac2.common.enums.detail.ItemType;
 import com.aimskr.ac2.common.enums.doc.DocType;
+import com.aimskr.ac2.hana.backend.vision.domain.AiDetail;
 import com.aimskr.ac2.hana.backend.vision.dto.ValueBox;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +33,14 @@ public abstract class ClaimRule extends InputRule {
 
     public abstract void setItemInfo(DocType docType);
 
-
+    public AiDetail makeAiDetail(){
+        return AiDetail.builder()
+                .itemCode(itemCode)
+                .itemName(itemName)
+                .itemValue(itemValue)
+                .accuracy(accuracy)
+                .build();
+    }
 
     public void initItem(ItemType itemType){
         setItemCode(itemType.getItemCode());
@@ -63,18 +70,12 @@ public abstract class ClaimRule extends InputRule {
         return Math.round(targetBox.getConfidenceScore() * 100) / 100.0;
     }
 
-    public AiPhoneRepair makeAiDetail(){
-        return AiPhoneRepair.builder()
-                .itemCode(itemCode)
-                .itemName(itemName)
-                .itemValue(itemValue)
-                .accuracy(accuracy)
-                .build();
-    }
-
-
     public void addAccuracy(double addition){
         setAccuracy(Math.min(1.0, Math.round((getAccuracy() + addition) * 100) / 100.0));
+    }
+
+    public static boolean containsAny(String mainString, List<String> stringsToCheck) {
+        return stringsToCheck.stream().anyMatch(mainString::contains);
     }
 
     public abstract void calcAccuracy();

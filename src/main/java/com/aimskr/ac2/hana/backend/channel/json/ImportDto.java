@@ -21,27 +21,27 @@ public class ImportDto {
     public static final String DUP = "DUP";
 
     @JsonProperty("RQS_REQ_ID")
-    private String rqsReqId;
+    private String rqsReqId; // 의뢰요청ID
     @JsonProperty("ACD_NO")
-    private String acdNo;
+    private String acdNo; // 사고번호
     @JsonProperty("RCT_SEQ")
-    private String rctSeq;
+    private String rctSeq; // 접수순번
     @JsonProperty("ACD_DT")
-    private String acdDt;
+    private String acdDt; // 사고일자
     @JsonProperty("CLM_TP_CD")
-    private String clmTpCd;
+    private String clmTpCd; // 청구유형코드
     @JsonProperty("ACD_CAUS_LCTG_CD")
-    private String acdCausLctgCd;
+    private String acdCausLctgCd; // 사고원인대분류코드
     @JsonProperty("RQS_TP_CD")
-    private String rqsTpCd;
+    private String rqsTpCd; // 요청구분
     @JsonProperty("DMPE_NM")
-    private String dmpeNm;
+    private String dmpeNm; // 피해자명
     @JsonProperty("INSPE_BDT")
-    private String inspeBdt;
+    private String inspeBdt; // 피보험자생년월일
     @JsonProperty("REQ_DTM")
-    private String reqDtm;
+    private String reqDtm; // 요청일시
     @JsonProperty("IMG_CNT")
-    private int imgCnt;
+    private int imgCnt; // 이미지수
 
     @JsonProperty("IMG_LST")
     private List<ImgFileInfoDto> imgLst;

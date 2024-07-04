@@ -101,7 +101,7 @@ public class ResultDto {
 
         // 1개라도 ETCS가 아닌게 있으면, false를 리턴
         for (ImageResultDto imageResultDto : imgList){
-            if (imageResultDto.getImgDcmTpCd().equals(DocType.CIPS.getDocCode())){
+            if (!imageResultDto.getImgDcmTpCd().equals(DocType.ETCS)){
                 return false;
             }
         }

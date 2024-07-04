@@ -1,11 +1,13 @@
 package com.aimskr.ac2.hana.backend.vision.util;
 
-import com.aimskr.ac2.hana.backend.core.phone.domain.AiPhoneRepair;
+import com.aimskr.ac2.hana.backend.vision.domain.AiDetail;
 import com.aimskr.ac2.hana.backend.vision.dto.ValueBox;
-import com.aimskr.ac2.hana.backend.vision.util.rpsvrules.RpsvOtherInsRule;
+import com.aimskr.ac2.hana.backend.vision.util.cipsrules.CipsInjGrdRule;
+import com.aimskr.ac2.hana.backend.vision.util.cipsrules.CipsInsComRule;
+import com.aimskr.ac2.hana.backend.vision.util.cipsrules.CipsProcessTypeRule;
+import com.aimskr.ac2.hana.backend.vision.util.mddgrules.MddgBizNameRule;
 import com.aimskr.ac2.common.enums.doc.DocType;
-import com.aimskr.ac2.hana.backend.vision.util.rpdtrules.*;
-import com.aimskr.ac2.hana.backend.vision.util.rprcrules.*;
+import com.aimskr.ac2.hana.backend.vision.util.mddgrules.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,48 +23,48 @@ import java.util.List;
 @Service
 public class RuleOrganizer {
 
-    //수리비명세서
+    // 진단,수술
+    // 의료기관명
     @Autowired
-    private RpdtIssueDateRule rpdtIssueDateRule;
+    private MddgBizNameRule mddgBizNameRule;
+    // 진단일
     @Autowired
-    private RpdtImeiRule rpdtImeiRule;
+    private MddgDiagDateRule mddgDiagDateRule;
+    // 의사명
     @Autowired
-    private RpdtItemAmountRule rpdtItemAmountRule;
+    private MddgDoctorNameRule mddgDoctorNameRule;
+    // 면허번호
     @Autowired
-    private RpdtManuNumRule rpdtManuNumRule;
-    @Autowired
-    private RpdtModelCodeRule rpdtModelCodeRule;
-    @Autowired
-    private RpdtRprAmountRule rpdtRprAmountRule;
-    @Autowired
-    private RpdtSerialNumRule rpdtSerialNumRule;
-    @Autowired
-    private RpdtTotalAmountRule rpdtTotalAmountRule;
+    private MddgLicenseNoRule mddgLicenseNoRule;
 
-    // 수리비영수증
     @Autowired
-    private RprcIssueDateRule rprcIssueDateRule;
-    @Autowired
-    private RprcReceiveDateRule rprcReceiveDateRule;
-    @Autowired
-    private RprcTotalAmountRule rprcTotalAmountRule;
+    private CipsInsComRule cipsInsComRule;
 
-    // 부가서비스내역서
     @Autowired
-    private RpsvOtherInsRule rpsvOtherInsRule;
+    private CipsInjGrdRule cipsInjGrdRule;
 
+    @Autowired
+    private CipsProcessTypeRule cipsProcessTypeRule;
 
 
     private HashMap<DocType, List<ClaimRule>> claimRules;
-    private HashMap<DocType, List<SubscriptionRule>> subscriptionRules;
 
 
     @PostConstruct
     public void init(){
         claimRules = new HashMap<>();
-        subscriptionRules = new HashMap<>();
 //        // 01. 의료비영수증-입원
-//        claimRules.put(DocType.MDRI, new ArrayList<>());
+        claimRules.put(DocType.MDDG, new ArrayList<>());
+        claimRules.get(DocType.MDDG).add(mddgBizNameRule);
+        claimRules.get(DocType.MDDG).add(mddgDiagDateRule);
+        claimRules.get(DocType.MDDG).add(mddgDoctorNameRule);
+        claimRules.get(DocType.MDDG).add(mddgLicenseNoRule);
+
+        claimRules.put(DocType.CIPS, new ArrayList<>());
+        claimRules.get(DocType.CIPS).add(cipsInsComRule);
+        claimRules.get(DocType.CIPS).add(cipsInjGrdRule);
+        claimRules.get(DocType.CIPS).add(cipsProcessTypeRule);
+
 //        // 02. 의료비영수증-통원
 //        claimRules.put(DocType.MDRO, new ArrayList<>());
 //        // 03. 약국영수증
@@ -97,22 +99,24 @@ public class RuleOrganizer {
         claimRules.put(DocType.ETCS, new ArrayList<>());
     }
 
-    public List<AiPhoneRepair> runClaimRules(List<ValueBox> boxList, List<String> rows, String labelString, DocType docType){
+
+    public List<AiDetail> runClaimRules(List<ValueBox> boxList, List<String> rows, String labelString, DocType docType){
         log.debug("[RuleOrganizer] runRules() - docType: {}/{}", docType.getDocCode(), docType.getDocName());
         log.debug("[RuleOrganizer] runRules() - rule.size() : {}", claimRules.size());
 
         List<ClaimRule> typedRules = claimRules.get(docType);
-        List<AiPhoneRepair> aiPhoneRepairs = new ArrayList<>();
+        List<AiDetail> aiDetails = new ArrayList<>();
 
         if (typedRules == null){
             log.debug("[RuleOrganizer] runRules() - typedRules is null");
-            return aiPhoneRepairs;
+            return aiDetails;
         } else {
             log.debug("[RuleOrganizer] runRules() - typedRules.size() : {}", typedRules.size());
         }
 
         for (ClaimRule rule: typedRules){
             rule.setItemInfo(docType);
+
             try{
                 rule.applyRule(boxList, rows, labelString);
                 rule.calcAccuracy();
@@ -120,10 +124,10 @@ public class RuleOrganizer {
                 log.error("[runRules] {} Rule error : {}", rule.getItemName(), e.getMessage());
             }
 
-            AiPhoneRepair aiPhoneRepair = rule.makeAiDetail();
-            aiPhoneRepairs.add(aiPhoneRepair);
+            AiDetail aiDetail = rule.makeAiDetail();
+            aiDetails.add(aiDetail);
         }
-        return aiPhoneRepairs;
+        return aiDetails;
     }
 
 

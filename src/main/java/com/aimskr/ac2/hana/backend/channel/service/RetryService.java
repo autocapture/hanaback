@@ -1,19 +1,19 @@
 package com.aimskr.ac2.hana.backend.channel.service;
 
 
+import com.aimskr.ac2.common.util.FileUtil;
+import com.aimskr.ac2.common.util.clustering.ClusteringService;
 import com.aimskr.ac2.hana.backend.channel.json.ImgFileInfoDto;
 import com.aimskr.ac2.hana.backend.channel.json.ImportDto;
-import com.aimskr.ac2.hana.backend.core.phone.domain.AiPhoneRepair;
+import com.aimskr.ac2.hana.backend.vision.domain.AiDetail;
 import com.aimskr.ac2.hana.backend.vision.dto.ValueBox;
 import com.aimskr.ac2.hana.backend.vision.dto.VisionResult;
-import com.aimskr.ac2.hana.backend.vision.service.PhoneDetailAutoInputService;
+import com.aimskr.ac2.hana.backend.vision.service.DiagAutoInputService;
 import com.aimskr.ac2.hana.backend.vision.service.VisionService;
 import com.aimskr.ac2.hana.backend.vision.util.DocumentTypeChecker;
 import com.aimskr.ac2.hana.backend.vision.util.InputVerifier;
 import com.aimskr.ac2.hana.backend.vision.util.RuleOrganizer;
 import com.aimskr.ac2.common.config.AutocaptureConfig;
-import com.aimskr.ac2.common.enums.Constant;
-import com.aimskr.ac2.common.enums.doc.AccidentType;
 import com.aimskr.ac2.common.enums.doc.DocType;
 import com.aimskr.ac2.common.enums.image.ImageProcessingResultCode;
 import com.aimskr.ac2.common.exception.AutoReturnFailedException;
@@ -42,7 +42,9 @@ public class RetryService {
     private final DocumentTypeChecker documentTypeChecker;
     private final AutocaptureConfig autocaptureConfig;
     private final InputVerifier inputVerifier;
-    private final PhoneDetailAutoInputService phoneDetailAutoInputService;
+    private final DiagAutoInputService diagAutoInputService;
+    private final ClusteringService clusteringService;
+    private final FileUtil fileUtil;
     private VisionResult visionResult;
 
     @Retryable(value = SftpException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
@@ -70,21 +72,26 @@ public class RetryService {
         if (autocaptureConfig.getSftpIp().equals("test")){
             boxes = visionService.doOCRTest(autocaptureImage);
         }else{
-            boxes = visionService.doOCR(autocaptureImage);
+            boxes = visionService.doOCR(autocaptureImage, fileUtil.calcAcFilePath(importDto, imgFileInfoDto));
         }
-        List<ValueBox> valueBoxes = visionService.mergeAndSortOcrBoxes(boxes);
+
+        List<ValueBox> valueBoxesToSort = visionService.toValueBox(boxes);
+        List<ValueBox> boxesClustered = clusteringService.cluster(valueBoxesToSort);
+        List<ValueBox> valueBoxes = visionService.mergeAndSortClusterBoxes(boxesClustered);
         String labelString = visionService.makeLabelString(valueBoxes);
         List<String> rows = visionService.mergeLabelsByRow(valueBoxes);
         //TODO: 향후 확대시 문서분류 수정 필요
 //        DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, labelString, accidentCode);
-        DocType classifyResult = documentTypeChecker.isCarClaimDocType(valueBoxes, labelString) ? DocType.CIPS : DocType.ETCS;
+        DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, labelString);
         visionResult.setDocType(classifyResult);
 
         log.debug("[autoInput] - DocType : {}", classifyResult.toString());
-//        aiPhoneRepairs = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
-//        if (classifyResult.equals(DocType.RPDT)){
-//            phoneDetailAutoInputService.autoInputPhoneDetail(importDto, imgFileInfoDto, valueBoxes, rows, labelString);
-//        }
+        List<AiDetail> aiDetails = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
+        if (classifyResult.equals(DocType.MDDG)){
+            diagAutoInputService.autoInputDiags(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), imgFileInfoDto, rows, labelString);
+        }
+
+        visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiDetails, classifyResult);
 //        visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiPhoneRepairs, classifyResult);
         visionResult.setContent(visionService.makeRawString(valueBoxes));
 

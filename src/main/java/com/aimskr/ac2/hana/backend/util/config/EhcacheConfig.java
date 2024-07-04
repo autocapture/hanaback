@@ -22,7 +22,6 @@ public class EhcacheConfig {
     public static final String DOCKEYWORD_CACHE = "docKeywordCache";
     public static final String PASSENGER_CACHE = "passengerCache";
     public static final String BIZINFO_CACHE = "bizInfoCache";
-    public static final String ACCD_CACHE = "accdCache";
 
 
     private final javax.cache.configuration.Configuration<Object, Object> jCacheConfiguration;
@@ -44,7 +43,6 @@ public class EhcacheConfig {
             cm.createCache(DOCKEYWORD_CACHE, jCacheConfiguration);
             cm.createCache(PASSENGER_CACHE, jCacheConfiguration);
             cm.createCache(BIZINFO_CACHE, jCacheConfiguration);
-            cm.createCache(ACCD_CACHE, jCacheConfiguration);
         };
     }
 

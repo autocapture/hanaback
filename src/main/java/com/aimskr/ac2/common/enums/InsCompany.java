@@ -2,6 +2,10 @@ package com.aimskr.ac2.common.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 public enum InsCompany {
     C9200("9200", "KOREAN RE, KOREA")
@@ -120,5 +124,14 @@ public enum InsCompany {
             }
         }
         return null;
+    }
+
+    public static List<String> getInsCompanyNameList(){
+
+        return Arrays.stream(InsCompany.values())
+                .map(InsCompany::getName)
+                .collect(Collectors.toList());
+
+
     }
 }

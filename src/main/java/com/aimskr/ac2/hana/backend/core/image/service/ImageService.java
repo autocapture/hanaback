@@ -1,7 +1,6 @@
 package com.aimskr.ac2.hana.backend.core.image.service;
 
 
-import com.aimskr.ac2.common.enums.InsCompany;
 import com.aimskr.ac2.hana.backend.channel.domain.ImageHash;
 import com.aimskr.ac2.hana.backend.channel.domain.ImageHashRepository;
 import com.aimskr.ac2.hana.backend.channel.json.ImgFileInfoDto;
@@ -11,8 +10,8 @@ import com.aimskr.ac2.hana.backend.core.detail.domain.DetailRepository;
 import com.aimskr.ac2.hana.backend.core.image.domain.Image;
 import com.aimskr.ac2.hana.backend.core.image.domain.ImageRepository;
 import com.aimskr.ac2.hana.backend.core.image.dto.*;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepair;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairRepository;
+import com.aimskr.ac2.hana.backend.core.medical.dto.DiagInfoExchangeDto;
+import com.aimskr.ac2.hana.backend.core.medical.service.DiagInfoService;
 import com.aimskr.ac2.hana.backend.vision.dto.VisionResult;
 import com.aimskr.ac2.common.enums.detail.ItemType;
 import com.aimskr.ac2.common.enums.doc.DocType;
@@ -33,7 +32,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final ImageHashRepository imageHashRepository;
     private final DetailRepository detailRepository;
-//    private final PhoneRepairRepository phoneRepairRepository;
+    private final DiagInfoService diagInfoService;
 
     /**
      * 접수 시점 이미지 최초 저장 : 중복여부 / 입력대상 여부 저장
@@ -258,6 +257,51 @@ public class ImageService {
                 .itemValue(imageDtoCIPS.getCa0005())
                 .build());
     }
+
+
+    @Transactional
+    public void updateDIAG(ImageDtoDIAG imageDtoDIAG) {
+
+        String rqsReqId = imageDtoDIAG.getRqsReqId();
+        String accrNo = imageDtoDIAG.getAccrNo();
+        String dmSeqno = imageDtoDIAG.getDmSeqno();
+        String fileName = imageDtoDIAG.getFileName();
+        Image image = imageRepository.findByFileName(rqsReqId, fileName).orElse(null);
+        if (image == null) {
+            log.error("[updateMDDG] image is null, fileName : {}", fileName);
+        } else {
+            if (!imageDtoDIAG.getKorDocType().equals(image.getImgType().getKorName())) {
+                log.debug("[updateMDDG] DocType Changed : {}", imageDtoDIAG);
+                image.updateDocType(DocType.getEnumByKorName(imageDtoDIAG.getKorDocType()));
+            }
+        }
+
+        List<Detail> details = detailRepository.findByFileName(rqsReqId, fileName);
+
+        // 삭제하고, 다시 저장
+        for (Detail detail : details) {
+            detailRepository.delete(detail);
+        }
+
+        // 진단일자(DA0004)는 진단코드 항목에 포함되기 때문에 따로 저장하지 않음
+        detailRepository.save(Detail.create(image, ItemType.HSP_TYPE_CODE, imageDtoDIAG.getHs0001()));
+        detailRepository.save(Detail.create(image, ItemType.HSP_BIZ_NO, imageDtoDIAG.getHs0002()));
+        detailRepository.save(Detail.create(image, ItemType.HSP_NAME, imageDtoDIAG.getHs0003()));
+        detailRepository.save(Detail.create(image, ItemType.HSP_ZIP_CODE, imageDtoDIAG.getHs0004()));
+        detailRepository.save(Detail.create(image, ItemType.HSP_ADDRESS, imageDtoDIAG.getHs0005()));
+//        detailRepository.save(Detail.create(image, ItemType.MDDG_DIAG_DATE, imageDtoDIAG.getDa0004()));
+        detailRepository.save(Detail.create(image, ItemType.MDDG_DOCTOR_NAME, imageDtoDIAG.getDa0005()));
+        detailRepository.save(Detail.create(image, ItemType.MDDG_LICENCE_NO, imageDtoDIAG.getDa0006()));
+
+        List<DiagInfoExchangeDto> diagInfoExchangeDtos = imageDtoDIAG.getDiagList();
+        for (DiagInfoExchangeDto diagInfoExchangeDto: diagInfoExchangeDtos){
+            diagInfoExchangeDto.setDiagDate(imageDtoDIAG.getDa0004());
+        }
+
+        diagInfoService.save(rqsReqId, accrNo, dmSeqno, fileName, imageDtoDIAG.getDiagList());
+
+    }
+
 
     @Transactional
     public void updateETCS(ImageDtoETCS imageDtoETCS) {

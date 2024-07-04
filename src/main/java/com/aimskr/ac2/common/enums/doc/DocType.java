@@ -20,6 +20,16 @@ public enum DocType {
 //    FLIP("flipped_receipt", "99", "기타", AccidentType.COMMON),
 //    PHIF("phone_information", "98", "휴대폰청약서류", AccidentType.PHONEINFO),
 
+    MDDG("medical_diagnosis", "0701", "진단서", AccidentType.MEDICAL),
+    MDOP("medical_opinion", "0702", "소견서", AccidentType.MEDICAL),
+    MDSR("medical_surgery", "0703", "수술확인서", AccidentType.MEDICAL),
+    MDIC("medical_confirmation_in", "0705", "입퇴원확인서", AccidentType.MEDICAL),
+    MDOC("medical_confirmation_out", "0706", "통원확인서", AccidentType.MEDICAL),
+    MDPH("medical_pharmacy", "0708", "처방전", AccidentType.MEDICAL),
+    MDEC("medical_diagnosis_etc", "0709", "기타진단명확인서류", AccidentType.MEDICAL),
+    SREM("surgery_emergency", "0801", "응급실초진기록", AccidentType.MEDICAL),
+    SRRC("surgery_record", "0805", "수술기록지", AccidentType.MEDICAL),
+
     CIPS("car_insurance_payment_statement", "1001", "자동차보험금지급내역서", AccidentType.PHONEINFO),
     ETCS("etc", "9999", "기타", AccidentType.COMMON);
 
@@ -49,9 +59,9 @@ public enum DocType {
         return DocType.ETCS;
     }
 
-    public static DocType typeContains(String givenWord, AccidentType accidentType){
+    public static DocType typeContains(String givenWord){
         for (DocType docType: values()){
-            if (docType.accidentType.equals(accidentType) && docType.docName.contains(givenWord)){
+            if (docType.docName.contains(givenWord)){
                 return docType;
             }
         }

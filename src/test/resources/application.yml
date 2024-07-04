@@ -69,13 +69,13 @@ autocapture: # 외부 연계르 위한 API 주소, AutocaptureConfig.java에서 
   resultPath:
   credential:
   qaPath:
-  frontUrl: https://dev.aimskr.com:4434
+  frontUrl: https://dev.aimskr.com:4436
 filepath: # 이미지 파일 처리를 위한 설정 정보
-  originDir: /home/carrot/images/enc/carrot/origin
-  acDir: /home/carrot/images/enc/carrot/ac
-  visorgDir: /home/carrot/images/enc/carrot/visorg
-  visDir: /home/carrot/images/enc/carrot/vis
-  reportDir: /home/carrot/images/enc/carrot/report
+  originDir: /home/hana/images/enc/hana/origin
+  acDir: /home/hana/images/enc/hana/ac
+  visorgDir: /home/hana/images/enc/hana/visorg
+  visDir: /home/hana/images/enc/hana/vis
+  reportDir: /home/hana/images/enc/hana/report
 control:
   autoReturn: false
   dupCheck: true

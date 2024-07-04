@@ -4,25 +4,17 @@ import com.aimskr.ac2.hana.backend.channel.domain.ImageHashRepository;
 import com.aimskr.ac2.hana.backend.channel.json.CompleteDto;
 import com.aimskr.ac2.hana.backend.channel.json.ImportDto;
 import com.aimskr.ac2.hana.backend.channel.json.ResultDto;
-import com.aimskr.ac2.hana.backend.channel.service.AsyncService;
 import com.aimskr.ac2.hana.backend.channel.service.ChannelService;
 import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.aimskr.ac2.hana.backend.core.assign.domain.AssignRepository;
 import com.aimskr.ac2.hana.backend.core.assign.dto.AssignResponseDto;
 import com.aimskr.ac2.hana.backend.core.assign.dto.AssignSearchRequestDto;
-import com.aimskr.ac2.hana.backend.core.image.domain.Image;
 import com.aimskr.ac2.hana.backend.core.image.domain.ImageRepository;
-import com.aimskr.ac2.hana.backend.core.image.dto.ImageResponseDto;
 import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
-import com.aimskr.ac2.hana.backend.core.phone.domain.AiPhoneRepairRepository;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepair;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairRepository;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairDetailRepository;
 import com.aimskr.ac2.hana.backend.security.service.EmailService;
 import com.aimskr.ac2.common.config.AutocaptureConfig;
 import com.aimskr.ac2.common.config.ControlConfig;
 import com.aimskr.ac2.common.enums.doc.AccidentType;
-import com.aimskr.ac2.common.enums.doc.DocType;
 import com.aimskr.ac2.common.enums.status.AcceptStatus;
 import com.aimskr.ac2.common.enums.status.ProcessResponseCode;
 import com.aimskr.ac2.common.enums.status.ResultAcceptCode;
@@ -40,24 +32,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 @ComponentScan("com.aimskr.ac2.common")
 public class AssignService {
-    private final ImageService imageService;
     private final EmailService emailService;
     private final ControlConfig controlConfig;
-    private final AutocaptureConfig autocaptureConfig;
     private final AssignRepository assignRepository;
-    private final ImageRepository imageRepository;
-    private final ImageHashRepository imageHashRepository;
-    private final AiPhoneRepairRepository aiPhoneRepairRepository;
-    private final PhoneRepairRepository phoneRepairRepository;
-    private final PhoneRepairDetailRepository phoneRepairDetailRepository;
-    private final CacheService cacheService;
     private final ChannelService channelService;
     private final Gson gson;
 
@@ -134,17 +117,6 @@ public class AssignService {
 
         boolean qaDuplicity = false;
 
-//        List<Image> images = imageRepository.findByKeyForDupCheck(receiptNo, receiptSeq);
-//        List<Image> imagesForDupCheck = images.stream()
-//                .filter(i -> i.getImageDocumentType().equals(DocType.CDRC) || i.getImageDocumentType().equals(DocType.ECRC) || i.getImageDocumentType().equals(DocType.CDRF))
-//                .toList();
-//
-//        for (Image image: imagesForDupCheck){
-//
-//            boolean qaDuplicateImage = imageService.checkDupImageContentsByImage(image.getFileName());
-//            if (qaDuplicateImage) qaDuplicity = true;
-//
-//        }
 
         return qaDuplicity;
     }
@@ -156,27 +128,6 @@ public class AssignService {
     @Transactional
     public boolean checkAutoReturnable(String receiptNo, String receiptSeq, boolean qaDuplicity){
 
-        if (qaDuplicity){
-            log.debug("[checkAutoReturnable] qaDuplicity - receiptNo : {}, receiptSeq : {}", receiptNo, receiptSeq);
-            return false;
-        }
-
-        if (!checkAutoReturnableByImage(receiptNo, receiptSeq)){
-            log.debug("[checkAutoReturnable] checkAutoReturnableByImage - receiptNo : {}, receiptSeq : {}", receiptNo, receiptSeq);
-            return false;
-        }
-
-        List<PhoneRepair> phoneRepairs = phoneRepairRepository.findByKey(receiptNo, receiptSeq);
-
-//        // 영수증 합계 금액으로 자동회신 가능 여부 체크
-//        if (checkAutoReturnableByTotalSum(receiptNo, receiptSeq, phoneRepairs)){
-//            return true;
-//        }
-        //주요 detail의 정확도로 자동회신 가능 여부 체크
-        if (!checkAutoReturnableByAccuracy(phoneRepairs)) {
-            log.debug("[checkAutoReturnable] checkAutoReturnableByAccuracy - receiptNo : {}, receiptSeq : {}", receiptNo, receiptSeq);
-            return false;
-        }
             return true;
     }
 
@@ -224,34 +175,6 @@ public class AssignService {
 //
 //            }
             return autoreturnable;
-    }
-
-    @Transactional
-    public boolean checkAutoReturnableByAccuracy(List<PhoneRepair> phoneRepairs){
-
-        boolean autoreturnable = true;
-        // 거래일자, 거래시간, 사용금액의 정확도가 0.9 이상인 경우 자동회신 가능
-        for (PhoneRepair phoneRepair : phoneRepairs){
-            if (phoneRepair.getItemName().equals("거래일자") || phoneRepair.getItemName().equals("거래시간") || phoneRepair.getItemName().equals("사용금액")){
-                if (phoneRepair.getAccuracy() < 0.9){
-                    log.debug("[checkAutoReturnable] accuracy is low - itemName : {}, accuracy : {}",
-                            phoneRepair.getItemName(), phoneRepair.getAccuracy());
-                    autoreturnable = false;
-                    Image image = imageRepository.findByFileName("", phoneRepair.getFileName()).orElse(null);
-//                    image.updateQaReason(QaReason.ACCURACY.getMessage());
-                }
-                if (phoneRepair.getItemName().equals("사용금액")){
-                    if (phoneRepair.getItemValue().indexOf("-") > -1){
-                        log.debug("[checkAutoReturnable] negative Amount - itemName : {}, amount : {}",
-                                phoneRepair.getItemName(), phoneRepair.getItemValue());
-                        autoreturnable = false;
-                        Image image = imageRepository.findByFileName("", phoneRepair.getFileName()).orElse(null);
-//                        image.updateQaReason(QaReason.NEGATIVE.getMessage());
-                    }
-                }
-            }
-        }
-        return autoreturnable;
     }
 
     /**

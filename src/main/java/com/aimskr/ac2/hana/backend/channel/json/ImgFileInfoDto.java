@@ -14,11 +14,11 @@ import lombok.*;
 @Builder
 public class ImgFileInfoDto {
     @JsonProperty("IMG_DCM_NO")
-    private String imgDcmNo;
+    private String imgDcmNo; // 이미지문서번호
     @JsonProperty("IMG_DCMFL_NO")
-    private String imgDcmflNo;
+    private String imgDcmflNo; // 이미지문서철번호
     @JsonProperty("IMG_ID")
-    private String imgId;
+    private String imgId; // 이미지문서ID
     @JsonProperty("IMG_FILE_NM")
-    private String imgFileNm;
+    private String imgFileNm; // 이미지파일명
 }

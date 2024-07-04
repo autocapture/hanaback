@@ -1,25 +1,17 @@
 package com.aimskr.ac2.hana.backend.vision.service;
 
 import com.aimskr.ac2.common.enums.Constant;
-import com.aimskr.ac2.hana.backend.phone_old.domain.*;
+import com.aimskr.ac2.common.util.FileUtil;
 import com.aimskr.ac2.hana.backend.vision.dto.BoxGroup;
 import com.aimskr.ac2.hana.backend.vision.dto.ValueBox;
-import com.aimskr.ac2.hana.backend.vision.util.PhoneExtractor;
 import com.aimskr.ac2.hana.backend.vision.util.RuleOrganizer;
 import com.synap.ocr.sdk.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import com.aimskr.ac2.hana.backend.vision.util.DocumentTypeChecker;
 
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,149 +27,8 @@ public class VisionService {
     private final String SERVER_ADDRESS = "http://172.16.213.103:62975";
     private final DocumentTypeChecker documentTypeChecker;
     private final RuleOrganizer ruleOrganizer;
-    private final PhoneRepository phoneRepository;
-    private final CarrotFileRepository carrotFileRepository;
-    private final PhoneExtractor phoneExtractor;
 
-//    @Async
-//    public void processPhone() {
-//        log.info("processPhone");
-//        doAutoInput();
-//    }
-//
-//    public void doAutoInput() {
-//        String baseDir = "/home/hana/images/enc/hana/phone";
-//        Path baseDirPath = Path.of(baseDir);
-//
-//        try{
-//            // 파일 방문자 구현을 사용하여 디렉토리 순회
-//            Files.walkFileTree(baseDirPath, new SimpleFileVisitor<Path>() {
-////                int i = 0;
-//                @Override
-//                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-//                    // 파일 처리 로직
-//                    // 예: 파일 이름 출력
-////                    if (i > 50) return FileVisitResult.TERMINATE;
-//
-//                    if (Files.isDirectory(file)) {
-//                        log.info("Directory : {}", file.toAbsolutePath());
-//                    } else if (Files.isRegularFile(file)) {
-//                        log.info("File : {}", file.toAbsolutePath());
-//                        Path parentPath = file.getParent();
-//                        Path lastDirectoryName = parentPath.getFileName();
-//                        String accrNo = lastDirectoryName.toString();
-//                        log.info("AccrNo : {}", accrNo);
-//                        String fileName = file.getFileName().toString();
-//
-//                        if (carrotFileRepository.findByAccrNoAndImageName(accrNo, fileName) != null) {
-//                            log.info("Already exist : {}", file.toAbsolutePath());
-//                            return FileVisitResult.CONTINUE;
-//                        }
-//
-//                        List<OCRBox> boxes = doOCR(file.toAbsolutePath().toString());
-//                        List<ValueBox> valueBoxes = mergeAndSortOcrBoxes(boxes);
-//                        String labelString = makeLabelString(valueBoxes);
-//                        List<String> rows = mergeLabelsByRow(valueBoxes);
-//
-//                        String docType = documentTypeChecker.checkPhoneDocType(valueBoxes, labelString);
-//                        log.info("DocType : {}", docType);
-//                        log.info(labelString);
-//                        CarrotFile carrotFile = CarrotFile.builder()
-//                                .accrNo(accrNo)
-//                                .imageName(file.getFileName().toString())
-//                                .docType(docType)
-//                                .labelString(labelString)
-//                                .build();
-//                        carrotFileRepository.save(carrotFile);
-//
-//                        if (docType.equals("수리비명세서") || docType.equals("서비스내역서")) {
-//                            // Model 추출
-//                            String model = phoneExtractor.findModel(boxes, rows, labelString);
-//                            String manufacturer = "";
-//                            if (model.equals("NOT_FOUND")) {
-//                                manufacturer = "NOT_FOUND";
-//                            } else if (model.contains("iPhone")) {
-//                                manufacturer = "APPLE";
-//                            } else if (model.contains("SM")) {
-//                                manufacturer = "SAMSUNG";
-//                            } else if (model.contains("LM")) {
-//                                manufacturer = "LG";
-//                            }
-//                            // 수리비
-//                            SubPhone suri = phoneExtractor.findSuri(boxes, rows, labelString);
-//                            if (suri != null) {
-//                                Phone phone = Phone.builder()
-//                                        .accrNo(accrNo)
-//                                        .imageName(file.getFileName().toString())
-//                                        .modelCode(model)
-//                                        .manufacturer(manufacturer)
-//                                        .labelString(labelString)
-//                                        .build();
-//                                phone.update(suri);
-//                                phoneRepository.save(phone);
-//                            }
-//
-//                            // 부품비
-//                            List<SubPhone> items = phoneExtractor.findItems(boxes, rows, labelString);
-//                            for (SubPhone item : items) {
-//                                Phone phone = Phone.builder()
-//                                        .accrNo(accrNo)
-//                                        .imageName(file.getFileName().toString())
-//                                        .modelCode(model)
-//                                        .manufacturer(manufacturer)
-//                                        .labelString(labelString)
-//                                        .build();
-//                                phone.update(item);
-//                                phoneRepository.save(phone);
-//                            }
-//                        }
-//
-////            DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, importDto.getAccidentType());
-////            aiPhoneRepairs = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
-//////            visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiDetails, classifyResult);
-////            visionResult.setContent(makeRawString(valueBoxes));
-//                    } else {
-//                        log.info("ELSE : {}", file.toAbsolutePath());
-//                    }
-//
-//                    return FileVisitResult.CONTINUE;
-//                }
-//
-//                @Override
-//                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-//                    // 파일 방문 실패 시 처리 로직
-//                    System.err.println(exc.getMessage());
-//                    return FileVisitResult.CONTINUE;
-//                }
-//            });
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
-//    }
-
-//    public VisionResult doAutoInput(String autocaptureImage, ImportDto importDto, ImgFileInfoDto imgFileInfoDto) {
-//
-//        List<AiPhoneRepair> aiPhoneRepairs = new ArrayList<>();
-//        VisionResult visionResult = VisionResult.createInitialResult();
-//        try{
-//            List<OCRBox> boxes = doOCR(autocaptureImage);
-//            List<ValueBox> valueBoxes = mergeAndSortOcrBoxes(boxes);
-//            String labelString = makeLabelString(valueBoxes);
-//            List<String> rows = mergeLabelsByRow(valueBoxes);
-//            DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, importDto.getAccidentType());
-//            aiPhoneRepairs = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
-////            visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiDetails, classifyResult);
-//            visionResult.setContent(makeRawString(valueBoxes));
-//
-//
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        return visionResult;
-//    }
-
-    public List<OCRBox> doOCR(String imagePath) {
+    public List<OCRBox> doOCR(String imagePath, String finalPath) {
         try (OCREngine engine = Engine.createOCREngine(API_KEY, SERVER_ADDRESS)) {
             String skewMode = "image";
             String boxesType = "all";   // Box유형, 기본은 좌표가 변환되지 않은 box사용 - all, raw, block, line, '+'로 조합가능
@@ -200,10 +51,11 @@ public class VisionService {
             boolean bRemove = false;
             String formIdList = "";
 
+
             log.debug("[getOCRBoxes] OCR start - file : {} ", imagePath);
             OCRResult result = Engine.doOCR(imagePath, upload, boxesType, formRecognition, fileId, pageIndex,
                     bCopy, bSkew, bCrop, bTextOut, regExp, langs, coord, maskType, outputFormat, maskedImagePath,
-                    imagePath, formCsvPath, roiBox, bRemove, skewMode, formIdList, engine);
+                    finalPath, formCsvPath, roiBox, bRemove, skewMode, formIdList, engine);
 
             return result.getBoxes();
         } catch (Exception e) {
@@ -250,24 +102,50 @@ public class VisionService {
         }
     }
 
-    public List<ValueBox> mergeAndSortOcrBoxes(List<OCRBox> boxes){
+    public List<ValueBox> mergeAndSortClusterBoxes(List<ValueBox> valueBoxList){
 
-        if (boxes.size() == 0) return new ArrayList<>();
+        List<ValueBox> finalBoxes = new ArrayList<>();
+        List<ValueBox> usedBox = new ArrayList<>();
 
-        List<ValueBox> valueBoxList = toValueBox(boxes);
-//        List<BoxGroup> rows = valueBoxesToBoxGroup(valueBoxList, Constant.ROW, 1);
+        valueBoxList.sort(Comparator.comparingInt(ValueBox::getRowId).thenComparingInt(ValueBox::getLeft));
 
-        List<BoxGroup> rows = makeRowsByCoords(valueBoxList);
-        for (BoxGroup row: rows){
-            row.mergeBoxesByCoord();
-            Collections.sort(row.getValueBoxList(), new BoxSorter());
+        int k = 0;
+        for (int i = 0; i < valueBoxList.size(); i ++){
+            ValueBox currBox = valueBoxList.get(i);
+            if (usedBox.contains(currBox)) continue;
+
+            List<ValueBox> row = new ArrayList<>();
+            row.add(currBox);
+            ValueBox baseBox = currBox;
+            for (int j = i + 1; j < valueBoxList.size() - 1; j++){
+                ValueBox nextBox = valueBoxList.get(j);
+                if (baseBox.getRight() < nextBox.getLeft() + 5 && baseBox.overlaps(Constant.HORIZONTAL, Constant.HALF, nextBox)){
+                    row.add(nextBox);
+                    usedBox.add(nextBox);
+                    baseBox = nextBox;
+                }
+            }
+
+            BoxGroup boxGroup = new BoxGroup(currBox.getLeft(), currBox.getRight(), currBox.getTop(), currBox.getBottom(), 0, "");
+            boxGroup.setValueBoxList(row);
+            boxGroup.mergeBoxesByCoord();
+            boxGroup.setRowId(k);
+            boxGroup.spreadRowId();
+            finalBoxes.addAll(boxGroup.getValueBoxList());
+            k ++;
         }
-        List<ValueBox> mergedBoxes = rows.stream()
-                .flatMap(row -> row.getValueBoxList().stream()).collect(Collectors.toList());
+        return finalBoxes;
+    }
 
-        List<ValueBox> uniqueBox = mergedBoxes.stream().distinct().collect(Collectors.toList());
 
-        return uniqueBox;
+    public int getMedianHeight(List<ValueBox> boxList){
+
+        boxList.sort(Comparator.comparingInt(ValueBox::getHeight));
+        int middleIdx = boxList.size() / 2;
+        ValueBox midBox = boxList.get(middleIdx);
+        int boxHeight = midBox.getHeight();
+
+        return boxHeight;
     }
 
     public List<BoxGroup> makeRowsByCoords(List<ValueBox> boxList){
@@ -428,49 +306,55 @@ public class VisionService {
 
     public List<String> mergeLabelsByRow(List<ValueBox> boxList){
 
-        if (boxList.size() == 0) return new ArrayList<>();
-        ValueBox prevBox = boxList.get(0);
-        String rowString = prevBox.getLabel();
-        List<String> rowStrings = new ArrayList<>();
+        boxList.sort(Comparator.comparingInt(ValueBox::getRowId).thenComparingInt(ValueBox::getLeft));
 
-        for (int i = 1; i < boxList.size(); i ++){
-            ValueBox box = boxList.get(i);
-            prevBox = boxList.get(i - 1);
 
-            // 박스가 이전박스보다 왼쪽에 있을 경우, 새로운 라인 시작
-            // 숫자가 있는 경우는 컬럼 구분을 위해 식별자 | 앞에 추가 (수량, 단가 등이 가격에 영향)
-            String boxLabel = box.getLabel();
-            Pattern digit = Pattern.compile("\\d");
-            Matcher digitMatcher = digit.matcher(boxLabel);
-            if (digitMatcher.find()){
-                boxLabel = "|" + boxLabel;
-            }
+        Map<Integer, StringBuilder> rowIdToStringMap = new HashMap<>();
 
-            if (box.getRowId() > prevBox.getRowId()){
-                rowStrings.add(rowString);
-                rowString = boxLabel;
-            }
-
-            else if (box.getLeft() < prevBox.getLeft()){
-                rowString = boxLabel + " " + rowString;
-            } else{
-                rowString += boxLabel + " ";
-            }
-
-            if (i == boxList.size() - 1){
-                rowStrings.add(rowString);
-            }
+        for (ValueBox data : boxList) {
+            rowIdToStringMap
+                    .computeIfAbsent(data.getRowId(), k -> new StringBuilder())
+                    .append(data.getLabel());
         }
-        return rowStrings;
+
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<Integer, StringBuilder> entry : rowIdToStringMap.entrySet()) {
+            result.add(entry.getValue().toString());
+        }
+
+        return result;
     }
 
-    public class BoxSorter implements Comparator<ValueBox>{
-        public int compare(ValueBox o1, ValueBox o2){
-            if (Math.abs(o1.getTop()-o2.getTop()) <= 7 || Math.abs(o1.getBottom()-o2.getBottom()) <= 7){
-                return o1.getLeft() - o2.getLeft();
-            } return o1.getTop() - o2.getTop();
+    public List<ValueBox> unpackBoxGroup(List<BoxGroup> boxGroups, String groupProperty){
+
+        List<ValueBox> valueBoxes = new ArrayList<>();
+        for (BoxGroup boxGroup: boxGroups){
+            int idx = boxGroups.indexOf(boxGroup);
+            if (Constant.ROW.equals(groupProperty)){
+                boxGroup.setRowId(idx);
+                boxGroup.spreadRowId();
+            }else if (Constant.COLUMN.equals(groupProperty)){
+                boxGroup.setColumnId(idx);
+                boxGroup.spreadColumnId();
+            }
+            valueBoxes.addAll(boxGroup.getValueBoxList());
+
+        }
+        return valueBoxes;
+    }
+
+    public class BoxSorter implements Comparator<ValueBox> {
+        @Override
+        public int compare(ValueBox o1, ValueBox o2) {
+            // First, compare by the top position
+            int topCompare = Integer.compare(o1.getTop(), o2.getTop());
+            if (topCompare != 0) {
+                return topCompare;
+            }
+
+            // If tops are identical, compare by the left position
+            return Integer.compare(o1.getLeft(), o2.getLeft());
         }
     }
-    // VisionTest-e
 
 }

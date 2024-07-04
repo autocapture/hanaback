@@ -7,6 +7,8 @@ import com.aimskr.ac2.hana.backend.core.detail.domain.DetailRepository;
 import com.aimskr.ac2.hana.backend.core.detail.dto.DetailResponseDto;
 import com.aimskr.ac2.hana.backend.core.image.dto.ImageSearchRequestDto;
 import com.aimskr.ac2.hana.backend.core.image.dto.ImageSingleSearchRequestDto;
+import com.aimskr.ac2.hana.backend.vision.domain.AiDetail;
+import com.aimskr.ac2.hana.backend.vision.domain.AiDetailRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.List;
 @Service
 public class DetailService {
     private final DetailRepository detailRepository;
+    private final AiDetailRepository aiDetailRepository;
+
 
     @Transactional(readOnly = true)
     public List<DetailResponseDto> findByFileName(String rqsReqId, String  fileName) {
@@ -68,4 +72,18 @@ public class DetailService {
         detailRepository.save(detail);
     }
 
+    @Transactional
+    public void saveDetailFromAiDetails(String rqsReqId, String accrNo, String dmSeqno, String fileName){
+
+        List<AiDetail> aiDetails = aiDetailRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName);
+
+        for (AiDetail aiDetail : aiDetails) {
+
+            Detail detail = aiDetail.toDetail();
+            log.debug("[saveDetailFromAiDetails] detail : {}", detail);
+            detailRepository.save(detail);
+
+        }
+
+    }
 }

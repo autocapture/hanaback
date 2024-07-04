@@ -1,7 +1,5 @@
 package com.aimskr.ac2.hana.backend.util.service;
 
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneAccd;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneAccdRepository;
 import com.aimskr.ac2.hana.backend.util.config.EhcacheConfig;
 import com.aimskr.ac2.hana.backend.vision.domain.DocKeyword;
 import com.aimskr.ac2.common.enums.detail.ItemType;
@@ -25,7 +23,6 @@ public class CacheService {
 
     private final DocKeywordRepository docKeywordRepository;
     private final DetailKeywordRepository detailKeywordRepository;
-    private final PhoneAccdRepository phoneAccdRepository;
 
     public Map<ItemType, List<String>> getDetailKeywords(){
         List<DetailKeyword> detailKeywords = detailKeywordRepository.findAll();
@@ -38,9 +35,6 @@ public class CacheService {
 
     @Cacheable(value= EhcacheConfig.DOCKEYWORD_CACHE)
     public List<DocKeyword> getDocKeywords() { return docKeywordRepository.findAll(); }
-
-    @Cacheable(value= EhcacheConfig.ACCD_CACHE)
-    public List<PhoneAccd> getPhoneAccd() { return phoneAccdRepository.findAll(); }
 
 
 }

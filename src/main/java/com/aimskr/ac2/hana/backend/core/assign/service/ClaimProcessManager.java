@@ -12,10 +12,13 @@ import com.aimskr.ac2.hana.backend.core.assign.domain.Assign;
 import com.aimskr.ac2.hana.backend.core.assign.domain.AssignRepository;
 import com.aimskr.ac2.hana.backend.core.detail.domain.Detail;
 import com.aimskr.ac2.hana.backend.core.detail.domain.DetailRepository;
+import com.aimskr.ac2.hana.backend.core.detail.service.DetailService;
 import com.aimskr.ac2.hana.backend.core.image.dto.ImageResponseDto;
 import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
-import com.aimskr.ac2.hana.backend.core.phone.domain.PhoneRepairDetailRepository;
-import com.aimskr.ac2.hana.backend.core.phone.service.PhoneRepairService;
+import com.aimskr.ac2.hana.backend.core.medical.domain.DiagInfo;
+import com.aimskr.ac2.hana.backend.core.medical.domain.DiagInfoRepository;
+import com.aimskr.ac2.hana.backend.core.medical.dto.DiagInfoExchangeDto;
+import com.aimskr.ac2.hana.backend.core.medical.service.DiagInfoService;
 import com.aimskr.ac2.hana.backend.member.service.AssignRuleService;
 import com.aimskr.ac2.hana.backend.security.service.EmailService;
 import com.aimskr.ac2.hana.backend.vision.dto.VisionResult;
@@ -44,20 +47,19 @@ import static com.aimskr.ac2.common.util.DateUtil.DATETIME_HANA;
 @ComponentScan(basePackages = "com.aimskr.ac2.common")
 
 public class ClaimProcessManager {
-    private final PhoneRepairDetailRepository phoneRepairDetailRepository;
-
     private final AssignService assignService;
     private final ImageProcessor imageProcessor;
     private final ImageService imageService;
     private final ControlConfig controlConfig;
     private final FileUtil fileUtil;
-    private final PhoneRepairService phoneRepairService;
     private final RetryService retryService;
     private final AutocaptureConfig autocaptureConfig;
     private final AssignRuleService assignRuleService;
     private final EmailService emailService;
     private final AssignRepository assignRepository;
     private final DetailRepository detailRepository;
+    private final DiagInfoService diagInfoService;
+    private final DetailService detailService;
 
 
 
@@ -78,43 +80,59 @@ public class ClaimProcessManager {
 
             try {
 
+                boolean imageError = false;
+
+                String imgPath = fileUtil.calcAcFilePath(importDto, imgFileInfoDto);
+
+
                 // 2.2 이미지 전처리
                 log.debug("[processImages] - preProcessImage - imgFileInfoDto : {}", imgFileInfoDto);
-                imageProcessor.preProcessImage(importDto, imgFileInfoDto);
+                try{
+                    imageProcessor.preProcessImage(importDto, imgFileInfoDto);
+                }catch(Exception e){
+                    log.error("[processImages] - preProcessImage - error");
+                    imageError = true;
+                    imgPath = fileUtil.calcOriginFilePath(importDto, imgFileInfoDto);
+                }
 
-                // 2.3 이미지 중복 검사
-                Hash hash = imageProcessor.calcHash(fileUtil.calcAcFilePath(importDto, imgFileInfoDto));
-                String md5Hash = imageProcessor.generateMD5((hash.getHashValue()).toByteArray());
+                log.debug("[processImages] - preProcessImage - imgPath : {}", imgPath);
+
                 boolean isDup = false;
+                String md5Hash = "";
                 String duppedFile = "";
+                // 2.3 이미지 중복 검사
+                if (!imageError){
+                    Hash hash = imageProcessor.calcHash(imgPath);
+                    md5Hash = imageProcessor.generateMD5((hash.getHashValue()).toByteArray());
 
-                // 중복이미지 처리
-                if (controlConfig.isDupCheck()) {
-                    // 중복검사 설정이 On일 때만 처리
-                    log.debug("[processImages] - checkDup - imgFileInfoDto : {}", imgFileInfoDto);
-                    ImageHash existImageHash = imageService.findByHash(md5Hash);
-                    if (existImageHash == null) {
-                        ImageHash imageHash = ImageHash.builder()
-                                .hash(md5Hash.toString())
-                                .accrNo(importDto.getAcdNo())
-                                .dmSeqno(importDto.getRctSeq())
-                                .imageDocumentId(imgFileInfoDto.getImgId())
-                                .build();
-                        imageService.saveImageHash(imageHash);
-                    } else {
-                        isDup = true;
-                        log.debug("[processImages] - checkDup - imgFileInfoDto, isDUP : {}, {}", imgFileInfoDto, isDup);
-                        duppedFile = existImageHash.getImageDocumentId();
-                        imageProcessingResultCode = ImageProcessingResultCode.DUPLICATE;
+                    // 중복이미지 처리
+                    if (controlConfig.isDupCheck()) {
+                        // 중복검사 설정이 On일 때만 처리
+                        log.debug("[processImages] - checkDup - imgFileInfoDto : {}", imgFileInfoDto);
+                        ImageHash existImageHash = imageService.findByHash(md5Hash);
+                        if (existImageHash == null) {
+                            ImageHash imageHash = ImageHash.builder()
+                                    .hash(md5Hash.toString())
+                                    .accrNo(importDto.getAcdNo())
+                                    .dmSeqno(importDto.getRctSeq())
+                                    .imageDocumentId(imgFileInfoDto.getImgId())
+                                    .build();
+                            imageService.saveImageHash(imageHash);
+                        } else {
+                            isDup = true;
+                            log.debug("[processImages] - checkDup - imgFileInfoDto, isDUP : {}, {}", imgFileInfoDto, isDup);
+                            duppedFile = existImageHash.getImageDocumentId();
+                            imageProcessingResultCode = ImageProcessingResultCode.DUPLICATE;
+                        }
                     }
                 }
 
                 // 2.4 OCR 실행
                 log.debug("[processImages] - doOCR - imgFileInfoDto : {}", imgFileInfoDto);
-                String autocaptureImage = fileUtil.calcAcFilePath(importDto, imgFileInfoDto);
 
                 // 문서 분류와 합쳐져있음
-                visionResult = retryService.autoInput(autocaptureImage, importDto, imgFileInfoDto);
+                visionResult = retryService.autoInput(imgPath, importDto, imgFileInfoDto);
+                detailService.saveDetailFromAiDetails(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm()));
 
 //                phoneRepairService.saveDetailFromAiDetails(importDto.getAcdNo(), importDto.getRctSeq(), FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm()));
 
@@ -200,26 +218,39 @@ public class ClaimProcessManager {
         }
     }
 
-
     @Transactional
     public ResultDto makeSuccessResultDto(String rqsReqId, String accrNo, String dmSeqno){
         Assign assign = assignRepository.findByKey(rqsReqId, accrNo, dmSeqno).orElse(null);
+
         assignService.updateSuccess(rqsReqId, accrNo, dmSeqno);
 
         int cntOfCIPS = 0;
 
         List<ImageResponseDto> images = imageService.findByKey(rqsReqId, accrNo, dmSeqno);
-        log.debug("[makeResultDto] images : {}", images);
+        log.debug("[makeSuccessResultDto] images : {}", images);
         List<ImageResultDto> imgList = new ArrayList<>();
         for (ImageResponseDto image: images){
-            ImageResultDto imageResponseDto = ImageResultDto.of(image);
+            ImageResultDto imageResultDto = ImageResultDto.of(image);
             List<ResultItem> resultItems = new ArrayList<>();
             if (image.getDocType().equals(DocType.CIPS)){
-                resultItems = makeResultItems(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
+                resultItems = makeCarResultItems(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
+
                 cntOfCIPS++;
+            } else if (!image.getDocType().equals(DocType.ETCS)){
+
+                List<ResultItem> detailItems = makeMedResultItems(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
+                List<ResultItem> diagItems = makeDiagResultItems(image.getRqsReqId(), image.getDocType(), image.getFileName());
+
+                List<Detail> details = detailRepository.findByKeyAndFileName(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
+                List<Detail> hspDetails = details.stream().filter(detail -> detail.getItemCode().startsWith("HS")).toList();
+                imageResultDto.updateHspInfo(hspDetails);
+
+                resultItems.addAll(detailItems);
+                resultItems.addAll(diagItems);
+
             }
-            imageResponseDto.setPcsRslLst(resultItems);
-            imgList.add(imageResponseDto);
+            imageResultDto.setPcsRslLst(resultItems);
+            imgList.add(imageResultDto);
         }
 
         ResultDto resultDto = ResultDto.of(assign);
@@ -237,7 +268,7 @@ public class ClaimProcessManager {
         return resultDto;
     }
 
-    public List<ResultItem> makeResultItems(String rqsReqId, String accrNo, String dmSeqno, String fileName){
+    public List<ResultItem> makeCarResultItems(String rqsReqId, String accrNo, String dmSeqno, String fileName){
         List<ResultItem> resultItems = new ArrayList<>();
         List<Detail> details = detailRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName);
 
@@ -261,5 +292,75 @@ public class ClaimProcessManager {
         }
         return resultItems;
     }
+
+    public List<ResultItem> makeMedResultItems(String rqsReqId, String accrNo, String dmSeqno, String fileName){
+
+        List<ResultItem> resultItems = new ArrayList<>();
+        List<Detail> details = detailRepository.findByKeyAndFileName(rqsReqId, accrNo, dmSeqno, fileName);
+
+        for (Detail detail: details){
+            if (detail.getItemCode().startsWith("HS")){
+                continue;
+            }
+            String itemCode = detail.getItemCode();
+            String itemValue = detail.getItemValue();
+
+            ResultItem resultItem = ResultItem.builder()
+                    .trmCd(itemCode)
+                    .trmVal(itemValue)
+                    .build();
+            resultItems.add(resultItem);
+        }
+        return resultItems;
+
+    }
+
+    public List<ResultItem> makeDiagResultItems(String rqsReqId, DocType docType, String fileName){
+        List<ResultItem> resultItems = new ArrayList<>();
+        List<DiagInfoExchangeDto> diagInfos = diagInfoService.getDiagInfo(rqsReqId, fileName);
+
+        int count = 0;
+        for (DiagInfoExchangeDto diagInfo: diagInfos){
+
+            List<ResultItem> diagResultItems = diagInfo.toResultItems();
+            for (ResultItem diagResultItem: diagResultItems){
+                String itemCode = makeDiagItemCode(docType, count, diagResultItem.getTrmCd());
+                diagResultItem.setTrmCd(itemCode);
+                resultItems.add(diagResultItem);
+            }
+
+            count++;
+
+        }
+
+        return resultItems;
+    }
+
+    public String makeDiagItemCode(DocType docType, int count, String itemCode){
+
+        String prefix = "DA";
+        int codeSequence = 1;
+        int codeAddition = 0;
+        if (docType.name().contains("SR")){
+            prefix = "EA";
+            codeAddition = 3;
+        }
+
+        if (itemCode.equals("dsacd")){
+            codeSequence = 1;
+        } else if (itemCode.equals("mnDgnYn")){
+            codeSequence = 2;
+        } else if (itemCode.equals("diagStage")){
+            codeSequence = 3;
+        } else if (itemCode.equals("diagDate")){
+            codeSequence = 4;
+        }
+
+        int finalSequence = count * 100 + (codeSequence + codeAddition);
+
+        return String.format("%s%04d", prefix, finalSequence);
+
+    }
+
 
 }
