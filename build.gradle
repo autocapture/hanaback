@@ -22,7 +22,7 @@ dependencyManagement {
 }
 
 bootJar {
-    archiveFileName = "hana-1.1.1.jar"
+    archiveFileName = "hana-1.1.3.jar"
 }
 
 java {
@@ -47,8 +47,6 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
-
-
 
 repositories {
     mavenCentral()

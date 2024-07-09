@@ -75,6 +75,11 @@ public class RetryService {
             boxes = visionService.doOCR(autocaptureImage, fileUtil.calcAcFilePath(importDto, imgFileInfoDto));
         }
 
+        // ONE-0016 글자인식 없는 이미지의 경우 디폴트 값으로 리턴
+        if (boxes.isEmpty()){
+            return visionResult;
+        }
+
         List<ValueBox> valueBoxesToSort = visionService.toValueBox(boxes);
         List<ValueBox> boxesClustered = clusteringService.cluster(valueBoxesToSort);
         List<ValueBox> valueBoxes = visionService.mergeAndSortClusterBoxes(boxesClustered);

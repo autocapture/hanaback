@@ -45,8 +45,8 @@ public class InputVerifier {
             for (AiDetail aiDetailPrev: aiDetailPrevs){
                 aiDetailRepository.delete(aiDetailPrev);
             }
-
         }
+
         if (docType.name().startsWith("MD")){
 
             aiDetails = verifyMedInfo(aiDetails, importDto.getAcdNo(), importDto.getRctSeq(), fileName, docType);
@@ -104,7 +104,7 @@ public class InputVerifier {
 
                 String itemValue = aiDetail.getItemValue();
                 String digitValue = itemValue.replaceAll("[^0-9]", "");
-                if (digitValue.length() > 2){
+                if (digitValue.length() >= 2){
                     String gup = digitValue.substring(0, 2);
                     AiDetail gupDetail = AiDetail.builder()
                             .itemCode(ItemType.CIPS_INJURY_GUP.getItemCode())

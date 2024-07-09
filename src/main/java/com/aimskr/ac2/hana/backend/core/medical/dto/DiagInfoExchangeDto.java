@@ -54,11 +54,11 @@ public class DiagInfoExchangeDto {
                         .build(),
                 ResultItem.builder()
                         .trmCd("mnDgnYn")
-                        .trmVal(this.mnDgnYn)
+                        .trmVal(this.mnDgnYn.equals("주진단") ? "1": "0")
                         .build(),
                 ResultItem.builder()
                         .trmCd("diagStage")
-                        .trmVal(this.diagStage)
+                        .trmVal(this.diagStage.equals("최종") ? "1": "2")
                         .build(),
                 ResultItem.builder()
                         .trmCd("diagDate")

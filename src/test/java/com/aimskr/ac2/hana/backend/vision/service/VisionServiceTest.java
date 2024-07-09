@@ -76,14 +76,14 @@ public class VisionServiceTest {
     @Test
     public void testVision() {
 
-        String filename = "2024070419525600.jpg";
+        String filename = "2024070414502001.jpg";
 
         ImportDto importDto = ImportDto.builder()
                 .rqsReqId("aaa")
-                .acdNo("202497988")
+                .acdNo("202497144")
                 .rctSeq("1")
                 .acdDt("")
-                .reqDtm("202407040001235")
+                .reqDtm("202407050001235")
                 .build();
 
         ImgFileInfoDto imgFileInfoDto = ImgFileInfoDto.builder()
@@ -131,7 +131,7 @@ public class VisionServiceTest {
     @Test
     public void testMakeResult(){
 
-        ResultDto resultDto = claimProcessManager.makeSuccessResultDto("4o1thBwshR", "202453599", "5");
+        ResultDto resultDto = claimProcessManager.makeSuccessResultDto("4o1wc8GEgf", "202469636", "2");
 
         System.out.println(resultDto);
 

@@ -36,7 +36,7 @@ public class CipsInjGrdRule extends ClaimRule {
         List<String> identifier = cacheService.getDetailKeywords().get(ItemType.CIPS_INJURY_GRADE);
 
         ValueBox identifierBox = boxList.stream().filter(box -> identifier.contains(box.getLabel())).findFirst().orElse(null);
-        Pattern pattern = Pattern.compile("([0][1-9]|[1][0-4])[-급]?[0-9]{0,2}항?$");
+        Pattern pattern = Pattern.compile("([0][1-9]|[1][0-4])([-급]?[0-9]{0,2}항?|[*]{2})$");
 
         if (identifierBox != null){
             int targetRow = identifierBox.getRowId();

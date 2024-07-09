@@ -86,6 +86,7 @@ public class ClaimProcessManager {
 
 
                 // 2.2 이미지 전처리
+                // ONE-0014 이미지 전처리 실패시 (일부 TIF 포맷) 원본 파일로 후속 처리
                 log.debug("[processImages] - preProcessImage - imgFileInfoDto : {}", imgFileInfoDto);
                 try{
                     imageProcessor.preProcessImage(importDto, imgFileInfoDto);
@@ -200,7 +201,7 @@ public class ClaimProcessManager {
             log.info("'[All ETCS] autoReturn result : {}", resultDto);
             qaOwner = "AIP";
             assignService.applyQaAssign(importDto, qaOwner);
-            assignService.finishWithAIP(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
+//            assignService.finishWithAIP(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
         }
         // 1개라도 CIPS가 있거나, FTP_ERROR가 있었다면
         else {
@@ -224,7 +225,7 @@ public class ClaimProcessManager {
 
         assignService.updateSuccess(rqsReqId, accrNo, dmSeqno);
 
-        int cntOfCIPS = 0;
+        int cntOfDetails = 0;
 
         List<ImageResponseDto> images = imageService.findByKey(rqsReqId, accrNo, dmSeqno);
         log.debug("[makeSuccessResultDto] images : {}", images);
@@ -235,7 +236,7 @@ public class ClaimProcessManager {
             if (image.getDocType().equals(DocType.CIPS)){
                 resultItems = makeCarResultItems(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
 
-                cntOfCIPS++;
+                cntOfDetails++;
             } else if (!image.getDocType().equals(DocType.ETCS)){
 
                 List<ResultItem> detailItems = makeMedResultItems(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
@@ -247,7 +248,7 @@ public class ClaimProcessManager {
 
                 resultItems.addAll(detailItems);
                 resultItems.addAll(diagItems);
-
+                cntOfDetails++;
             }
             imageResultDto.setPcsRslLst(resultItems);
             imgList.add(imageResultDto);
@@ -256,7 +257,7 @@ public class ClaimProcessManager {
         ResultDto resultDto = ResultDto.of(assign);
         resultDto.setPcsDtm(DateUtil.nowWithFormat(DATETIME_HANA));
         ProcessResponseCode result = ProcessResponseCode.SUCCESS;
-        if (cntOfCIPS > 0){
+        if (cntOfDetails > 0){
             result = ProcessResponseCode.SUCCESS;
         } else {
             result = ProcessResponseCode.NA;
