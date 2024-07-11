@@ -49,7 +49,7 @@ public class DiagAutoInputService {
     public List<DiagInfoExchangeDto> doAutoInputDiags(List<String> rows, String labelString)  {
         List<DiagInfoExchangeDto> diagInfos = new ArrayList<>();
 
-        List<String> identifier = cacheService.getDetailKeywords().get(ItemType.MDDG_DIAGNOSIS);
+        String diagStage = findDiagStage(rows);
 
         for (String diagRow : rows) {
             List<DiagInfoExchangeDto> diags = findDiagsFromText(diagRow);
@@ -61,7 +61,25 @@ public class DiagAutoInputService {
             diagInfos.addAll(diags);
         }
 
+        for (DiagInfoExchangeDto diagInfoExchangeDto: diagInfos){
+            diagInfoExchangeDto.setDiagStage(diagStage);
+        }
+
         return  diagInfos;
+    }
+
+    public String findDiagStage(List<String> rows) {
+
+        for (String row: rows){
+            int idx = row.indexOf("임상");
+            if (idx > 1){
+                String checkBox = row.substring(0, idx);
+                if (checkBox.contains("ㄹ") || checkBox.toLowerCase().contains("v")){
+                    return "임상";
+                }
+            }
+        }
+        return "최종";
     }
 
     public List<DiagInfoExchangeDto> findDiagsFromText(String labels) {
@@ -70,6 +88,10 @@ public class DiagAutoInputService {
         Pattern diagPattern = Pattern.compile("[A-U][0-9Oo]{2}[0-9Oo.]{0,3}(?!\\*+|g|m)");
 
         Matcher diagMatcher = diagPattern.matcher(labels);
+
+        String mnDgYn = "주진단";
+        String diagStage = "최종";
+        int count = 0;
 
         while (diagMatcher.find()) {
             String diagCodeRaw = diagMatcher.group();
@@ -83,18 +105,24 @@ public class DiagAutoInputService {
             log.debug("kcd:" + kcd);
             if (kcd != null) {
 
+                if (count > 0){
+                    mnDgYn = "부진단";
+                }
+
                 DiagInfoExchangeDto diagInfo = DiagInfoExchangeDto.builder()
                         .dsacd(kcd.getKcdCd())
-                        .mnDgnYn("1")
-                        .diagStage("1")
+                        .mnDgnYn(mnDgYn)
+                        .diagStage(diagStage)
                         .dsnm(kcd.getKcdName())
                         .build();
 
-                diagInfos.add(diagInfo);
+                if (!diagInfos.contains(diagInfo)){
+                    diagInfos.add(diagInfo);
+                    count ++;
+                }
             }
         }
 
         return diagInfos;
     }
-
 }

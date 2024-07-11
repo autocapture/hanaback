@@ -34,5 +34,6 @@ public class ImageDtoDIAG {
     private String da0006; // 면허번호
 
     List<DiagInfoExchangeDto> diagList;
+//    List<String> surgList;
 
 }

@@ -341,11 +341,6 @@ public class ClaimProcessManager {
 
         String prefix = "DA";
         int codeSequence = 1;
-        int codeAddition = 0;
-        if (docType.name().contains("SR")){
-            prefix = "EA";
-            codeAddition = 3;
-        }
 
         if (itemCode.equals("dsacd")){
             codeSequence = 1;
@@ -357,7 +352,7 @@ public class ClaimProcessManager {
             codeSequence = 4;
         }
 
-        int finalSequence = count * 100 + (codeSequence + codeAddition);
+        int finalSequence = count * 100 + (codeSequence);
 
         return String.format("%s%04d", prefix, finalSequence);
 
