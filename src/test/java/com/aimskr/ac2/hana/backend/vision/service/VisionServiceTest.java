@@ -76,14 +76,14 @@ public class VisionServiceTest {
     @Test
     public void testVision() {
 
-        String filename = "2024070414502001.jpg";
+        String filename = "3024070910105200.jpg";
 
         ImportDto importDto = ImportDto.builder()
                 .rqsReqId("aaa")
-                .acdNo("202497144")
+                .acdNo("202497246")
                 .rctSeq("1")
                 .acdDt("")
-                .reqDtm("202407050001235")
+                .reqDtm("202407100001235")
                 .build();
 
         ImgFileInfoDto imgFileInfoDto = ImgFileInfoDto.builder()
@@ -108,6 +108,9 @@ public class VisionServiceTest {
         System.err.println(valueBoxes);
 
         DocType classifyResult = documentTypeChecker.getDocumentType(valueBoxes, labelString);
+
+        System.out.println(classifyResult);
+
         List<AiDetail> aiDetails = ruleOrganizer.runClaimRules(valueBoxes, rows, labelString, classifyResult);
         VisionResult visionResult = inputVerifier.verifyInput(importDto, imgFileInfoDto, aiDetails, classifyResult);
 

@@ -11,7 +11,9 @@ import com.aimskr.ac2.hana.backend.core.image.domain.Image;
 import com.aimskr.ac2.hana.backend.core.image.domain.ImageRepository;
 import com.aimskr.ac2.hana.backend.core.image.dto.*;
 import com.aimskr.ac2.hana.backend.core.medical.dto.DiagInfoExchangeDto;
+import com.aimskr.ac2.hana.backend.core.medical.dto.SurgInfoExchangeDto;
 import com.aimskr.ac2.hana.backend.core.medical.service.DiagInfoService;
+import com.aimskr.ac2.hana.backend.core.medical.service.SurgInfoService;
 import com.aimskr.ac2.hana.backend.vision.dto.VisionResult;
 import com.aimskr.ac2.common.enums.detail.ItemType;
 import com.aimskr.ac2.common.enums.doc.DocType;
@@ -33,6 +35,7 @@ public class ImageService {
     private final ImageHashRepository imageHashRepository;
     private final DetailRepository detailRepository;
     private final DiagInfoService diagInfoService;
+    private final SurgInfoService surgInfoService;
 
     /**
      * 접수 시점 이미지 최초 저장 : 중복여부 / 입력대상 여부 저장
@@ -298,7 +301,20 @@ public class ImageService {
             diagInfoExchangeDto.setDiagDate(imageDtoDIAG.getDa0004());
         }
 
-        diagInfoService.save(rqsReqId, accrNo, dmSeqno, fileName, imageDtoDIAG.getDiagList());
+        List<SurgInfoExchangeDto> surgInfoExchangeDtos = imageDtoDIAG.getSurgList();
+
+        for (SurgInfoExchangeDto surgInfoExchangeDto: surgInfoExchangeDtos){
+            surgInfoExchangeDto.setSurgDate(imageDtoDIAG.getEa0001());
+        }
+        DiagInfoExchangeDto mainDiag = diagInfoExchangeDtos.stream().filter(d -> d.getMnDgnYn().equals("주진단")).findFirst().orElse(null);
+        if (mainDiag != null){
+            for (SurgInfoExchangeDto surgInfoExchangeDto: surgInfoExchangeDtos){
+                surgInfoExchangeDto.setDiagCode(mainDiag.getDsacd());
+            }
+        }
+
+        diagInfoService.save(rqsReqId, accrNo, dmSeqno, fileName, diagInfoExchangeDtos);
+        surgInfoService.save(rqsReqId, accrNo, dmSeqno, fileName, surgInfoExchangeDtos);
 
     }
 

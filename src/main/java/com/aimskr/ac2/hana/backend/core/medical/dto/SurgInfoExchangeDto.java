@@ -19,39 +19,46 @@ public class SurgInfoExchangeDto {
     private String surgName;
     // 수술일자
     private String surgDate;
+    private String diagCode;
 
     public SurgInfoExchangeDto(SurgInfo surgInfo) {
         this.surgName = surgInfo.getSurgName();
         this.surgDate = surgInfo.getSurgDate();
+        this.diagCode = surgInfo.getDiagCode();
     }
 
     public SurgInfo toEntity() {
         return SurgInfo.builder()
                 .surgName(this.surgName)
                 .surgDate(this.surgDate)
+                .diagCode(this.diagCode)
                 .build();
     }
 
-//    public List<ResultItem> toResultItems() {
-//
-//        return List.of(
-//                ResultItem.builder()
-//                        .trmCd("dsacd")
-//                        .trmVal(this.dsacd)
-//                        .build(),
-//                ResultItem.builder()
-//                        .trmCd("mnDgnYn")
-//                        .trmVal(this.mnDgnYn.equals("주진단") ? "1": "0")
-//                        .build(),
-//                ResultItem.builder()
-//                        .trmCd("diagStage")
-//                        .trmVal(this.diagStage.equals("최종") ? "1": "2")
-//                        .build(),
-//                ResultItem.builder()
-//                        .trmCd("diagDate")
-//                        .trmVal(this.diagDate)
-//                        .build()
-//        );
-//
-//    }
+    public List<ResultItem> toResultItems() {
+
+        return List.of(
+                ResultItem.builder()
+                        .trmCd("surgDate")
+                        .trmVal(this.surgDate)
+                        .build(),
+                ResultItem.builder()
+                        .trmCd("surgType1")
+                        .trmVal("")
+                        .build(),
+                ResultItem.builder()
+                        .trmCd("surgType2")
+                        .trmVal("")
+                        .build(),
+                ResultItem.builder()
+                        .trmCd("surgName")
+                        .trmVal(this.surgName)
+                        .build(),
+                ResultItem.builder()
+                        .trmCd("diagCode")
+                        .trmVal(this.diagCode)
+                        .build()
+        );
+
+    }
 }

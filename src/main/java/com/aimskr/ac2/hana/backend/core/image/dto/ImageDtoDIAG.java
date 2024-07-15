@@ -1,6 +1,7 @@
 package com.aimskr.ac2.hana.backend.core.image.dto;
 
 import com.aimskr.ac2.hana.backend.core.medical.dto.DiagInfoExchangeDto;
+import com.aimskr.ac2.hana.backend.core.medical.dto.SurgInfoExchangeDto;
 import lombok.*;
 
 import java.util.List;
@@ -32,8 +33,9 @@ public class ImageDtoDIAG {
     private String da0004; // 진단일
     private String da0005; // 의사명
     private String da0006; // 면허번호
+    private String ea0001; // 수술일자
 
     List<DiagInfoExchangeDto> diagList;
-//    List<String> surgList;
+    List<SurgInfoExchangeDto> surgList;
 
 }

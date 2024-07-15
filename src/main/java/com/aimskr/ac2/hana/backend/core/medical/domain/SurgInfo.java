@@ -33,21 +33,26 @@ public class SurgInfo extends BaseTimeEntity {
     // 파일명
     @Column(length = 255)
     private String fileName;
-    // 주진단여부코드
+    // 수술명
     @Column
     private String surgName;
-    // 임상,최종 여부
+    // 수술일자
     @Column
     private String surgDate;
+    // 주진단코드
+    @Column
+    private String diagCode;
 
     public static SurgInfo of (SurgInfoExchangeDto surgInfoExchangeDto){
 
         return SurgInfo.builder()
                 .surgName(surgInfoExchangeDto.getSurgName())
                 .surgDate(surgInfoExchangeDto.getSurgDate())
+                .diagCode(surgInfoExchangeDto.getDiagCode())
                 .build();
 
     }
+
 
     public void updateKey(String rqsReqId, String accrNo, String dmSeqno, String fileName){
         this.rqsReqId = rqsReqId;

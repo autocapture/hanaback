@@ -53,7 +53,6 @@ public class DiagInfoService {
     public List<DiagInfoExchangeDto> getDiagInfo(String rqsReqId, String fileName) {
 
         List<DiagInfo> diagInfos = diagInfoRepository.findByFileName(rqsReqId, fileName);
-
         return diagInfos.stream().map(DiagInfoExchangeDto::new).toList();
 
     }
@@ -62,7 +61,6 @@ public class DiagInfoService {
     public void save(String rqsReqId, String accrNo, String dmSeqno, String fileName, List<DiagInfoExchangeDto> diagInfoExchangeDtos) {
 
         diagInfoRepository.deleteByAccrNoAndDmSeqnoAndFileName(accrNo, dmSeqno, fileName);
-
 
         for (DiagInfoExchangeDto diagInfoExchangeDto : diagInfoExchangeDtos) {
             DiagInfo diagInfo = diagInfoExchangeDto.toEntity();

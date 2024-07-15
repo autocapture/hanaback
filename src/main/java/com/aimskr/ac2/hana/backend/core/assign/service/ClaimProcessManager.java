@@ -18,7 +18,9 @@ import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
 import com.aimskr.ac2.hana.backend.core.medical.domain.DiagInfo;
 import com.aimskr.ac2.hana.backend.core.medical.domain.DiagInfoRepository;
 import com.aimskr.ac2.hana.backend.core.medical.dto.DiagInfoExchangeDto;
+import com.aimskr.ac2.hana.backend.core.medical.dto.SurgInfoExchangeDto;
 import com.aimskr.ac2.hana.backend.core.medical.service.DiagInfoService;
+import com.aimskr.ac2.hana.backend.core.medical.service.SurgInfoService;
 import com.aimskr.ac2.hana.backend.member.service.AssignRuleService;
 import com.aimskr.ac2.hana.backend.security.service.EmailService;
 import com.aimskr.ac2.hana.backend.vision.dto.VisionResult;
@@ -59,6 +61,7 @@ public class ClaimProcessManager {
     private final AssignRepository assignRepository;
     private final DetailRepository detailRepository;
     private final DiagInfoService diagInfoService;
+    private final SurgInfoService surgInfoService;
     private final DetailService detailService;
 
 
@@ -240,7 +243,9 @@ public class ClaimProcessManager {
             } else if (!image.getDocType().equals(DocType.ETCS)){
 
                 List<ResultItem> detailItems = makeMedResultItems(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
-                List<ResultItem> diagItems = makeDiagResultItems(image.getRqsReqId(), image.getDocType(), image.getFileName());
+                List<ResultItem> diagItems = makeDiagResultItems(image.getRqsReqId(), image.getFileName());
+
+                List<ResultItem> surgItems = makeSurgResultItems(image.getRqsReqId(), image.getFileName());
 
                 List<Detail> details = detailRepository.findByKeyAndFileName(image.getRqsReqId(), image.getAccrNo(), image.getDmSeqno(), image.getFileName());
                 List<Detail> hspDetails = details.stream().filter(detail -> detail.getItemCode().startsWith("HS")).toList();
@@ -248,6 +253,9 @@ public class ClaimProcessManager {
 
                 resultItems.addAll(detailItems);
                 resultItems.addAll(diagItems);
+                if (surgItems.size() > 0){
+                    detailItems.addAll(surgItems);
+                }
                 cntOfDetails++;
             }
             imageResultDto.setPcsRslLst(resultItems);
@@ -316,7 +324,7 @@ public class ClaimProcessManager {
 
     }
 
-    public List<ResultItem> makeDiagResultItems(String rqsReqId, DocType docType, String fileName){
+    public List<ResultItem> makeDiagResultItems(String rqsReqId, String fileName){
         List<ResultItem> resultItems = new ArrayList<>();
         List<DiagInfoExchangeDto> diagInfos = diagInfoService.getDiagInfo(rqsReqId, fileName);
 
@@ -325,7 +333,7 @@ public class ClaimProcessManager {
 
             List<ResultItem> diagResultItems = diagInfo.toResultItems();
             for (ResultItem diagResultItem: diagResultItems){
-                String itemCode = makeDiagItemCode(docType, count, diagResultItem.getTrmCd());
+                String itemCode = makeDiagItemCode(count, diagResultItem.getTrmCd());
                 diagResultItem.setTrmCd(itemCode);
                 resultItems.add(diagResultItem);
             }
@@ -337,7 +345,29 @@ public class ClaimProcessManager {
         return resultItems;
     }
 
-    public String makeDiagItemCode(DocType docType, int count, String itemCode){
+    public List<ResultItem> makeSurgResultItems(String rqsReqId, String fileName){
+        List<ResultItem> resultItems = new ArrayList<>();
+        List<SurgInfoExchangeDto> surgInfos = surgInfoService.getSurgInfo(rqsReqId, fileName);
+
+        int count = 0;
+        for (SurgInfoExchangeDto surgInfo: surgInfos){
+
+            List<ResultItem> surgResultItems = surgInfo.toResultItems();
+            for (ResultItem surgResultItem: surgResultItems){
+                String itemCode = makeSurgItemCode(count, surgResultItem.getTrmCd());
+                surgResultItem.setTrmCd(itemCode);
+                resultItems.add(surgResultItem);
+            }
+
+            count++;
+
+        }
+
+        return resultItems;
+    }
+
+
+    public String makeDiagItemCode(int count, String itemCode){
 
         String prefix = "DA";
         int codeSequence = 1;
@@ -350,6 +380,29 @@ public class ClaimProcessManager {
             codeSequence = 3;
         } else if (itemCode.equals("diagDate")){
             codeSequence = 4;
+        }
+
+        int finalSequence = count * 100 + (codeSequence);
+
+        return String.format("%s%04d", prefix, finalSequence);
+
+    }
+
+    public String makeSurgItemCode(int count, String itemCode){
+
+        String prefix = "EA";
+        int codeSequence = 1;
+
+        if (itemCode.equals("surgDate")){
+            codeSequence = 1;
+        } else if (itemCode.equals("surgType1")){
+            codeSequence = 2;
+        } else if (itemCode.equals("surgType2")){
+            codeSequence = 3;
+        } else if (itemCode.equals("surgName")){
+            codeSequence = 4;
+        } else if (itemCode.equals("diagCode")){
+            codeSequence = 5;
         }
 
         int finalSequence = count * 100 + (codeSequence);
