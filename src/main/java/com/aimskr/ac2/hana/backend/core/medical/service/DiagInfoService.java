@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,7 +49,7 @@ public class DiagInfoService {
 
     }
 
-    public List<DiagInfoExchangeDto> getDiagInfo(String rqsReqId, String fileName) {
+    public List<DiagInfoExchangeDto> getDiagInfoDto(String rqsReqId, String fileName) {
 
         List<DiagInfo> diagInfos = diagInfoRepository.findByFileName(rqsReqId, fileName);
         return diagInfos.stream().map(DiagInfoExchangeDto::new).toList();
@@ -70,4 +69,9 @@ public class DiagInfoService {
         }
     }
 
+    public List<DiagInfo> getDiagInfos(String accrNo, String dmSeqno, String fileName) {
+        return diagInfoRepository.findByAccrNoAndDmSeqnoAndFileName(accrNo, dmSeqno, fileName);
+
+
+    }
 }

@@ -2,7 +2,9 @@ package com.aimskr.ac2.hana.backend.vision.util;
 
 import com.aimskr.ac2.hana.backend.channel.json.ImgFileInfoDto;
 import com.aimskr.ac2.hana.backend.channel.json.ImportDto;
+import com.aimskr.ac2.hana.backend.core.medical.domain.DiagInfo;
 import com.aimskr.ac2.hana.backend.core.medical.dto.HospitalResponseDto;
+import com.aimskr.ac2.hana.backend.core.medical.service.DiagInfoService;
 import com.aimskr.ac2.hana.backend.core.medical.service.HospitalService;
 import com.aimskr.ac2.hana.backend.util.service.CacheService;
 import com.aimskr.ac2.hana.backend.vision.domain.AiDetail;
@@ -26,6 +28,7 @@ import java.util.List;
 public class InputVerifier {
 
     private final AiDetailRepository aiDetailRepository;
+    private final DiagInfoService diagInfoService;
     private final HospitalService hospitalService;
 
     @Transactional
@@ -50,6 +53,17 @@ public class InputVerifier {
         if (docType.name().startsWith("MD")){
 
             aiDetails = verifyMedInfo(aiDetails, importDto.getAcdNo(), importDto.getRctSeq(), fileName, docType);
+            AiDetail diagDateDetail = aiDetails.stream().filter(aiDetail -> aiDetail.getItemCode().equals(ItemType.MDDG_DIAG_DATE.getItemCode()))
+                    .findFirst().orElse(null);
+
+            if (diagDateDetail != null){
+                List<DiagInfo> diagInfos = diagInfoService.getDiagInfos(accrNo, dmSeqno, fileName);
+                for (DiagInfo diagInfo: diagInfos){
+
+                    diagInfo.updateDiagDate(diagDateDetail.getItemValue());
+
+                }
+            }
 
         } else if (docType.equals(DocType.CIPS)){
             aiDetails = verifyCIPSInfo(aiDetails, importDto.getAcdNo(), importDto.getRctSeq(), fileName, docType);

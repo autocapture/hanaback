@@ -11,4 +11,6 @@ public interface DiagInfoRepository extends JpaRepository<DiagInfo, Long> {
     List<DiagInfo> findByFileName(String rqsReqId, String fileName);
 
     void deleteByAccrNoAndDmSeqnoAndFileName(String accrNo, String dmSeqno, String fileName);
+
+    List<DiagInfo> findByAccrNoAndDmSeqnoAndFileName(String accrNo, String dmSeqno, String fileName);
 }

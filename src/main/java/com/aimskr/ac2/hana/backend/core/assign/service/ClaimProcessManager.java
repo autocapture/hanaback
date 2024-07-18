@@ -15,8 +15,6 @@ import com.aimskr.ac2.hana.backend.core.detail.domain.DetailRepository;
 import com.aimskr.ac2.hana.backend.core.detail.service.DetailService;
 import com.aimskr.ac2.hana.backend.core.image.dto.ImageResponseDto;
 import com.aimskr.ac2.hana.backend.core.image.service.ImageService;
-import com.aimskr.ac2.hana.backend.core.medical.domain.DiagInfo;
-import com.aimskr.ac2.hana.backend.core.medical.domain.DiagInfoRepository;
 import com.aimskr.ac2.hana.backend.core.medical.dto.DiagInfoExchangeDto;
 import com.aimskr.ac2.hana.backend.core.medical.dto.SurgInfoExchangeDto;
 import com.aimskr.ac2.hana.backend.core.medical.service.DiagInfoService;
@@ -254,7 +252,7 @@ public class ClaimProcessManager {
                 resultItems.addAll(detailItems);
                 resultItems.addAll(diagItems);
                 if (surgItems.size() > 0){
-                    detailItems.addAll(surgItems);
+                    resultItems.addAll(surgItems);
                 }
                 cntOfDetails++;
             }
@@ -326,7 +324,7 @@ public class ClaimProcessManager {
 
     public List<ResultItem> makeDiagResultItems(String rqsReqId, String fileName){
         List<ResultItem> resultItems = new ArrayList<>();
-        List<DiagInfoExchangeDto> diagInfos = diagInfoService.getDiagInfo(rqsReqId, fileName);
+        List<DiagInfoExchangeDto> diagInfos = diagInfoService.getDiagInfoDto(rqsReqId, fileName);
 
         int count = 0;
         for (DiagInfoExchangeDto diagInfo: diagInfos){

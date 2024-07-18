@@ -66,4 +66,7 @@ public class DiagInfo extends BaseTimeEntity {
         this.fileName = fileName;
     }
 
+    public void updateDiagDate(String diagDate) {
+        this.diagDate = diagDate;
+    }
 }

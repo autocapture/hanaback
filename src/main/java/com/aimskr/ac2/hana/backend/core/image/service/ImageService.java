@@ -297,9 +297,6 @@ public class ImageService {
         detailRepository.save(Detail.create(image, ItemType.MDDG_LICENCE_NO, imageDtoDIAG.getDa0006()));
 
         List<DiagInfoExchangeDto> diagInfoExchangeDtos = imageDtoDIAG.getDiagList();
-        for (DiagInfoExchangeDto diagInfoExchangeDto: diagInfoExchangeDtos){
-            diagInfoExchangeDto.setDiagDate(imageDtoDIAG.getDa0004());
-        }
 
         List<SurgInfoExchangeDto> surgInfoExchangeDtos = imageDtoDIAG.getSurgList();
 

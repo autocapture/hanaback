@@ -28,10 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @SpringBootTest
@@ -123,7 +120,7 @@ public class VisionServiceTest {
 
         diagAutoInputService.autoInputDiags(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), imgFileInfoDto, rows, labelString);
 
-        List<DiagInfoExchangeDto> diags = diagInfoService.getDiagInfo(importDto.getRqsReqId(), filename);
+        List<DiagInfoExchangeDto> diags = diagInfoService.getDiagInfoDto(importDto.getRqsReqId(), filename);
         System.out.println(diags);
 
 //        System.out.println(classifyResult);

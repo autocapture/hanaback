@@ -32,7 +32,7 @@ public class DiagController {
     @GetMapping(value="/get")
     public List<DiagInfoExchangeDto> get(@RequestParam String rqsReqId, @RequestParam String fileName) {
         log.debug("[get] fileName : {}", fileName);
-        return diagInfoService.getDiagInfo(rqsReqId, fileName);
+        return diagInfoService.getDiagInfoDto(rqsReqId, fileName);
     }
 
 }
