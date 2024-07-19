@@ -12,6 +12,7 @@ public enum ImageProcessingResultCode {
     DUPLICATE("P10", "중복이미지"),
     BAD_IMAGE("P20", "입력불가"),
     FTP_ERROR("P30", "이미지오류"),
+    FIBO_ERROR("P31", "피보험자불일치"),
     NOT_SUPPORT("P40", "처리불가확장자");
 
 

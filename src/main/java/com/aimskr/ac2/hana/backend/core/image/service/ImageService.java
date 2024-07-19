@@ -264,7 +264,6 @@ public class ImageService {
 
     @Transactional
     public void updateDIAG(ImageDtoDIAG imageDtoDIAG) {
-
         String rqsReqId = imageDtoDIAG.getRqsReqId();
         String accrNo = imageDtoDIAG.getAccrNo();
         String dmSeqno = imageDtoDIAG.getDmSeqno();
@@ -276,6 +275,10 @@ public class ImageService {
             if (!imageDtoDIAG.getKorDocType().equals(image.getImgType().getKorName())) {
                 log.debug("[updateMDDG] DocType Changed : {}", imageDtoDIAG);
                 image.updateDocType(DocType.getEnumByKorName(imageDtoDIAG.getKorDocType()));
+            }
+            ImageProcessingResultCode resultCode = ImageProcessingResultCode.findByName(imageDtoDIAG.getResultCode());
+            if (resultCode != null) {
+                image.updateImageProcessingResultCode(resultCode);
             }
         }
 
