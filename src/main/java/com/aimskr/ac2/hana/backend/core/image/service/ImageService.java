@@ -295,7 +295,6 @@ public class ImageService {
         detailRepository.save(Detail.create(image, ItemType.HSP_NAME, imageDtoDIAG.getHs0003()));
         detailRepository.save(Detail.create(image, ItemType.HSP_ZIP_CODE, imageDtoDIAG.getHs0004()));
         detailRepository.save(Detail.create(image, ItemType.HSP_ADDRESS, imageDtoDIAG.getHs0005()));
-//        detailRepository.save(Detail.create(image, ItemType.MDDG_DIAG_DATE, imageDtoDIAG.getDa0004()));
         detailRepository.save(Detail.create(image, ItemType.MDDG_DOCTOR_NAME, imageDtoDIAG.getDa0005()));
         detailRepository.save(Detail.create(image, ItemType.MDDG_LICENCE_NO, imageDtoDIAG.getDa0006()));
 
@@ -303,9 +302,6 @@ public class ImageService {
 
         List<SurgInfoExchangeDto> surgInfoExchangeDtos = imageDtoDIAG.getSurgList();
 
-        for (SurgInfoExchangeDto surgInfoExchangeDto: surgInfoExchangeDtos){
-            surgInfoExchangeDto.setSurgDate(imageDtoDIAG.getEa0001());
-        }
         DiagInfoExchangeDto mainDiag = diagInfoExchangeDtos.stream().filter(d -> d.getMnDgnYn().equals("주진단")).findFirst().orElse(null);
         if (mainDiag != null){
             for (SurgInfoExchangeDto surgInfoExchangeDto: surgInfoExchangeDtos){
