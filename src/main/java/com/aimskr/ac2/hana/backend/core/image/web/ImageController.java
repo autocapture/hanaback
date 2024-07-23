@@ -30,21 +30,21 @@ public class ImageController {
         return imageService.findByFileName(rqsReqId, fileName);
     }
 
-    @Operation(summary = "이미지 정보 수정 - 항공권", description = "항공권 및 항목값을 전달하여 수정", tags = "Image")
+    @Operation(summary = "이미지 정보 수정 - 자부상", description = "자부상 관련 항목값을 전달하여 수정", tags = "Image")
     @PostMapping(value="/update/CIPS")
     public void updateCIPS(@RequestBody ImageDtoCIPS imageDtoCIPS) {
         log.debug("[updateCIPS] ImageDtoCIPS : {}", imageDtoCIPS);
         imageService.updateCIPS(imageDtoCIPS);
     }
 
-    @Operation(summary = "이미지 정보 수정 - 항공권", description = "항공권 및 항목값을 전달하여 수정", tags = "Image")
+    @Operation(summary = "이미지 정보 수정 - 진단/수술", description = "진단서 관련 항목값을 전달하여 수정", tags = "Image")
     @PostMapping(value="/update/DIAG")
     public void updateDIAG(@RequestBody ImageDtoDIAG imageDtoDIAG) {
-        log.debug("[updateCIPS] ImageDtoCIPS : {}", imageDtoDIAG);
+        log.debug("[updateDIAG] ImageDtoDIAG : {}", imageDtoDIAG);
         imageService.updateDIAG(imageDtoDIAG);
     }
 
-    @Operation(summary = "이미지 정보 수정 - 기타", description = "기타영수증을 전달하여 수정", tags = "Image")
+    @Operation(summary = "이미지 정보 수정 - 기타", description = "기타 서류를 전달하여 수정", tags = "Image")
     @PostMapping(value="/update/ETCS")
     public void updateETCS(@RequestBody ImageDtoETCS imageDtoETCS) {
         log.debug("[updateETCS] ImageDtoETCS : {}", imageDtoETCS);

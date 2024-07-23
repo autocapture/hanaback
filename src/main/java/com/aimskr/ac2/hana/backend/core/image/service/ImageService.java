@@ -270,10 +270,10 @@ public class ImageService {
         String fileName = imageDtoDIAG.getFileName();
         Image image = imageRepository.findByFileName(rqsReqId, fileName).orElse(null);
         if (image == null) {
-            log.error("[updateMDDG] image is null, fileName : {}", fileName);
+            log.error("[updateDIAG] image is null, fileName : {}", fileName);
         } else {
             if (!imageDtoDIAG.getKorDocType().equals(image.getImgType().getKorName())) {
-                log.debug("[updateMDDG] DocType Changed : {}", imageDtoDIAG);
+                log.debug("[updateDIAG] DocType Changed : {}", imageDtoDIAG);
                 image.updateDocType(DocType.getEnumByKorName(imageDtoDIAG.getKorDocType()));
             }
             ImageProcessingResultCode resultCode = ImageProcessingResultCode.findByName(imageDtoDIAG.getResultCode());

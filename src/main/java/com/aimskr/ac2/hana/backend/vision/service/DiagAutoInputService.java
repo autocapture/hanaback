@@ -100,9 +100,7 @@ public class DiagAutoInputService {
 
             String diagCode = diagCodeRaw.substring(0, 1) + nums;
 
-            log.debug("diagCode : {}", diagCode);
             KcdResponseDto kcd = diagInfoService.findKcdName(diagCode);
-            log.debug("kcd:" + kcd);
             if (kcd != null) {
 
                 if (count > 0){
