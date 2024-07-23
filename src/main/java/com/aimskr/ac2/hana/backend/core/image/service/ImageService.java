@@ -300,17 +300,17 @@ public class ImageService {
 
         List<DiagInfoExchangeDto> diagInfoExchangeDtos = imageDtoDIAG.getDiagList();
 
-        List<SurgInfoExchangeDto> surgInfoExchangeDtos = imageDtoDIAG.getSurgList();
-
-        DiagInfoExchangeDto mainDiag = diagInfoExchangeDtos.stream().filter(d -> d.getMnDgnYn().equals("주진단")).findFirst().orElse(null);
-        if (mainDiag != null){
-            for (SurgInfoExchangeDto surgInfoExchangeDto: surgInfoExchangeDtos){
-                surgInfoExchangeDto.setDiagCode(mainDiag.getDsacd());
-            }
-        }
+//        List<SurgInfoExchangeDto> surgInfoExchangeDtos = imageDtoDIAG.getSurgList();
+//
+//        DiagInfoExchangeDto mainDiag = diagInfoExchangeDtos.stream().filter(d -> d.getMnDgnYn().equals("주진단")).findFirst().orElse(null);
+//        if (mainDiag != null){
+//            for (SurgInfoExchangeDto surgInfoExchangeDto: surgInfoExchangeDtos){
+//                surgInfoExchangeDto.setDiagCode(mainDiag.getDsacd());
+//            }
+//        }
 
         diagInfoService.save(rqsReqId, accrNo, dmSeqno, fileName, diagInfoExchangeDtos);
-        surgInfoService.save(rqsReqId, accrNo, dmSeqno, fileName, surgInfoExchangeDtos);
+//        surgInfoService.save(rqsReqId, accrNo, dmSeqno, fileName, surgInfoExchangeDtos);
 
     }
 

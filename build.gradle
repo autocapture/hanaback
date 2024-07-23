@@ -22,7 +22,7 @@ dependencyManagement {
 }
 
 bootJar {
-    archiveFileName = "hana-1.1.5.jar"
+    archiveFileName = "hana-1.1.6.jar"
 }
 
 java {
