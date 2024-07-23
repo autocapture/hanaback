@@ -202,7 +202,7 @@ public class ClaimProcessManager {
             log.info("'[All ETCS] autoReturn result : {}", resultDto);
             qaOwner = "AIP";
             assignService.applyQaAssign(importDto, qaOwner);
-//            assignService.finishWithAIP(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
+            assignService.finishWithAIP(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), resultDto);
         }
         // 1개라도 CIPS가 있거나, FTP_ERROR가 있었다면
         else {
