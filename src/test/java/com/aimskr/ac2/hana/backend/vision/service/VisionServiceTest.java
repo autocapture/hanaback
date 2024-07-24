@@ -158,6 +158,16 @@ public class VisionServiceTest {
         }
     }
 
+    @Test
+    public void calcImageSize(){
+
+        String filename = "2024072412284490.jpg";
+        String orgPath = "src/test/resources/image/";
+
+        imageProcessor.resizeImage(orgPath + filename);
+
+    }
+
 
 
 }

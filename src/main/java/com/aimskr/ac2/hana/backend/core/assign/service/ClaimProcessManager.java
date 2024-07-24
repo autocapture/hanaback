@@ -134,6 +134,11 @@ public class ClaimProcessManager {
 
                 // 문서 분류와 합쳐져있음
                 visionResult = retryService.autoInput(imgPath, importDto, imgFileInfoDto);
+
+                // 이미지 리사이징
+                String acPath = fileUtil.calcAcFilePath(importDto, imgFileInfoDto);
+                imageProcessor.resizeImage(acPath);
+
                 detailService.saveDetailFromAiDetails(importDto.getRqsReqId(), importDto.getAcdNo(), importDto.getRctSeq(), FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm()));
 
 //                phoneRepairService.saveDetailFromAiDetails(importDto.getAcdNo(), importDto.getRctSeq(), FileUtil.changeExtToJpg(imgFileInfoDto.getImgFileNm()));

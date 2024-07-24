@@ -60,6 +60,49 @@ public class RuleOrganizer {
         claimRules.get(DocType.MDDG).add(mddgDoctorNameRule);
         claimRules.get(DocType.MDDG).add(mddgLicenseNoRule);
 
+        claimRules.put(DocType.MDOP, new ArrayList<>());
+        claimRules.get(DocType.MDOP).add(mddgBizNameRule);
+        claimRules.get(DocType.MDOP).add(mddgDiagDateRule);
+        claimRules.get(DocType.MDOP).add(mddgDoctorNameRule);
+        claimRules.get(DocType.MDOP).add(mddgLicenseNoRule);
+
+
+        claimRules.put(DocType.MDSR, new ArrayList<>());
+        claimRules.get(DocType.MDSR).add(mddgBizNameRule);
+        claimRules.get(DocType.MDSR).add(mddgDiagDateRule);
+        claimRules.get(DocType.MDSR).add(mddgDoctorNameRule);
+        claimRules.get(DocType.MDSR).add(mddgLicenseNoRule);
+
+        claimRules.put(DocType.MDIC, new ArrayList<>());
+        claimRules.get(DocType.MDIC).add(mddgBizNameRule);
+        claimRules.get(DocType.MDIC).add(mddgDiagDateRule);
+        claimRules.get(DocType.MDIC).add(mddgDoctorNameRule);
+        claimRules.get(DocType.MDIC).add(mddgLicenseNoRule);
+
+        claimRules.put(DocType.MDOC, new ArrayList<>());
+        claimRules.get(DocType.MDOC).add(mddgBizNameRule);
+        claimRules.get(DocType.MDOC).add(mddgDiagDateRule);
+        claimRules.get(DocType.MDOC).add(mddgDoctorNameRule);
+        claimRules.get(DocType.MDOC).add(mddgLicenseNoRule);
+
+        claimRules.put(DocType.MDPH, new ArrayList<>());
+        claimRules.get(DocType.MDPH).add(mddgBizNameRule);
+        claimRules.get(DocType.MDPH).add(mddgDiagDateRule);
+        claimRules.get(DocType.MDPH).add(mddgDoctorNameRule);
+        claimRules.get(DocType.MDPH).add(mddgLicenseNoRule);
+
+        claimRules.put(DocType.MDEC, new ArrayList<>());
+        claimRules.get(DocType.MDEC).add(mddgBizNameRule);
+        claimRules.get(DocType.MDEC).add(mddgDiagDateRule);
+        claimRules.get(DocType.MDEC).add(mddgDoctorNameRule);
+        claimRules.get(DocType.MDEC).add(mddgLicenseNoRule);
+
+        claimRules.put(DocType.SRRC, new ArrayList<>());
+        claimRules.get(DocType.SRRC).add(mddgBizNameRule);
+        claimRules.get(DocType.SRRC).add(mddgDiagDateRule);
+        claimRules.get(DocType.SRRC).add(mddgDoctorNameRule);
+        claimRules.get(DocType.SRRC).add(mddgLicenseNoRule);
+
         claimRules.put(DocType.CIPS, new ArrayList<>());
         claimRules.get(DocType.CIPS).add(cipsInsComRule);
         claimRules.get(DocType.CIPS).add(cipsInjGrdRule);

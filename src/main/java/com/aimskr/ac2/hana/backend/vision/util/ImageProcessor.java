@@ -234,4 +234,56 @@ public class ImageProcessor {
         return bi2;
     }
 
+    public void resizeImage(String acPath) {
+
+
+        File originImage = new File(acPath);
+
+        try{
+            BufferedImage readedImage = ImageIO.read(originImage);
+
+            if (readedImage == null) return;
+            if (readedImage.getWidth() < 1000 && readedImage.getHeight() < 1000){
+                log.debug("[resizeImage] image is too small to resize. [{}x{}]", readedImage.getWidth(), readedImage.getHeight());
+                return;
+            }
+
+            double ratio = readedImage.getHeight() / 1000.0;
+
+            System.err.println("ratio: " + ratio);
+            System.err.println("Height:" + readedImage.getHeight());
+            System.err.println("Width:" + readedImage.getWidth());
+            int newWidth = (int) (readedImage.getWidth() / ratio);
+            int newHeight = (int) (readedImage.getHeight() / ratio);
+
+            System.err.println("newWidth: " + newWidth);
+            System.err.println("newHeight: " + newHeight);
+
+            Image tmpImage = readedImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+            BufferedImage resizedImage  = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+
+            Graphics2D g2d = resizedImage.createGraphics();
+            g2d.drawImage(tmpImage, 0, 0, null);
+            g2d.dispose();
+
+            File output = new File(acPath);
+
+            if(output.createNewFile()){    //파일이 생성되는 시점
+                System.out.println("파일이 생성되었습니다.");
+            }else {
+                System.out.println("파일을 생성하지 못했습니다.");
+            }
+
+
+            System.out.println("output = " + output);
+            ImageIO.write(resizedImage, "jpg", output);
+            System.out.println("DONE");
+
+        } catch(IOException e){
+            e.printStackTrace();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
 }

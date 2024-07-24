@@ -112,17 +112,6 @@ public class ImageService {
         }
     }
 
-    @Transactional
-    public void updateDuplicity(String rqsReqId, String receiptNo, String receiptSeq, String fileName, String duppedFile){
-        Image image = imageRepository.findByKeyAndFileName(rqsReqId, receiptNo, receiptSeq, fileName).orElse(null);
-
-        if (image != null){
-            image.updateImageProcessingResultCode(ImageProcessingResultCode.DUPLICATE);
-            image.updateDuppedFile(duppedFile);
-        }
-
-    }
-
 //    @Transactional
 //    public void updateImageAccuracy(String accrNo, String dmSeqno, ImageResultDto imageResultDto){
 //
