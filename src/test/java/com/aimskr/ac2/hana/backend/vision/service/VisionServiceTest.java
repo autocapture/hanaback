@@ -73,14 +73,14 @@ public class VisionServiceTest {
     @Test
     public void testVision() {
 
-        String filename = "3024070910105200.jpg";
+        String filename = "2024051017405704.jpg";
 
         ImportDto importDto = ImportDto.builder()
                 .rqsReqId("aaa")
-                .acdNo("202497246")
-                .rctSeq("1")
+                .acdNo("202467863")
+                .rctSeq("2")
                 .acdDt("")
-                .reqDtm("202407100001235")
+                .reqDtm("202407250001235")
                 .build();
 
         ImgFileInfoDto imgFileInfoDto = ImgFileInfoDto.builder()

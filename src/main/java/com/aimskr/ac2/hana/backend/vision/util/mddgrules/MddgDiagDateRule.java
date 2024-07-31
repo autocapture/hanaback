@@ -64,7 +64,11 @@ public class MddgDiagDateRule extends ClaimRule {
                 String tBoxValue = tBox.getLabel();
                 String tBoxDigit = tBoxValue.replaceAll("[^0-9]", "");
                 while (tBoxDigit.length() > 0 && tBoxDigit.length() <= 6 && tBoxIdx + 1 < targetBoxes.size()) {
-                    tBox.join(targetBoxes.get(tBoxIdx + 1));
+
+                    if (tBox.getLeft() < targetBoxes.get(tBoxIdx + 1).getLeft()) {
+                        tBox.join(targetBoxes.get(tBoxIdx + 1));
+                    }
+
                     tBoxIdx++;
                 }
 

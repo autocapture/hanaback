@@ -45,9 +45,12 @@ public class MddgBizNameRule extends ClaimRule {
         if (identifierBox != null) {
 
             bizNameBox = boxList.stream()
-                    .filter(box -> (box.getRowId() == identifierBox.getRowId() || box.getRowId() == identifierBox.getRowId() + 1)  && box.getLeft() > identifierBox.getRight() && Arrays.asList(bizNameKeyword).stream().anyMatch(box.getLabel()::contains))
+                    .filter(box -> (box.getRowId() == identifierBox.getRowId() || box.getRowId() == identifierBox.getRowId() + 1)  &&
+                            (box.getLeft() > identifierBox.getRight() || box.getLeft() == identifierBox.getLeft()) &&
+                            Arrays.asList(bizNameKeyword).stream().anyMatch(box.getLabel()::contains))
                     .findFirst()
                     .orElse(null);
+            log.debug("[MDDGBizNameRule: bizNameBox: {}", bizNameBox);
 
         } else{
             log.debug("[MDDGBizNameRule: No identifier box found");
@@ -59,8 +62,11 @@ public class MddgBizNameRule extends ClaimRule {
 
         if (bizNameBox != null){
             bizName = bizNameBox.getLabel();
+            bizName = bizName.replace("의료기관명칭", "");
+            bizName = bizName.replaceAll("[^가-힣0-9a-zA-Z]", "");
         }
 
+        log.debug("[MDDGBizNameRule: bizName: {}", bizName);
 
         setItemValue(bizName);
         setAccuracy(getAccuracy(boxList, bizName));

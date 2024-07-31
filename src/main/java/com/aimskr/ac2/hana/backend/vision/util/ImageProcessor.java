@@ -268,13 +268,6 @@ public class ImageProcessor {
 
             File output = new File(acPath);
 
-            if(output.createNewFile()){    //파일이 생성되는 시점
-                System.out.println("파일이 생성되었습니다.");
-            }else {
-                System.out.println("파일을 생성하지 못했습니다.");
-            }
-
-
             System.out.println("output = " + output);
             ImageIO.write(resizedImage, "jpg", output);
             System.out.println("DONE");
